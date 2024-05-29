@@ -23,7 +23,7 @@ github_url: https://github.com/JokesLin
 # 网站 about 链接（可选）
 about_url: 
 # 提交链接的 URL
-link_submission_url: https://axutongxue.com/
+link_submission_url: https://www.sousuoyinqingtijiao.com/
 # 网站友情链接（可选）
 friendship_links_url: 
 # Google Analytics Code（可选）
@@ -84,12 +84,36 @@ categories:
         description:
         tags:
 
+categories:
+  - category: 搜索引擎
+    icon: linecons-star
+    links:
+      - title: Google
+        logo: 
+        url: https://www.google.com/
+        description:
+        tags:
+      - title: Bing
+        logo: 
+        url: https://www.bing.com/
+        description:
+        tags:
+      - title: Quark
+        logo: 
+        url: https://123.quark.cn/
+        description: 
+        tags:
+      - title: chatGPT
+        logo: 
+        url: https://chat.openai.com/
+        description:
+        tags:
+
   - category: 网盘
-    hide_menu: true
     icon: linecons-star
     links:
       - title: 百度网盘
-        logo: 
+        logo:
         url: https://pan.baidu.com/
         description:
         tags:
@@ -139,28 +163,44 @@ categories:
         logo: 
         url: https://gaze.run/
         description: 
+      - title: 奈飞工厂
+        logo: 
+        url: https://www.netflixgc.com/
+        description:
+      - title: 爱看影院
+        logo: 
+        url: https://www.92kyy.com/
+        description: 
+      - title: 新视觉影视
+        logo: 
+        url: https://www.6080dy2.com/
+        description: 
+      - title: 大米星球
+        logo: 
+        url: https://www.dmxq.fun/
+        description: 
 
-  - category: 还未想好
+  - category: 网盘磁力资源
     icon: linecons-doc
     links:
-      - title: 等你来加➕
+      - title: 钛聚网
         logo: data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" x="0.1em" font-size="90">G</text></svg>
-        url: https://github.com/geneasy/nav/issues
-        description: 快来提交你的网站吧
-      - title: 等你来加➕
+        url: https://www.taijuwang.cc/
+        description: 
+      - title: Bittorrent Site
         logo: data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" x="0.1em" font-size="90">G</text></svg>
-        url: https://github.com/geneasy/nav/issues
-        description: 快来提交你的网站吧
-      - title: 等你来加➕
+        url: https://thepiratebay.org/index.html
+        description: 
+      - title: Sefan
         logo: data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" x="0.1em" font-size="90">G</text></svg>
-        url: https://github.com/geneasy/nav/issues
-        description: 快来提交你的网站吧
-      - title: 等你来加➕
+        url: https://wr.sefan.cc/
+        description: 
+      - title: Bt联盟
         logo: data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="0.9em" x="0.1em" font-size="90">G</text></svg>
-        url: https://github.com/geneasy/nav/issues
-        description: 快来提交你的网站吧
+        url: https://sk.btlm.one/
+        description: 
 
-  - category: 也未想好
+  - category: 未想好
     icon: linecons-doc
     links:
       - title: 等你来加➕
@@ -181,6 +221,54 @@ categories:
         description: 快来提交你的网站吧
 
   - category: 仍没想好
+    icon: linecons-doc
+    links:
+      - title: 
+        logo: 
+        url: 
+        description:
+        tags:
+      - title: 
+        logo: 
+        url: 
+        description:
+        tags: 
+      - title: 
+        logo: 
+        url: 
+        description: 
+        tags:
+      - title: 
+        logo: 
+        url: 
+        description:
+        tags:
+
+- category: 没想好2
+    icon: linecons-doc
+    links:
+      - title: 
+        logo: 
+        url: 
+        description:
+        tags:
+      - title: 
+        logo: 
+        url: 
+        description:
+        tags: 
+      - title: 
+        logo: 
+        url: 
+        description: 
+        tags:
+      - title: 
+        logo: 
+        url: 
+        description:
+        tags:
+
+- category: 没想好3
     icon: linecons-doc
     links:
       - title: 
