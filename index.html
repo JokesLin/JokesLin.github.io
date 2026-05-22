@@ -640,10 +640,15 @@ a { color: inherit; text-decoration: none; }
   var API = 'https://api.github.com';
   var sha = null;
   var COLORS = ['#6c63ff','#f093fb','#4facfe','#2ecc71','#e74c3c','#f39c12','#1abc9c','#3498db','#9b59b6','#e67e22','#1e3c72','#c31432'];
-  var appData = {deleted:[], custom:[]};
+  var appData = (function(){ try { return JSON.parse(localStorage.getItem('jokelin-nav')) || {deleted:[],custom:[]}; } catch(e){ return {deleted:[],custom:[]}; } })();
 
   function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
-  function b64d(s){ return decodeURIComponent(escape(atob(s.replace(/\n/g,'')))); }
+  function b64d(s){ return decodeURIComponent(escape(atob(s.replace(/
+/g,'')))); }
+
+  function saveLocal(data){
+    try { localStorage.setItem('jokelin-nav', JSON.stringify(data)); } catch(e){}
+  }
 
   function toast(msg){
     var t = document.getElementById('toast');
@@ -656,20 +661,23 @@ a { color: inherit; text-decoration: none; }
       headers: {'Authorization':'Bearer '+TOKEN}
     }).then(function(r){
       if(r.status === 404) return {deleted:[],custom:[]};
-      return r.json().then(function(d){ sha = d.sha; return JSON.parse(b64d(d.content)); });
-    }).catch(function(){ return null; });
+      return r.json().then(function(d){ sha = d.sha; var data = JSON.parse(b64d(d.content)); saveLocal(data); return data; });
+    }).catch(function(){
+      try { return JSON.parse(localStorage.getItem('jokelin-nav')) || {deleted:[],custom:[]}; } catch(e){ return {deleted:[],custom:[]}; }
+    });
   }
 
   function saveData(data){
+    saveLocal(data);
     var body = {message:'update nav data', content:b64e(JSON.stringify(data))};
     if(sha) body.sha = sha;
     return fetch(API+'/repos/'+OWNER+'/'+REPO+'/contents/'+FPATH, {
       method:'PUT', headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
       body:JSON.stringify(body)
     }).then(function(r){ return r.json(); }).then(function(d){
-      if(d.content) sha = d.content.sha; return d;
-    });
-  }
+      if(d.content) sha = d.content.sha; saveLocal(data); return d;
+    }).catch(function(){ return null; });
+  }}
 
   // Build section map
   var secMap = {};
