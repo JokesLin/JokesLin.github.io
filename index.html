@@ -547,6 +547,31 @@ a { color: inherit; text-decoration: none; }
   </div>
 </div>
 
+<button class="fab" id="addBtn" title="添加书签">+</button>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>添加书签</h3>
+    <label>网站名称</label>
+    <input type="text" id="inputName" placeholder="例如：百度">
+    <label>网址</label>
+    <input type="text" id="inputUrl" placeholder="https://example.com">
+    <label>图标字母</label>
+    <input type="text" id="inputIcon" placeholder="B" maxlength="3" style="width:80px">
+    <label>分类</label>
+    <select id="inputSection"></select>
+    <label>图标颜色</label>
+    <div class="color-picker" id="colorPicker"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="modalCancel">取消</button>
+      <button class="btn-danger" id="resetBtn" style="margin-right:auto">重置默认</button>
+      <button class="btn-primary" id="modalSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
 (function(){
   var overlay = document.getElementById('loginOverlay');
@@ -798,31 +823,6 @@ a { color: inherit; text-decoration: none; }
   });
 })();
 </script>
-
-<button class="fab" id="addBtn" title="添加书签">+</button>
-
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <h3>添加书签</h3>
-    <label>网站名称</label>
-    <input type="text" id="inputName" placeholder="例如：百度">
-    <label>网址</label>
-    <input type="text" id="inputUrl" placeholder="https://example.com">
-    <label>图标字母</label>
-    <input type="text" id="inputIcon" placeholder="B" maxlength="3" style="width:80px">
-    <label>分类</label>
-    <select id="inputSection"></select>
-    <label>图标颜色</label>
-    <div class="color-picker" id="colorPicker"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" id="modalCancel">取消</button>
-      <button class="btn-danger" id="resetBtn" style="margin-right:auto">重置默认</button>
-      <button class="btn-primary" id="modalSave">保存</button>
-    </div>
-  </div>
-</div>
-
-<div class="toast" id="toast"></div>
 
 </body>
 </html>
