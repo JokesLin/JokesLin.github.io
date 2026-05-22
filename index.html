@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joke Lin's Navigation</title>
+<style>
+:root {
+  --sidebar-width: 240px;
+  --bg-primary: #0f0f1a;
+  --bg-card: rgba(255,255,255,0.06);
+  --border-card: rgba(255,255,255,0.1);
+  --text-primary: #e8e8f0;
+  --text-secondary: #9999b3;
+  --accent-1: #6c63ff;
+  --accent-2: #f093fb;
+  --accent-3: #4facfe;
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.3);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+
+/* Sidebar */
+.sidebar {
+  position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh;
+  background: linear-gradient(180deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
+  z-index: 1000; overflow-y: auto; overflow-x: hidden;
+  transition: transform .3s ease;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+.sidebar-header {
+  padding: 30px 20px 20px; text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.avatar {
+  width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 12px;
+  background: linear-gradient(135deg,var(--accent-1),var(--accent-2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 700; color: #fff;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+.sidebar-header h2 { font-size: 16px; font-weight: 600; }
+.sidebar-header p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+.sidebar-nav { padding: 12px 0; }
+.sidebar-nav a {
+  display: flex; align-items: center; padding: 10px 20px;
+  font-size: 13px; color: var(--text-secondary); transition: all .2s;
+  border-left: 3px solid transparent;
+}
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  color: #fff; background: rgba(108,99,255,0.12); border-left-color: var(--accent-1);
+}
+.sidebar-nav a .icon { width: 20px; margin-right: 10px; text-align: center; font-size: 14px; }
+
+/* Main Content */
+.main { margin-left: var(--sidebar-width); padding: 30px 40px 60px; max-width: 1400px; }
+.section { margin-bottom: 40px; }
+.section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 18px; font-weight: 600; margin-bottom: 20px; padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.section-title .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg,var(--accent-1),var(--accent-2));
+}
+.cards { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 12px; }
+.card {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: 12px; padding: 14px 16px;
+  transition: all .25s ease; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+}
+.card:hover {
+  background: rgba(255,255,255,0.1); transform: translateY(-2px);
+  box-shadow: var(--shadow-card); border-color: rgba(108,99,255,0.3);
+}
+.card-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; font-weight: 600;
+}
+.card-body { min-width: 0; flex: 1; }
+.card-body .name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.card-body .desc { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+
+/* Mobile toggle */
+.menu-toggle {
+  display: none; position: fixed; top: 12px; left: 12px; z-index: 1100;
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; font-size: 20px; cursor: pointer;
+  align-items: center; justify-content: center;
+}
+.overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 999; opacity: 0; transition: opacity .3s;
+}
+
+/* Social bar */
+.social-bar {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px;
+  padding: 16px 20px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: 14px;
+}
+.social-bar a {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 13px; color: var(--text-secondary);
+  background: rgba(255,255,255,0.04);
+  transition: all .2s;
+}
+.social-bar a:hover { color: #fff; background: rgba(108,99,255,0.2); }
+
+/* Footer */
+.footer {
+  text-align: center; padding: 30px 0 10px;
+  font-size: 12px; color: var(--text-secondary);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+@media (max-width: 768px) {
+  .menu-toggle { display: flex; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .overlay.show { display: block; opacity: 1; }
+  .main { margin-left: 0; padding: 60px 16px 30px; }
+  .cards { grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 10px; }
+  .card { padding: 12px 14px; }
+}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="avatar">J</div>
+    <h2>Joke Lin</h2>
+    <p>网址导航</p>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="#ai" class="active"><span class="icon">🤖</span>AI 工具</a>
+    <a href="#ecommerce"><span class="icon">🛒</span>跨境电商</a>
+    <a href="#paper"><span class="icon">📄</span>论文相关</a>
+    <a href="#campus"><span class="icon">🎓</span>校园</a>
+    <a href="#exam"><span class="icon">📝</span>考研考试</a>
+    <a href="#media"><span class="icon">🎬</span>视听娱乐</a>
+    <a href="#cloud"><span class="icon">☁️</span>网盘</a>
+    <a href="#tech"><span class="icon">🔧</span>技术资源</a>
+    <a href="#graphics"><span class="icon">🎨</span>图形编辑</a>
+    <a href="#torrent"><span class="icon">⚡</span>BT 磁力</a>
+    <a href="#games"><span class="icon">🎮</span>游戏</a>
+    <a href="#network"><span class="icon">🌐</span>网络工具</a>
+  </nav>
+</aside>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- Social Bar -->
+  <div class="social-bar">
+    <a href="https://user.qzone.qq.com/1033361823" target="_blank">💬 QQ空间</a>
+    <a href="https://space.bilibili.com/379827770" target="_blank">📺 B站</a>
+    <a href="https://music.163.com/#/user/home?id=444857272" target="_blank">🎵 网易云</a>
+    <a href="https://tieba.baidu.com/home/main?un=江州一衣带水&fr=home" target="_blank">📋 贴吧</a>
+    <a href="https://www.zhihu.com/people/55-79-23-95-76" target="_blank">💡 知乎</a>
+    <a href="https://www.kuaishou.com/profile/3xdpxrh6y6m648e" target="_blank">📱 快手</a>
+    <a href="https://www.youtube.com/channel/UClunxHYnA1l6nUAMVcS03XA" target="_blank">▶️ YouTube</a>
+    <a href="https://t.me/JokesLin" target="_blank">✈️ Telegram</a>
+    <a href="https://github.com/JokesLin" target="_blank">💻 GitHub</a>
+  </div>
+
+  <!-- AI 工具 -->
+  <div class="section" id="ai">
+    <h2 class="section-title"><span class="dot"></span>AI 工具</h2>
+    <div class="cards">
+      <a class="card" href="https://www.google.com.hk/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4285f4,#34a853)">G</div><div class="card-body"><div class="name">Google</div></div></a>
+      <a class="card" href="https://gemini.google.com/app" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">Ge</div><div class="card-body"><div class="name">Gemini</div></div></a>
+      <a class="card" href="https://chatgpt.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#10a37f,#0d8c6f)">C</div><div class="card-body"><div class="name">ChatGPT</div></div></a>
+      <a class="card" href="https://grok.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#000,#333)">G</div><div class="card-body"><div class="name">Grok</div></div></a>
+      <a class="card" href="https://claude.ai/new" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#6c47ff,#4630b3)">C</div><div class="card-body"><div class="name">Claude</div></div></a>
+      <a class="card" href="https://platform.deepseek.com/usage" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4f6bff,#2d4a8a)">D</div><div class="card-body"><div class="name">DeepSeek</div></div></a>
+    </div>
+  </div>
+
+  <!-- 跨境电商 -->
+  <div class="section" id="ecommerce">
+    <h2 class="section-title"><span class="dot"></span>跨境电商</h2>
+    <div class="cards">
+      <a class="card" href="https://global.lianlianpay.com/signin" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6b6b,#c0392b)">连</div><div class="card-body"><div class="name">连连国际</div></div></a>
+      <a class="card" href="https://erp.91miaoshou.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">妙</div><div class="card-body"><div class="name">妙手ERP</div></div></a>
+      <a class="card" href="https://mail.163.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">@</div><div class="card-body"><div class="name">163邮箱</div></div></a>
+      <a class="card" href="https://seller.shopee.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ee4d2d,#ff6b3d)">S</div><div class="card-body"><div class="name">Shopee卖家中心</div></div></a>
+      <a class="card" href="https://ph.xiapibuy.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">PH</div><div class="card-body"><div class="name">Shopee 菲律宾</div></div></a>
+      <a class="card" href="https://my.xiapibuy.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#9b59b6,#8e44ad)">MY</div><div class="card-body"><div class="name">Shopee 马来西亚</div></div></a>
+      <a class="card" href="https://th.xiapibuy.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">TH</div><div class="card-body"><div class="name">Shopee 泰国</div></div></a>
+      <a class="card" href="https://vn.xiapibuy.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f1c40f,#f39c12)">VN</div><div class="card-body"><div class="name">Shopee 越南</div></div></a>
+      <a class="card" href="https://xiapi.xiapibuy.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">TW</div><div class="card-body"><div class="name">Shopee 台湾</div></div></a>
+      <a class="card" href="https://cl.xiapibuy.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#3498db,#2980b9)">CL</div><div class="card-body"><div class="name">Shopee 智利</div></div></a>
+      <a class="card" href="https://co.xiapibuy.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2ecc71,#27ae60)">CO</div><div class="card-body"><div class="name">Shopee 哥伦比亚</div></div></a>
+      <a class="card" href="https://sg.xiapibuy.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">SG</div><div class="card-body"><div class="name">Shopee 新加坡</div></div></a>
+      <a class="card" href="https://xiapi.xiapibuy.com/pingme095091.tw" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">P</div><div class="card-body"><div class="name">pingme095091</div><div class="desc">Shopee 蝦皮購物</div></div></a>
+    </div>
+  </div>
+
+  <!-- 论文相关 -->
+  <div class="section" id="paper">
+    <h2 class="section-title"><span class="dot"></span>论文相关</h2>
+    <div class="cards">
+      <a class="card" href="https://www.paperyy.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">Y</div><div class="card-body"><div class="name">PaperYY</div><div class="desc">AIGC免费论文检测</div></div></a>
+      <a class="card" href="https://www.paperpass.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">P</div><div class="card-body"><div class="name">PaperPass</div><div class="desc">论文查重降重</div></div></a>
+      <a class="card" href="https://www.aigcleaner.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">AI</div><div class="card-body"><div class="name">嘎嘎降AI</div><div class="desc">AIGCleaner</div></div></a>
+      <a class="card" href="https://ds.carsi.edu.cn/resource/resource.php" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#fa709a,#fee140)">C</div><div class="card-body"><div class="name">CARSI</div></div></a>
+      <a class="card" href="https://sci-hub.gupiaoq.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0c3483,#a2b6df)">S</div><div class="card-body"><div class="name">Sci-Hub</div></div></a>
+      <a class="card" href="https://www.sci-hub.st/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0c3483,#a2b6df)">S2</div><div class="card-body"><div class="name">Sci-Hub (备)</div></div></a>
+      <a class="card" href="https://www.cnki.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#c31432,#240b36)">知</div><div class="card-body"><div class="name">中国知网</div></div></a>
+      <a class="card" href="https://t.ck-ai.co/tool/ggscholar/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4285f4,#34a853)">G</div><div class="card-body"><div class="name">Google学术镜像</div></div></a>
+      <a class="card" href="https://caj.gentleltd.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">C</div><div class="card-body"><div class="name">GentleCAJ</div><div class="desc">CAJ转PDF</div></div></a>
+      <a class="card" href="https://www.lunwendata.com/special/geshi.htm" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">格</div><div class="card-body"><div class="name">标准论文格式模板</div></div></a>
+    </div>
+  </div>
+
+  <!-- 校园 -->
+  <div class="section" id="campus">
+    <h2 class="section-title"><span class="dot"></span>校园</h2>
+    <div class="cards">
+      <a class="card" href="http://222.77.99.243:8091/home.aspx" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1e3c72,#2a5298)">闽</div><div class="card-body"><div class="name">闽南理工学院教务</div></div></a>
+      <a class="card" href="https://vpcs.fanyu.com/personal/mnust" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">维</div><div class="card-body"><div class="name">闽南理工学院维普</div></div></a>
+      <a class="card" href="https://vgms.fanyu.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">毕</div><div class="card-body"><div class="name">维普毕业论文管理</div></div></a>
+      <a class="card" href="https://v8.chaoxing.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">学</div><div class="card-body"><div class="name">学习通</div></div></a>
+      <a class="card" href="https://yjsapp.fafu.edu.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">农</div><div class="card-body"><div class="name">福建农林大学教务</div></div></a>
+      <a class="card" href="http://210.34.84.127/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">校</div><div class="card-body"><div class="name">福建农林大学校园网</div></div></a>
+      <a class="card" href="https://cy.ncss.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">创</div><div class="card-body"><div class="name">全国大学生创业服务网</div></div></a>
+      <a class="card" href="https://www.wjx.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#3498db,#2980b9)">问</div><div class="card-body"><div class="name">问卷星</div></div></a>
+      <a class="card" href="https://ac.zhike.in/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4285f4,#34a853)">谷</div><div class="card-body"><div class="name">谷歌学术导航</div></div></a>
+    </div>
+  </div>
+
+  <!-- 考研考试 -->
+  <div class="section" id="exam">
+    <h2 class="section-title"><span class="dot"></span>考研考试</h2>
+    <div class="cards">
+      <a class="card" href="https://yzst.chsi.com.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#c31432,#240b36)">研</div><div class="card-body"><div class="name">研招网</div></div></a>
+      <a class="card" href="https://ntce.neea.edu.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1e3c72,#2a5298)">N</div><div class="card-body"><div class="name">NTCE 中国教育考试网</div></div></a>
+      <a class="card" href="https://www.chsi.com.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">学</div><div class="card-body"><div class="name">学信网</div></div></a>
+      <a class="card" href="https://www.zgtjnj.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">统</div><div class="card-body"><div class="name">统计年鉴下载站</div></div></a>
+      <a class="card" href="https://gdp.gotohui.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">G</div><div class="card-body"><div class="name">GDP数据</div><div class="desc">聚汇数据</div></div></a>
+      <a class="card" href="https://fzszzb.fzedu.gov.cn:7243/iexam-fuzhou-web/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1abc9c,#16a085)">福</div><div class="card-body"><div class="name">福州市中考中招</div></div></a>
+    </div>
+  </div>
+
+  <!-- 视听娱乐 -->
+  <div class="section" id="media">
+    <h2 class="section-title"><span class="dot"></span>视听娱乐</h2>
+    <div class="cards">
+      <a class="card" href="https://www.libvio.me/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">L</div><div class="card-body"><div class="name">LIBVIO 影视</div></div></a>
+      <a class="card" href="https://gaze.run/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">M</div><div class="card-body"><div class="name">Movie Station</div></div></a>
+      <a class="card" href="https://hdmoli.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">H</div><div class="card-body"><div class="name">HDmoli</div><div class="desc">高清影视</div></div></a>
+      <a class="card" href="http://dilidili4.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1abc9c,#16a085)">D</div><div class="card-body"><div class="name">dilidili 嘀哩嘀哩</div></div></a>
+      <a class="card" href="https://www.gequbao.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">歌</div><div class="card-body"><div class="name">歌曲宝</div></div></a>
+      <a class="card" href="https://www.gequhai.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#3498db,#2980b9)">海</div><div class="card-body"><div class="name">歌曲海</div><div class="desc">MP3免费下载</div></div></a>
+      <a class="card" href="https://zh.z-lib.gs/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">Z</div><div class="card-body"><div class="name">Z-Library</div></div></a>
+      <a class="card" href="https://jmnav.top/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">J</div><div class="card-body"><div class="name">JMNAV</div></div></a>
+    </div>
+  </div>
+
+  <!-- 网盘 -->
+  <div class="section" id="cloud">
+    <h2 class="section-title"><span class="dot"></span>网盘</h2>
+    <div class="cards">
+      <a class="card" href="https://pan.baidu.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0066ff,#003399)">百</div><div class="card-body"><div class="name">百度网盘</div></div></a>
+      <a class="card" href="https://pan.quark.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">夸</div><div class="card-body"><div class="name">夸克网盘</div></div></a>
+      <a class="card" href="https://www.jianguoyun.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">坚</div><div class="card-body"><div class="name">坚果云</div></div></a>
+      <a class="card" href="https://up.woozooo.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0)">蓝</div><div class="card-body"><div class="name">蓝奏云</div></div></a>
+      <a class="card" href="https://i.mi.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6b6b,#c0392b)">米</div><div class="card-body"><div class="name">小米云服务</div></div></a>
+      <a class="card" href="https://www.123pan.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">1</div><div class="card-body"><div class="name">123云盘</div></div></a>
+      <a class="card" href="https://mypikpak.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">P</div><div class="card-body"><div class="name">PikPak</div></div></a>
+      <a class="card" href="https://www.aliyundrive.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6a00,#ee0979)">阿</div><div class="card-body"><div class="name">阿里云盘</div></div></a>
+      <a class="card" href="https://drive.uc.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f60,#ff8c00)">U</div><div class="card-body"><div class="name">UC网盘</div></div></a>
+    </div>
+  </div>
+
+  <!-- 技术资源 -->
+  <div class="section" id="tech">
+    <h2 class="section-title"><span class="dot"></span>技术资源</h2>
+    <div class="cards">
+      <a class="card" href="http://127.0.0.1:9876/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0c3483,#a2b6df)">D</div><div class="card-body"><div class="name">DDNS-GO</div></div></a>
+      <a class="card" href="https://dc.console.aliyun.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6a00,#ee0979)">域</div><div class="card-body"><div class="name">阿里云域名控制台</div></div></a>
+      <a class="card" href="http://localhost:33272/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">皎</div><div class="card-body"><div class="name">皎月连内网穿透</div></div></a>
+      <a class="card" href="https://login.tailscale.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">T</div><div class="card-body"><div class="name">Tailscale</div></div></a>
+      <a class="card" href="https://my.zerotier.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">Z</div><div class="card-body"><div class="name">ZeroTier</div></div></a>
+      <a class="card" href="https://www.itdog.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">I</div><div class="card-body"><div class="name">ITDOG 在线测速</div></div></a>
+      <a class="card" href="https://ipw.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1abc9c,#16a085)">IP</div><div class="card-body"><div class="name">IP查询 / IPv6测试</div></div></a>
+      <a class="card" href="https://buged.cn/archives/12" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">解</div><div class="card-body"><div class="name">IPv6外网无法ping通</div></div></a>
+      <a class="card" href="https://post.smzdm.com/p/awzodmpp/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6b6b,#c0392b)">路</div><div class="card-body"><div class="name">OpenWRT IPv6教程</div></div></a>
+      <a class="card" href="https://www.luyouqi.com/shezhi/3012.html" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0)">桥</div><div class="card-body"><div class="name">光猫桥接设置</div></div></a>
+      <a class="card" href="https://zhuanlan.zhihu.com/p/673820397" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0066ff,#003399)">组</div><div class="card-body"><div class="name">Win11打开组策略</div></div></a>
+      <a class="card" href="https://ipv6ready.me/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">V</div><div class="card-body"><div class="name">IPv6 测试</div></div></a>
+      <a class="card" href="https://www.speedtest.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">测</div><div class="card-body"><div class="name">Speedtest</div></div></a>
+      <a class="card" href="https://github.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#333,#000)">G</div><div class="card-body"><div class="name">GitHub</div></div></a>
+      <a class="card" href="https://greasyfork.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">油</div><div class="card-body"><div class="name">Greasy Fork</div></div></a>
+      <a class="card" href="https://www.airportal.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">A</div><div class="card-body"><div class="name">AirPortal</div></div></a>
+      <a class="card" href="https://haowallpaper.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">壁</div><div class="card-body"><div class="name">哲风壁纸</div><div class="desc">4K高清壁纸</div></div></a>
+      <a class="card" href="https://open.spotify.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1DB954,#191414)">S</div><div class="card-body"><div class="name">Spotify</div></div></a>
+      <a class="card" href="https://jokeslin.github.io/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#6c63ff,#4630b3)">J</div><div class="card-body"><div class="name">Joke Lin's Map</div></div></a>
+    </div>
+  </div>
+
+  <!-- 图形编辑 -->
+  <div class="section" id="graphics">
+    <h2 class="section-title"><span class="dot"></span>图形编辑</h2>
+    <div class="cards">
+      <a class="card" href="https://www.ilovepdf.com/zh-cn" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">P</div><div class="card-body"><div class="name">iLovePDF</div></div></a>
+      <a class="card" href="https://convertio.co/zh/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">C</div><div class="card-body"><div class="name">Convertio 文件转换</div></div></a>
+      <a class="card" href="https://web.baimiaoapp.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">图</div><div class="card-body"><div class="name">图片转文字</div></div></a>
+      <a class="card" href="https://yandex.com/images/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ffcc00,#ff6a00)">搜</div><div class="card-body"><div class="name">以图搜图</div></div></a>
+      <a class="card" href="https://www.aigei.com/tool/audio" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">音</div><div class="card-body"><div class="name">音频修改</div></div></a>
+    </div>
+  </div>
+
+  <!-- BT 磁力 -->
+  <div class="section" id="torrent">
+    <h2 class="section-title"><span class="dot"></span>BT 磁力</h2>
+    <div class="cards">
+      <a class="card" href="https://thepiratebay.org/index.html" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#333,#000)">P</div><div class="card-body"><div class="name">Pirate Bay</div></div></a>
+      <a class="card" href="https://www.yinfans.me/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">影</div><div class="card-body"><div class="name">BT影视下载</div></div></a>
+      <a class="card" href="https://www.btbuluo.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">部</div><div class="card-body"><div class="name">BT部落天堂</div></div></a>
+    </div>
+  </div>
+
+  <!-- 游戏 -->
+  <div class="section" id="games">
+    <h2 class="section-title"><span class="dot"></span>游戏</h2>
+    <div class="cards">
+      <a class="card" href="https://xyg688.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">小</div><div class="card-body"><div class="name">小妖怪分享</div></div></a>
+      <a class="card" href="https://gamdie.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#3498db,#2980b9)">G</div><div class="card-body"><div class="name">Gamdie</div><div class="desc">免费独立游戏</div></div></a>
+      <a class="card" href="https://www.xianyudanji.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1abc9c,#16a085)">咸</div><div class="card-body"><div class="name">咸鱼单机</div></div></a>
+      <a class="card" href="https://www.flysheep6.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">飞</div><div class="card-body"><div class="name">flysheep资源避难所</div></div></a>
+      <a class="card" href="https://byrutgame.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">B</div><div class="card-body"><div class="name">byrutgame</div></div></a>
+      <a class="card" href="https://www.vgter.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">上</div><div class="card-body"><div class="name">上游世界</div><div class="desc">Switch/PS4游戏</div></div></a>
+      <a class="card" href="https://5play.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">5</div><div class="card-body"><div class="name">5play 安卓游戏</div></div></a>
+      <a class="card" href="https://www.cheatslips.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">C</div><div class="card-body"><div class="name">CheatSlips</div><div class="desc">Switch金手指</div></div></a>
+      <a class="card" href="https://www.gamer520.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">S</div><div class="card-body"><div class="name">Switch520</div></div></a>
+      <a class="card" href="https://www.tekqart.cc/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">品</div><div class="card-body"><div class="name">品技论坛 Switch</div></div></a>
+      <a class="card" href="https://www.ns211.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0)">N</div><div class="card-body"><div class="name">ns中文网</div></div></a>
+      <a class="card" href="https://www.steambk.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#171a21,#66c0f4)">蒸</div><div class="card-body"><div class="name">蒸汽游戏宝库</div></div></a>
+      <a class="card" href="https://www.steamgriddb.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#171a21,#66c0f4)">S</div><div class="card-body"><div class="name">SteamGridDB</div></div></a>
+      <a class="card" href="https://www.nexusmods.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#da8c3a,#8a5e23)">N</div><div class="card-body"><div class="name">Nexus Mods</div></div></a>
+      <a class="card" href="https://koyso.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">K</div><div class="card-body"><div class="name">Koyso</div></div></a>
+      <a class="card" href="https://flingtrainer.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">F</div><div class="card-body"><div class="name">FLiNG Trainer</div></div></a>
+    </div>
+  </div>
+
+  <!-- 网络工具 -->
+  <div class="section" id="network">
+    <h2 class="section-title"><span class="dot"></span>网络工具</h2>
+    <div class="cards">
+      <a class="card" href="https://sub-zh.vercel.app/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">订</div><div class="card-body"><div class="name">在线订阅转换</div></div></a>
+      <a class="card" href="https://telegra.ph/jichang-11-22" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0)">机</div><div class="card-body"><div class="name">机场介绍</div></div></a>
+      <a class="card" href="https://www.askahh.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6b6b,#c0392b)">A</div><div class="card-body"><div class="name">Askahh机场测速</div></div></a>
+      <a class="card" href="https://fofa.info/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">F</div><div class="card-body"><div class="name">FOFA网络空间测绘</div></div></a>
+      <a class="card" href="https://r3.w7w.mom/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">容</div><div class="card-body"><div class="name">容器云</div></div></a>
+      <a class="card" href="https://ikuuu.one/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">i</div><div class="card-body"><div class="name">iKuuu VPN</div></div></a>
+      <a class="card" href="https://web.fscloud.cc/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0c3483,#a2b6df)">F</div><div class="card-body"><div class="name">FSCloud</div></div></a>
+      <a class="card" href="https://xn--9kqz23b19z.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">良</div><div class="card-body"><div class="name">良心云</div></div></a>
+      <a class="card" href="https://47.112.97.173:5000/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">魔</div><div class="card-body"><div class="name">魔戒.net</div></div></a>
+      <a class="card" href="https://openclash.vip/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e67e22,#d35400)">O</div><div class="card-body"><div class="name">OpenClash 官网</div></div></a>
+      <a class="card" href="http://192.168.10.1/cgi-bin/luci/admin/status" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">路</div><div class="card-body"><div class="name">Kwrt LuCI</div></div></a>
+      <a class="card" href="http://192.168.0.1/index.html#home" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">5</div><div class="card-body"><div class="name">5G Mobile Hotspot</div></div></a>
+      <a class="card" href="http://192.168.0.1:2333/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">U</div><div class="card-body"><div class="name">UFI-TOOLS</div></div></a>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>&copy; 2026 Joke Lin's Navigation | 基于个人书签整理</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var sidebar = document.getElementById('sidebar');
+  var toggle = document.getElementById('menuToggle');
+  var overlay = document.getElementById('overlay');
+  var navLinks = sidebar.querySelectorAll('.sidebar-nav a');
+
+  toggle.addEventListener('click', function(){
+    sidebar.classList.toggle('open');
+    overlay.classList.toggle('show');
+  });
+  overlay.addEventListener('click', function(){
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  });
+
+  // Scroll spy
+  var sections = document.querySelectorAll('.section');
+  window.addEventListener('scroll', function(){
+    var top = window.scrollY + 100;
+    var current = '';
+    sections.forEach(function(sec){
+      if(sec.offsetTop <= top) current = sec.id;
+    });
+    navLinks.forEach(function(a){
+      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+    });
+  });
+})();
+</script>
+
+</body>
+</html>
