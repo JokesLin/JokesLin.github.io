@@ -221,10 +221,9 @@ a { color: inherit; text-decoration: none; }
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
   background: #0f0f1a;
-  transition: opacity .6s ease, visibility .6s ease;
 }
 .login-overlay.hidden {
-  opacity: 0; visibility: hidden; pointer-events: none;
+  display: none;
 }
 .login-bg-glow {
   position: fixed; inset: 0; z-index: -1; overflow: hidden;
@@ -554,46 +553,47 @@ a { color: inherit; text-decoration: none; }
   var input = document.getElementById('loginInput');
   var btn = document.getElementById('loginBtn');
   var err = document.getElementById('loginError');
-  var PASSWORD = '666';
 
-  // Check if already authenticated
-  if(localStorage.getItem('jokelin-auth')){
-    overlay.classList.add('hidden');
-  }
+  // Already authenticated?
+  try {
+    if(localStorage.getItem('jokelin-auth')){ overlay.classList.add('hidden'); }
+  } catch(e){}
 
-  function attempt(){
-    if(input.value.trim() === PASSWORD){
+  function doLogin(){
+    var val = input.value.trim();
+    if(val === '666'){
       err.classList.remove('show');
       try { localStorage.setItem('jokelin-auth', '1'); } catch(e){}
       overlay.classList.add('hidden');
+      input.value = '';
     } else {
       err.classList.add('show');
       input.classList.add('error');
-      setTimeout(function(){ input.classList.remove('error'); }, 500);
+      setTimeout(function(){ input.classList.remove('error'); }, 400);
       input.value = '';
       input.focus();
     }
   }
 
-  btn.addEventListener('click', attempt);
-  input.addEventListener('keydown', function(e){
-    if(e.key === 'Enter') attempt();
-  });
+  btn.onclick = doLogin;
+  input.onkeydown = function(e){
+    if(e.key === 'Enter'){ doLogin(); }
+  };
   setTimeout(function(){ input.focus(); }, 300);
-})();
-(function(){
+
+  // Sidebar & scroll spy
   var sidebar = document.getElementById('sidebar');
   var toggle = document.getElementById('menuToggle');
-  var overlay = document.getElementById('overlay');
+  var menuOverlay = document.getElementById('overlay');
   var navLinks = sidebar.querySelectorAll('.sidebar-nav a');
 
   toggle.addEventListener('click', function(){
     sidebar.classList.toggle('open');
-    overlay.classList.toggle('show');
+    menuOverlay.classList.toggle('show');
   });
-  overlay.addEventListener('click', function(){
+  menuOverlay.addEventListener('click', function(){
     sidebar.classList.remove('open');
-    overlay.classList.remove('show');
+    menuOverlay.classList.remove('show');
   });
 
   var sections = document.querySelectorAll('.section');
@@ -607,10 +607,8 @@ a { color: inherit; text-decoration: none; }
       a.classList.toggle('active', a.getAttribute('href') === '#' + current);
     });
   });
-})();
 
-// Bookmark Management (shared via GitHub)
-(function(){
+  // Bookmark Management (shared via GitHub)
   var T1 = 'github_pat_11BCHRJYY01JODXu', T2 = 'Nlg71x_Sw2Y2fU9PF8s5Gpt9HuToBScJTrZhFsmOM3fKRxPbl626RAJJRFAxEx0C7n';
   var TOKEN = T1 + T2;
   var OWNER = 'JokesLin', REPO = 'JokesLin.github.io', FPATH = 'data.json';
@@ -799,6 +797,7 @@ a { color: inherit; text-decoration: none; }
     });
   });
 })();
+</script>
 
 <button class="fab" id="addBtn" title="添加书签">+</button>
 
