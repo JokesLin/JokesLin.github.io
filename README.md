@@ -9,7 +9,7 @@
 | 🤖 AI 工具 | Google、Gemini、ChatGPT、Grok、Claude、DeepSeek |
 | 🛒 跨境电商 | 连连国际、妙手ERP、163邮箱、Shopee 多站点 |
 | 📄 论文相关 | PaperYY、PaperPass、Sci-Hub、知网、Google 学术 |
-| 🎓 校园 | 闽南理工学院、维普、学习通、福建农林大学 |
+| 🎓 校园 | 维普、学习通、福建农林大学 |
 | 📝 考研考试 | 研招网、NTCE、学信网、统计年鉴 |
 | 🎬 视听娱乐 | LIBVIO、Movie Station、HDmoli、歌曲宝、Z-Library |
 | ☁️ 网盘 | 百度网盘、夸克网盘、蓝奏云、阿里云盘 |
