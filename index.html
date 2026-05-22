@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>Joke Lin's Navigation</title>
 <style>
 :root {
@@ -442,8 +445,8 @@ a { color: inherit; text-decoration: none; }
 
 <script>
 (function(){
-  if(!localStorage.getItem('jokelin-auth') && !location.search.includes('allow')){
-    window.location.href = 'login.html';
+  if(!localStorage.getItem('jokelin-auth')){
+    window.location.replace('login.html?_=' + Date.now());
     return;
   }
 })();
