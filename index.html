@@ -581,14 +581,14 @@ a { color: inherit; text-decoration: none; }
 
   // Already authenticated?
   try {
-    if(localStorage.getItem('jokelin-auth')){ overlay.classList.add('hidden'); }
+    if(sessionStorage.getItem('jokelin-auth')){ overlay.classList.add('hidden'); }
   } catch(e){}
 
   function doLogin(){
     var val = input.value.trim();
     if(val === '666'){
       err.classList.remove('show');
-      try { localStorage.setItem('jokelin-auth', '1'); } catch(e){}
+      try { sessionStorage.setItem('jokelin-auth', '1'); } catch(e){}
       overlay.classList.add('hidden');
       input.value = '';
     } else {
