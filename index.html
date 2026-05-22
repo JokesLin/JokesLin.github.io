@@ -676,7 +676,7 @@ a { color: inherit; text-decoration: none; }
     }).then(function(r){ return r.json(); }).then(function(d){
       if(d.content) sha = d.content.sha; saveLocal(data); return d;
     }).catch(function(){ return null; });
-  }}
+  }
 
   // Build section map
   var secMap = {};
