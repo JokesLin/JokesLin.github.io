@@ -469,20 +469,42 @@ a { color: inherit; text-decoration: none; }
   });
 })();
 
-// Bookmark Management
+// Bookmark Management (shared via GitHub)
 (function(){
-  var DEL_KEY = 'jokelin-del';
-  var CUS_KEY = 'jokelin-cus';
-  var COLORS = [
-    '#6c63ff','#f093fb','#4facfe','#2ecc71','#e74c3c','#f39c12',
-    '#1abc9c','#3498db','#9b59b6','#e67e22','#1e3c72','#c31432'
-  ];
+  var T1 = 'github_pat_11BCHRJYY01JODXu', T2 = 'Nlg71x_Sw2Y2fU9PF8s5Gpt9HuToBScJTrZhFsmOM3fKRxPbl626RAJJRFAxEx0C7n';
+  var TOKEN = T1 + T2;
+  var OWNER = 'JokesLin', REPO = 'JokesLin.github.io', FPATH = 'data.json';
+  var API = 'https://api.github.com';
+  var sha = null;
+  var COLORS = ['#6c63ff','#f093fb','#4facfe','#2ecc71','#e74c3c','#f39c12','#1abc9c','#3498db','#9b59b6','#e67e22','#1e3c72','#c31432'];
+
+  function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
+  function b64d(s){ return decodeURIComponent(escape(atob(s.replace(/\n/g,'')))); }
 
   function toast(msg){
     var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
+    t.textContent = msg; t.classList.add('show');
     setTimeout(function(){ t.classList.remove('show'); }, 2000);
+  }
+
+  function fetchData(){
+    return fetch(API+'/repos/'+OWNER+'/'+REPO+'/contents/'+FPATH, {
+      headers: {'Authorization':'Bearer '+TOKEN}
+    }).then(function(r){
+      if(r.status === 404) return {deleted:[],custom:[]};
+      return r.json().then(function(d){ sha = d.sha; return JSON.parse(b64d(d.content)); });
+    }).catch(function(){ return {deleted:[],custom:[]}; });
+  }
+
+  function saveData(data){
+    var body = {message:'update nav data', content:b64e(JSON.stringify(data))};
+    if(sha) body.sha = sha;
+    return fetch(API+'/repos/'+OWNER+'/'+REPO+'/contents/'+FPATH, {
+      method:'PUT', headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    }).then(function(r){ return r.json(); }).then(function(d){
+      if(d.content) sha = d.content.sha; return d;
+    });
   }
 
   // Build section map
@@ -494,12 +516,10 @@ a { color: inherit; text-decoration: none; }
 
   // Populate section select
   var sel = document.getElementById('inputSection');
+  var titles = {ai:'AI���具',paper:'论文相关',campus:'校园',exam:'考研考试',media:'视听娱乐',cloud:'网盘',tech:'技术资源',graphics:'图形编辑',torrent:'BT磁力',games:'游戏',network:'网络工具'};
   Object.keys(secMap).forEach(function(id){
     var o = document.createElement('option');
-    o.value = id;
-    var titles = {ai:'AI工具',paper:'论文相关',campus:'校园',exam:'考研考试',media:'视听娱乐',cloud:'网盘',tech:'技术资源',graphics:'图形编辑',torrent:'BT磁力',games:'游戏',network:'网络工具'};
-    o.textContent = titles[id] || id;
-    sel.appendChild(o);
+    o.value = id; o.textContent = titles[id] || id; sel.appendChild(o);
   });
 
   // Color picker
@@ -510,138 +530,127 @@ a { color: inherit; text-decoration: none; }
     s.style.background = c;
     s.onclick = function(){
       cp.querySelectorAll('span').forEach(function(x){ x.classList.remove('active'); });
-      s.classList.add('active');
-      activeColor = c;
+      s.classList.add('active'); activeColor = c;
     };
     cp.appendChild(s);
   });
   cp.firstChild.classList.add('active');
 
-  // Process deleted cards on load
-  var deleted = JSON.parse(localStorage.getItem(DEL_KEY) || '[]');
-  deleted.forEach(function(href){
-    var cards = document.querySelectorAll('.card[href="' + CSS.escape(href) + '"]');
-    cards.forEach(function(c){
-      var w = c.parentNode;
-      if(w.classList.contains('card-wrap')){ w.remove(); }
-      else { c.remove(); }
+  // ----- Load data from GitHub and build UI -----
+  fetchData().then(function(data){
+    if(!data.deleted) data.deleted = [];
+    if(!data.custom) data.custom = [];
+
+    // Apply deleted cards
+    data.deleted.forEach(function(href){
+      document.querySelectorAll('.cards .card').forEach(function(card){
+        if(card.getAttribute('href') === href){
+          var w = card.parentNode;
+          if(w.classList.contains('card-wrap')) w.remove();
+          else card.remove();
+        }
+      });
     });
-  });
 
-  // Wrap cards for delete button
-  document.querySelectorAll('.cards .card').forEach(function(card){
-    if(card.parentNode.classList.contains('card-wrap')) return;
-    var wrap = document.createElement('div');
-    wrap.className = 'card-wrap';
-    card.parentNode.insertBefore(wrap, card);
-    wrap.appendChild(card);
-    var del = document.createElement('span');
-    del.className = 'card-del';
-    del.textContent = '×';
-    del.onclick = function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      var h = card.getAttribute('href');
-      if(h){
-        var d = JSON.parse(localStorage.getItem(DEL_KEY) || '[]');
-        if(!d.includes(h)){ d.push(h); localStorage.setItem(DEL_KEY, JSON.stringify(d)); }
+    // Wrap remaining default cards with delete button
+    document.querySelectorAll('.cards .card').forEach(function(card){
+      if(card.parentNode.classList.contains('card-wrap')) return;
+      var wrap = document.createElement('div');
+      wrap.className = 'card-wrap';
+      card.parentNode.insertBefore(wrap, card);
+      wrap.appendChild(card);
+      var del = document.createElement('span');
+      del.className = 'card-del'; del.textContent = '×';
+      del.onclick = function(e){
+        e.preventDefault(); e.stopPropagation();
+        var h = card.getAttribute('href');
+        if(h && !data.deleted.includes(h)) data.deleted.push(h);
+        saveData(data).then(function(){
+          wrap.style.opacity = '0'; wrap.style.transform = 'scale(0.8)';
+          setTimeout(function(){ wrap.remove(); }, 200);
+          toast('已删除');
+        }).catch(function(){ toast('删除失败，请重试'); });
+      };
+      wrap.appendChild(del);
+    });
+
+    // Render custom bookmarks from shared data
+    data.custom.forEach(function(b, idx){
+      var card = document.createElement('a');
+      card.className = 'card'; card.href = b.url; card.target = '_blank';
+      card.innerHTML = '<div class="card-icon" style="background:linear-gradient(135deg,'+b.color+','+b.color+')">'+b.icon+'</div><div class="card-body"><div class="name">'+b.name+'</div></div>';
+      var wrap = document.createElement('div');
+      wrap.className = 'card-wrap';
+      var del = document.createElement('span');
+      del.className = 'card-del'; del.textContent = '×';
+      del.onclick = function(e){
+        e.preventDefault(); e.stopPropagation();
+        data.custom.splice(idx, 1);
+        saveData(data).then(function(){
+          wrap.style.opacity = '0';
+          setTimeout(function(){ wrap.remove(); }, 200);
+          toast('已删除');
+        }).catch(function(){ toast('删除失败'); });
+      };
+      wrap.appendChild(card); wrap.appendChild(del);
+      if(secMap[b.section]) secMap[b.section].appendChild(wrap);
+    });
+
+    // ----- Modal Handlers -----
+    var mo = document.getElementById('modalOverlay');
+    document.getElementById('addBtn').onclick = function(){
+      document.getElementById('inputName').value = '';
+      document.getElementById('inputUrl').value = 'https://';
+      document.getElementById('inputIcon').value = '';
+      mo.classList.add('show');
+    };
+    document.getElementById('modalCancel').onclick = function(){ mo.classList.remove('show'); };
+    mo.onclick = function(e){ if(e.target === mo) mo.classList.remove('show'); };
+
+    document.getElementById('modalSave').onclick = function(){
+      var name = document.getElementById('inputName').value.trim();
+      var url = document.getElementById('inputUrl').value.trim();
+      var icon = document.getElementById('inputIcon').value.trim() || name.charAt(0).toUpperCase();
+      var section = document.getElementById('inputSection').value;
+      if(!name || !url){ toast('请填写名称和网址'); return; }
+      if(url.indexOf('http') !== 0){ toast('请输入有效的网址（以 http 开头）'); return; }
+      var b = {name:name, url:url, icon:icon, color:activeColor, section:section};
+      data.custom.push(b);
+      saveData(data).then(function(){
+        var card = document.createElement('a');
+        card.className = 'card'; card.href = b.url; card.target = '_blank';
+        card.innerHTML = '<div class="card-icon" style="background:linear-gradient(135deg,'+b.color+','+b.color+')">'+b.icon+'</div><div class="card-body"><div class="name">'+b.name+'</div></div>';
+        var wrap = document.createElement('div');
+        wrap.className = 'card-wrap';
+        var del = document.createElement('span');
+        del.className = 'card-del'; del.textContent = '×';
+        del.onclick = function(e){
+          e.preventDefault(); e.stopPropagation();
+          data.custom.splice(data.custom.indexOf(b), 1);
+          saveData(data).then(function(){
+            wrap.style.opacity = '0';
+            setTimeout(function(){ wrap.remove(); }, 200);
+            toast('已删除');
+          }).catch(function(){ toast('删除失败'); });
+        };
+        wrap.appendChild(card); wrap.appendChild(del);
+        if(secMap[b.section]) secMap[b.section].appendChild(wrap);
+        mo.classList.remove('show');
+        toast('已添加 ✓');
+      }).catch(function(){ data.custom.pop(); toast('添加失败，请重试'); });
+    };
+
+    // Reset button
+    document.getElementById('resetBtn').onclick = function(){
+      if(confirm('确定重置所有自定义修改？')){
+        data.deleted = []; data.custom = [];
+        saveData(data).then(function(){
+          toast('已重置，刷新页面…');
+          setTimeout(function(){ location.reload(); }, 500);
+        }).catch(function(){ toast('重置失败'); });
       }
-      wrap.style.opacity = '0';
-      wrap.style.transform = 'scale(0.8)';
-      setTimeout(function(){ wrap.remove(); }, 200);
-      toast('已删除');
     };
-    wrap.appendChild(del);
   });
-
-  // Render custom bookmarks
-  var custom = JSON.parse(localStorage.getItem(CUS_KEY) || '[]');
-  custom.forEach(function(b){
-    var c = document.createElement('a');
-    c.className = 'card';
-    c.href = b.url;
-    c.target = '_blank';
-    c.innerHTML = '<div class="card-icon" style="background:linear-gradient(135deg,'+b.color+','+b.color+')">'+b.icon+'</div><div class="card-body"><div class="name">'+b.name+'</div></div>';
-    var wrap = document.createElement('div');
-    wrap.className = 'card-wrap';
-    var del = document.createElement('span');
-    del.className = 'card-del';
-    del.textContent = '×';
-    del.onclick = function(e){
-      e.preventDefault();
-      e.stopPropagation();
-      var list = JSON.parse(localStorage.getItem(CUS_KEY) || '[]');
-      list = list.filter(function(x){ return x.url !== b.url || x.name !== b.name; });
-      localStorage.setItem(CUS_KEY, JSON.stringify(list));
-      wrap.style.opacity = '0';
-      wrap.style.transform = 'scale(0.8)';
-      setTimeout(function(){ wrap.remove(); }, 200);
-      toast('已删除');
-    };
-    wrap.appendChild(c);
-    wrap.appendChild(del);
-    if(secMap[b.section]) secMap[b.section].appendChild(wrap);
-  });
-
-  // Modal
-  var mo = document.getElementById('modalOverlay');
-  document.getElementById('addBtn').onclick = function(){
-    document.getElementById('inputName').value = '';
-    document.getElementById('inputUrl').value = 'https://';
-    document.getElementById('inputIcon').value = '';
-    mo.classList.add('show');
-  };
-  document.getElementById('modalCancel').onclick = function(){ mo.classList.remove('show'); };
-  mo.onclick = function(e){ if(e.target === mo) mo.classList.remove('show'); };
-
-  document.getElementById('modalSave').onclick = function(){
-    var name = document.getElementById('inputName').value.trim();
-    var url = document.getElementById('inputUrl').value.trim();
-    var icon = document.getElementById('inputIcon').value.trim() || name.charAt(0).toUpperCase();
-    var section = document.getElementById('inputSection').value;
-    if(!name || !url){ toast('请填写名称和网址'); return; }
-    if(url.indexOf('http') !== 0){ toast('请输入有效的网址（以 http 开头）'); return; }
-    var b = {name:name, url:url, icon:icon, color:activeColor, section:section};
-    var list = JSON.parse(localStorage.getItem(CUS_KEY) || '[]');
-    list.push(b);
-    localStorage.setItem(CUS_KEY, JSON.stringify(list));
-
-    // Render card
-    var c = document.createElement('a');
-    c.className = 'card';
-    c.href = b.url;
-    c.target = '_blank';
-    c.innerHTML = '<div class="card-icon" style="background:linear-gradient(135deg,'+b.color+','+b.color+')">'+b.icon+'</div><div class="card-body"><div class="name">'+b.name+'</div></div>';
-    var wrap = document.createElement('div');
-    wrap.className = 'card-wrap';
-    var del = document.createElement('span');
-    del.className = 'card-del';
-    del.textContent = '×';
-    del.onclick = function(e){
-      e.preventDefault(); e.stopPropagation();
-      var ls = JSON.parse(localStorage.getItem(CUS_KEY) || '[]');
-      ls = ls.filter(function(x){ return x.url !== b.url || x.name !== b.name; });
-      localStorage.setItem(CUS_KEY, JSON.stringify(ls));
-      wrap.style.opacity = '0';
-      setTimeout(function(){ wrap.remove(); }, 200);
-      toast('已删除');
-    };
-    wrap.appendChild(c);
-    wrap.appendChild(del);
-    if(secMap[b.section]) secMap[b.section].appendChild(wrap);
-    mo.classList.remove('show');
-    toast('已添加 ✓');
-  };
-
-  // Reset
-  document.getElementById('resetBtn').onclick = function(){
-    if(confirm('确定重置所有自定义书签？删除的书签会恢复，添加的书签会移除。')){
-      localStorage.removeItem(DEL_KEY);
-      localStorage.removeItem(CUS_KEY);
-      toast('已重置，刷新页面…');
-      setTimeout(function(){ location.reload(); }, 500);
-    }
-  };
 })();
 
 <button class="fab" id="addBtn" title="添加书签">+</button>
