@@ -643,8 +643,7 @@ a { color: inherit; text-decoration: none; }
   var appData = (function(){ try { return JSON.parse(localStorage.getItem('jokelin-nav')) || {deleted:[],custom:[]}; } catch(e){ return {deleted:[],custom:[]}; } })();
 
   function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
-  function b64d(s){ return decodeURIComponent(escape(atob(s.replace(/
-/g,'')))); }
+  function b64d(s){ return decodeURIComponent(escape(atob(s.replace(/\\n/g,'')))); }
 
   function saveLocal(data){
     try { localStorage.setItem('jokelin-nav', JSON.stringify(data)); } catch(e){}
