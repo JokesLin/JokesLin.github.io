@@ -1,36 +1,38 @@
-# 网址导航（静态页面通用模板）
+# Joke Lin's 书签导航
 
-此网址导航页面是使用 [GenEasy](https://github.com/geneasy/geneasy) 文档生成工具 + [WebStack](https://github.com/WebStackPage/WebStackPage.github.io) 模板创建的静态页面，托管在 GitHub Pages 服务器上面。
+基于浏览器书签整理的个性化网址导航站，托管在 GitHub Pages 上。
 
-当修改 `links.yml` 文件里的内容时，**GitHub Actions** 会自动更新 HTML 文件。不需要服务器，不需要数据库。
+## 分类
 
+| 分类 | 内容 |
+|------|------|
+| 🤖 AI 工具 | Google、Gemini、ChatGPT、Grok、Claude、DeepSeek |
+| 🛒 跨境电商 | 连连国际、妙手ERP、163邮箱、Shopee 多站点 |
+| 📄 论文相关 | PaperYY、PaperPass、Sci-Hub、知网、Google 学术 |
+| 🎓 校园 | 闽南理工学院、维普、学习通、福建农林大学 |
+| 📝 考研考试 | 研招网、NTCE、学信网、统计年鉴 |
+| 🎬 视听娱乐 | LIBVIO、Movie Station、HDmoli、歌曲宝、Z-Library |
+| ☁️ 网盘 | 百度网盘、夸克网盘、蓝奏云、阿里云盘 |
+| 🔧 技术资源 | 内网穿透、技术社区、开发工具 |
+| 🎨 图形编辑 | 在线 PS、Logo 制作、AI 绘图 |
+| ⚡ BT 磁力 | 磁力搜索、BT 资源站 |
+| 🎮 游戏 | 游戏下载、Mod、资源社区 |
+| 🌐 网络工具 | 代理工具、网络配置管理 |
 
-## Tips
+## 使用
 
-### Tip: 如何修改 `links.yml`
+直接访问 [https://jokeslin.github.io/](https://jokeslin.github.io/) 即可使用。
 
-#### 方法 1
+如需修改书签内容，编辑 `index.html` 文件后提交即可自动部署。
 
-把项目下载到本地，修改提交。
+## 技术栈
 
-#### 方法 2
-
-把现在 GitHub repository 的 URL 里的 `github.com` 改成 `github.dev`，会进入 web 版的 VS Code。在 web 版的 VS Code 里修改提交。
-
-#### 方法 3
-
-在 GitHub 点击 [`links.yml`](links.yml) 文件，然后点击编辑按钮。修改提交。
-
+- 纯 HTML + CSS + JavaScript，无外部依赖
+- CSS Grid 响应式布局
+- 毛玻璃卡片设计（Glassmorphism）
+- 渐变侧边栏 + 滚动监听
+- 移动端自适应（汉堡菜单）
 
 ## License
 
-Copyright (c) 2021 [Pipecraft][my-url]. Licensed under the [MIT license][license-url].
-
-## >\_
-
-[![Pipecraft](https://img.shields.io/badge/site-pipecraft-brightgreen)](https://www.pipecraft.net)
-[![DTO](https://img.shields.io/badge/site-DTO-brightgreen)](https://dto.pipecraft.net)
-[![BestXTools](https://img.shields.io/badge/site-bestxtools-brightgreen)](https://www.bestxtools.com)
-
-[my-url]: (https://jokeslin.github.io/)
-[license-url]: LICENSE
+MIT
