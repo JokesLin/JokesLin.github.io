@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joke Lin's Navigation</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #0f0f1a;
+  color: #e8e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Animated background */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+.bg-glow span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.3;
+  animation: float 12s ease-in-out infinite alternate;
+}
+.bg-glow .g1 { width: 500px; height: 500px; background: #6c63ff; top: -150px; left: -100px; }
+.bg-glow .g2 { width: 400px; height: 400px; background: #f093fb; bottom: -120px; right: -80px; animation-delay: -4s; }
+.bg-glow .g3 { width: 350px; height: 350px; background: #4facfe; bottom: 40%; right: 30%; animation-delay: -8s; }
+@keyframes float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(60px, -60px) scale(1.15); }
+}
+
+/* Main card */
+.login-card {
+  position: relative;
+  z-index: 1;
+  width: 90%;
+  max-width: 520px;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 28px;
+  padding: 60px 48px 48px;
+  text-align: center;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+  transition: opacity .4s, transform .4s;
+}
+
+/* Lock icon */
+.lock-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin: 0 auto 28px;
+  background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(240,147,251,0.2));
+  border: 2px solid rgba(108,99,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+}
+
+.login-card h1 {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #6c63ff, #f093fb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-card p {
+  font-size: 16px;
+  color: #9999b3;
+  margin-bottom: 36px;
+}
+
+/* Input group */
+.input-group {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 18px 24px;
+  font-size: 20px;
+  border-radius: 16px;
+  border: 2px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05);
+  color: #e8e8f0;
+  outline: none;
+  transition: border-color .3s, box-shadow .3s;
+  letter-spacing: 4px;
+  text-align: center;
+}
+
+.input-group input::placeholder {
+  color: #666;
+  letter-spacing: 0;
+  font-size: 15px;
+}
+
+.input-group input:focus {
+  border-color: #6c63ff;
+  box-shadow: 0 0 0 4px rgba(108,99,255,0.15);
+}
+
+.input-group input.error {
+  border-color: #e74c3c;
+  box-shadow: 0 0 0 4px rgba(231,76,60,0.15);
+  animation: shake .4s ease;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-12px); }
+  40% { transform: translateX(12px); }
+  60% { transform: translateX(-8px); }
+  80% { transform: translateX(8px); }
+}
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  padding: 18px;
+  font-size: 18px;
+  font-weight: 600;
+  border: none;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #6c63ff, #f093fb);
+  color: #fff;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+  letter-spacing: 2px;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(108,99,255,0.35);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+/* Error message */
+.error-msg {
+  margin-top: 14px;
+  font-size: 14px;
+  color: #e74c3c;
+  opacity: 0;
+  transition: opacity .3s;
+  min-height: 20px;
+}
+
+.error-msg.show {
+  opacity: 1;
+}
+
+/* Success state - card exit */
+.login-card.exit {
+  opacity: 0;
+  transform: scale(0.9) translateY(20px);
+}
+
+/* Footer */
+.login-footer {
+  position: fixed;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  z-index: 1;
+  font-size: 13px;
+  color: #555;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .login-card {
+    padding: 40px 28px 32px;
+    border-radius: 20px;
+    max-width: 400px;
+  }
+  .lock-icon { width: 64px; height: 64px; font-size: 28px; margin-bottom: 22px; }
+  .login-card h1 { font-size: 26px; }
+  .login-card p { font-size: 14px; margin-bottom: 28px; }
+  .input-group input { padding: 16px 20px; font-size: 18px; letter-spacing: 3px; }
+  .submit-btn { padding: 16px; font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg-glow">
+  <span class="g1"></span>
+  <span class="g2"></span>
+  <span class="g3"></span>
+</div>
+
+<div class="login-card" id="loginCard">
+  <div class="lock-icon">🔐</div>
+  <h1>私人导航站</h1>
+  <p>请输入暗号以继续访问</p>
+  <div class="input-group">
+    <input type="password" id="passwordInput" placeholder="请输入暗号" autofocus>
+  </div>
+  <button class="submit-btn" id="submitBtn">进入导航站</button>
+  <div class="error-msg" id="errorMsg">暗号错误，请重试</div>
+</div>
+
+<div class="login-footer">Joke Lin's Navigation</div>
+
+<script>
+(function(){
+  var PASSWORD = '芝麻开门';
+  var input = document.getElementById('passwordInput');
+  var btn = document.getElementById('submitBtn');
+  var error = document.getElementById('errorMsg');
+  var card = document.getElementById('loginCard');
+
+  function attempt(){
+    var val = input.value.trim();
+    if(val === PASSWORD){
+      error.classList.remove('show');
+      card.classList.add('exit');
+      try { localStorage.setItem('jokelin-auth', '1'); } catch(e){}
+      setTimeout(function(){
+        window.location.href = 'index.html';
+      }, 500);
+    } else {
+      error.classList.add('show');
+      input.classList.add('error');
+      setTimeout(function(){ input.classList.remove('error'); }, 500);
+      input.value = '';
+      input.focus();
+    }
+  }
+
+  btn.addEventListener('click', attempt);
+  input.addEventListener('keydown', function(e){
+    if(e.key === 'Enter') attempt();
+  });
+  input.focus();
+})();
+</script>
+</body>
+</html>
