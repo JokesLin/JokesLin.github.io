@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Joke Lin 的 AI 软件中心 - 精选 AI 工具与实用软件资源下载">
+<meta property="og:title" content="AI Software - Joke Lin">
+<meta property="og:description" content="精选 AI 工具与实用软件资源下载">
+<meta property="og:type" content="website">
+<title>AI Software - Joke Lin</title>
+<link rel="icon" href="../favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../assets/global.css">
+<style>
+.page-container { max-width: 960px; }
+
+/* 分类筛选 */
+.category-bar { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+.category-bar button {
+  padding: 6px 18px; border-radius: 20px; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--border-card); background: transparent;
+  color: var(--text-secondary); transition: all 0.2s;
+}
+.category-bar button:hover { color: #fff; border-color: var(--accent-1); }
+.category-bar button.active { background: var(--accent-1); color: #fff; border-color: var(--accent-1); }
+
+/* 软件卡片网格 */
+.software-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.software-card {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 24px;
+  transition: all 0.25s; cursor: pointer; position: relative; overflow: hidden;
+}
+.software-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  opacity: 0; transition: opacity 0.3s;
+}
+.software-card:hover { background: rgba(255,255,255,0.1); transform: translateY(-4px); box-shadow: var(--shadow-card); border-color: rgba(108,99,255,0.35); }
+.software-card:hover::before { opacity: 1; }
+.software-card .sw-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: #fff; margin-bottom: 14px;
+}
+.software-card .sw-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.software-card .sw-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+.software-card .sw-meta {
+  display: flex; gap: 12px; margin-top: 12px; font-size: 12px; color: var(--text-muted);
+}
+.software-card .sw-meta span { display: flex; align-items: center; gap: 3px; }
+
+/* 软件详情视图 */
+.sw-detail { display: none; }
+.sw-detail.show { display: block; }
+.sw-detail-top {
+  display: flex; align-items: flex-start; gap: 24px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg); padding: 32px;
+  margin-bottom: 24px;
+}
+.sw-detail-icon {
+  width: 80px; height: 80px; border-radius: 20px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; color: #fff;
+}
+.sw-detail-info { flex: 1; min-width: 0; }
+.sw-detail-info h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+.sw-detail-info .sw-desc { font-size: 14px; color: var(--text-secondary); line-height: 1.7; margin-bottom: 16px; }
+.sw-detail-meta { display: flex; flex-wrap: wrap; gap: 16px; margin-bottom: 16px; }
+.sw-detail-meta .meta-item { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-secondary); }
+.sw-detail-meta .meta-item .label { color: var(--text-muted); }
+.sw-detail-meta .meta-item .value { font-weight: 500; color: var(--text-primary); }
+
+/* 下载按钮 */
+.download-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 14px 32px; border-radius: 12px; font-size: 16px; font-weight: 600;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff; border: none; cursor: pointer;
+  transition: all 0.2s; text-decoration: none;
+}
+.download-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(108,99,255,0.4); }
+.download-btn:active { transform: translateY(0); }
+.download-btn.disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
+.download-note { font-size: 12px; color: var(--text-muted); margin-top: 8px; }
+
+/* 功能列表 */
+.features-section {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 24px 28px; margin-bottom: 24px;
+}
+.features-section h3 { font-size: 17px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.features-section h3 .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+}
+.features-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.features-list li {
+  list-style: none; padding: 10px 14px; border-radius: 10px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);
+  font-size: 14px; display: flex; align-items: center; gap: 8px;
+  color: var(--text-secondary);
+}
+.features-list li .check { color: var(--green); font-weight: 700; }
+
+/* 截图展示 */
+.screenshots-section {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 24px 28px; margin-bottom: 24px;
+}
+.screenshots-section h3 { font-size: 17px; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.screenshots-section h3 .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+}
+.screenshots-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+.screenshot-placeholder {
+  aspect-ratio: 9/16; border-radius: 12px;
+  background: rgba(255,255,255,0.04); border: 1px solid var(--border-card);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; color: var(--text-muted); font-size: 13px;
+}
+.screenshot-placeholder .big-icon { font-size: 36px; }
+
+/* 返回按钮 */
+.back-link-bar { margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+.back-link-bar .back-btn {
+  padding: 6px 14px; border-radius: 6px; font-size: 13px; cursor: pointer;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary); transition: all 0.2s;
+}
+.back-link-bar .back-btn:hover { color: #fff; border-color: var(--accent-1); }
+
+/* 空状态 */
+.empty-state { text-align: center; padding: 60px 20px; color: var(--text-secondary); font-size: 14px; }
+
+/* 加载状态 */
+.loading-state { text-align: center; padding: 60px; color: var(--text-muted); font-size: 14px; }
+
+@media (max-width: 768px) {
+  .software-grid { grid-template-columns: 1fr; gap: 12px; }
+  .sw-detail-top { flex-direction: column; align-items: center; text-align: center; padding: 24px 20px; }
+  .sw-detail-meta { justify-content: center; }
+  .features-list { grid-template-columns: 1fr; }
+  .screenshots-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .sw-detail-info h1 { font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="page-container">
+  <a class="back-home" href="../">← 返回门户首页</a>
+
+  <header class="page-header">
+    <h1 id="pageTitle">AI 软件中心</h1>
+    <p id="pageSubtitle">精选 AI 工具与实用软件资源</p>
+  </header>
+
+  <!-- 列表视图 -->
+  <div id="viewList">
+    <div class="category-bar" id="categoryBar"></div>
+    <div class="software-grid" id="softwareGrid">
+      <div class="loading-state" id="loadingState">加载中…</div>
+    </div>
+    <div class="empty-state hide" id="emptyState">该分类暂无软件</div>
+  </div>
+
+  <!-- 详情视图 -->
+  <div class="sw-detail" id="viewDetail">
+    <div class="back-link-bar">
+      <span class="back-btn" id="detailBack">← 返回列表</span>
+    </div>
+    <div id="detailContent"></div>
+  </div>
+
+  <footer class="page-footer">
+    <p>&copy; 2026 Joke Lin's AI Software &nbsp;|&nbsp; 编辑 data.json 即可管理软件列表</p>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  var data = null;
+
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2000);
+  }
+
+  function showView(id) {
+    ['viewList', 'viewDetail'].forEach(function(v) {
+      document.getElementById(v).classList.toggle('show', v === id);
+      document.getElementById(v).style.display = (v === id) ? '' : 'none';
+    });
+  }
+
+  function renderCategories(active) {
+    var bar = document.getElementById('categoryBar');
+    var cats = data.categories || [];
+    var html = '<button class="' + (active === 'all' ? 'active' : '') + '" data-cat="all">全部</button>';
+    cats.forEach(function(c) {
+      html += '<button class="' + (active === c.id ? 'active' : '') + '" data-cat="' + c.id + '">' + c.icon + ' ' + c.name + '</button>';
+    });
+    bar.innerHTML = html;
+    bar.querySelectorAll('button').forEach(function(btn) {
+      btn.onclick = function() { renderSoftware(btn.getAttribute('data-cat')); };
+    });
+  }
+
+  function renderSoftware(filter) {
+    filter = filter || 'all';
+    renderCategories(filter);
+    var list = data.software || [];
+    if (filter !== 'all') list = list.filter(function(s) { return s.category === filter; });
+    var grid = document.getElementById('softwareGrid');
+    var empty = document.getElementById('emptyState');
+    if (list.length === 0) {
+      grid.innerHTML = '';
+      empty.classList.remove('hide');
+      return;
+    }
+    empty.classList.add('hide');
+    var html = '';
+    list.forEach(function(s) {
+      var g = s.gradient || ['#6c63ff', '#4facfe'];
+      var cat = (data.categories || []).find(function(c) { return c.id === s.category; });
+      var catName = cat ? cat.name : '未分类';
+      html += '<div class="software-card" data-id="' + s.id + '">'
+        + '<div class="sw-icon" style="background:linear-gradient(135deg,' + g[0] + ',' + g[1] + ')">' + s.icon + '</div>'
+        + '<div class="sw-name">' + s.name + '</div>'
+        + '<div class="sw-desc">' + s.description.slice(0, 60) + '…</div>'
+        + '<div class="sw-meta">'
+        + '<span>📁 ' + catName + '</span>'
+        + '<span>📦 ' + (s.size || '未知') + '</span>'
+        + '<span>📅 ' + s.updateDate + '</span>'
+        + '</div></div>';
+    });
+    grid.innerHTML = html;
+    grid.querySelectorAll('.software-card').forEach(function(card) {
+      card.onclick = function() { showDetail(card.getAttribute('data-id')); };
+    });
+  }
+
+  function showDetail(id) {
+    var s = (data.software || []).find(function(x) { return x.id === id; });
+    if (!s) return;
+    showView('viewDetail');
+    var g = s.gradient || ['#6c63ff', '#4facfe'];
+
+    var featuresHtml = '';
+    if (s.features && s.features.length) {
+      featuresHtml = '<div class="features-section"><h3><span class="dot"></span>功能特性</h3><ul class="features-list">';
+      s.features.forEach(function(f) {
+        featuresHtml += '<li><span class="check">✓</span>' + f + '</li>';
+      });
+      featuresHtml += '</ul></div>';
+    }
+
+    var screenshotsHtml = '';
+    if (s.screenshots && s.screenshots.length) {
+      screenshotsHtml = '<div class="screenshots-section"><h3><span class="dot"></span>应用截图</h3><div class="screenshots-grid">';
+      s.screenshots.forEach(function(img) {
+        screenshotsHtml += '<div class="screenshot-placeholder"><span class="big-icon">📱</span><span>' + img.alt + '</span></div>';
+      });
+      screenshotsHtml += '</div></div>';
+    }
+
+    var hasDownload = s.downloadUrl && s.downloadUrl.length > 0;
+    var downloadHtml = hasDownload
+      ? '<a class="download-btn" href="' + s.downloadUrl + '" download>📥 下载 APK (' + (s.size || '') + ')</a>'
+      : '<span class="download-btn disabled">⏳ 即将上线</span>';
+
+    var detailHtml = '<div class="sw-detail-top">'
+      + '<div class="sw-detail-icon" style="background:linear-gradient(135deg,' + g[0] + ',' + g[1] + ')">' + s.icon + '</div>'
+      + '<div class="sw-detail-info">'
+      + '<h1>' + s.name + '</h1>'
+      + '<div class="sw-desc">' + s.description + '</div>'
+      + '<div class="sw-detail-meta">'
+      + '<div class="meta-item"><span class="label">版本</span><span class="value">' + (s.version || '—') + '</span></div>'
+      + '<div class="meta-item"><span class="label">大小</span><span class="value">' + (s.size || '—') + '</span></div>'
+      + '<div class="meta-item"><span class="label">系统要求</span><span class="value">' + (s.requirements || '—') + '</span></div>'
+      + '<div class="meta-item"><span class="label">更新日期</span><span class="value">' + (s.updateDate || '—') + '</span></div>'
+      + '</div>'
+      + '<div style="margin-top:8px">' + downloadHtml + '</div>'
+      + (s.note ? '<div class="download-note">💡 ' + s.note + '</div>' : '')
+      + '</div></div>';
+
+    document.getElementById('detailContent').innerHTML = detailHtml + featuresHtml + screenshotsHtml;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.getElementById('detailBack').onclick = function() { showView('viewList'); };
+
+  document.getElementById('loadingState').classList.add('hide');
+  fetch('data.json').then(function(r) { return r.json(); }).then(function(d) {
+    data = d || { title: 'AI 软件中心', subtitle: '', categories: [], software: [] };
+    if (data.title) document.getElementById('pageTitle').textContent = data.title;
+    if (data.subtitle) document.getElementById('pageSubtitle').textContent = data.subtitle;
+    showView('viewList');
+    renderSoftware('all');
+  }).catch(function() {
+    document.getElementById('softwareGrid').innerHTML = '<div style="text-align:center;padding:60px;color:var(--red)">加载数据失败，请检查 data.json</div>';
+  });
+})();
+</script>
+</body>
+</html>
