@@ -1,0 +1,64 @@
+{
+  "profile": {
+    "name": "Joke Lin",
+    "avatar": "J",
+    "title": "农村发展硕士研究生",
+    "university": "福建农林大学",
+    "college": "经济与管理学院",
+    "email": "jokelin@example.com",
+    "github": "https://github.com/JokesLin",
+    "telegram": "https://t.me/JokesLin",
+    "bio": "专注于乡村振兴与农村发展领域的学术研究，关注数字农业、乡村治理与产业发展融合方向。善于运用数据分析与AI工具辅助研究，具有较强的跨学科整合能力。"
+  },
+  "education": [
+    {
+      "degree": "硕士",
+      "major": "农村发展",
+      "school": "福建农林大学",
+      "college": "经济与管理学院",
+      "period": "2024 - 至今",
+      "status": "在读",
+      "focus": "研究方向：乡村产业振兴、数字农业、农村治理创新"
+    },
+    {
+      "degree": "学士",
+      "major": "农林经济管理",
+      "school": "福建农林大学",
+      "college": "经济与管理学院",
+      "period": "2020 - 2024",
+      "status": "已毕业",
+      "focus": "GPA 3.5/4.0，连续三年获得校级奖学金"
+    }
+  ],
+  "skills": [
+    {"name": "Python 数据分析", "level": 85, "category": "技术"},
+    {"name": "SPSS / Stata", "level": 80, "category": "技术"},
+    {"name": "文献综述与研究方法", "level": 90, "category": "学术"},
+    {"name": "问卷设计与实地调研", "level": 85, "category": "学术"},
+    {"name": "AI 工具应用", "level": 88, "category": "技术"},
+    {"name": "前端开发 (HTML/CSS/JS)", "level": 75, "category": "技术"},
+    {"name": "Git / GitHub", "level": 70, "category": "技术"},
+    {"name": "论文写作与排版", "level": 85, "category": "学术"},
+    {"name": "团队协调与项目管理", "level": 80, "category": "综合"}
+  ],
+  "research": [
+    {
+      "title": "数字技术赋能乡村产业振兴的路径研究",
+      "role": "课题负责人",
+      "period": "2025.03 - 至今",
+      "description": "以福建省典型数字乡村为案例，运用扎根理论与案例分析方法，探讨数字技术如何赋能乡村一二三产业融合，提出可复制的产业升级路径。"
+    },
+    {
+      "title": "农村集体经济组织治理结构优化研究",
+      "role": "核心成员",
+      "period": "2024.09 - 2025.06",
+      "description": "参与省级社科基金项目，负责文献梳理、问卷设计与实地调研，对福建省30个行政村的集体经济组织治理模式进行比较分析。"
+    }
+  ],
+  "awards": [
+    {"name": "校级一等奖学金", "year": "2023"},
+    {"name": "省级大学生创新创业大赛 铜奖", "year": "2023"},
+    {"name": "优秀毕业论文", "year": "2024"},
+    {"name": "研究生学业奖学金", "year": "2025"}
+  ]
+}

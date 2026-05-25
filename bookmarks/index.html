@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!--
+  ================================================================
+  书签导航站 — bookmarks/index.html
+  从 data.json 读取所有书签数据，支持增删改
+  无密码保护，直接访问
+  ================================================================
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Joke Lin's Bookmarks</title>
+<link rel="stylesheet" href="../assets/global.css">
+<style>
+:root { --sidebar-width: 240px; }
+
+/* 侧边栏 */
+.sidebar {
+  position: fixed; left: 0; top: 0;
+  width: var(--sidebar-width); height: 100vh;
+  background: linear-gradient(180deg, #1a1a2e, #16213e 50%, #0f3460);
+  z-index: 1000; overflow-y: auto; overflow-x: hidden;
+  transition: transform 0.3s;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
+.sidebar-header {
+  padding: 28px 20px 18px; text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-header .avatar {
+  width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 10px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: #fff;
+  border: 2px solid rgba(255,255,255,0.2);
+}
+.sidebar-header h2 { font-size: 15px; }
+.sidebar-header p { font-size: 12px; color: var(--text-secondary); margin-top: 3px; }
+.sidebar-nav { padding: 10px 0; }
+.sidebar-nav a {
+  display: flex; align-items: center; padding: 9px 20px;
+  font-size: 13px; color: var(--text-secondary); transition: all 0.2s;
+  border-left: 3px solid transparent;
+}
+.sidebar-nav a:hover, .sidebar-nav a.active {
+  color: #fff; background: rgba(108,99,255,0.12); border-left-color: var(--accent-1);
+}
+.sidebar-nav a .icon { width: 20px; margin-right: 10px; text-align: center; font-size: 14px; }
+.sidebar-nav .nav-sep {
+  height: 1px; background: rgba(255,255,255,0.06);
+  margin: 8px 0;
+}
+
+/* 主内容区 */
+.main {
+  margin-left: var(--sidebar-width);
+  padding: 30px 40px 60px;
+  max-width: 1400px;
+}
+.back-home { margin-bottom: 16px; }
+.section { margin-bottom: 36px; }
+.section-title {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 18px; font-weight: 600; margin-bottom: 16px;
+  padding-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.section-title .dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 12px; padding: 14px 16px;
+  transition: all 0.25s; cursor: pointer;
+  display: flex; align-items: center; gap: 12px;
+}
+.card:hover {
+  background: rgba(255,255,255,0.1); transform: translateY(-2px);
+  box-shadow: var(--shadow-card); border-color: rgba(108,99,255,0.3);
+}
+.card-icon {
+  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff; font-weight: 600;
+}
+.card-body { min-width: 0; flex: 1; }
+.card-body .name {
+  font-size: 13px; font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.card-body .desc {
+  font-size: 11px; color: var(--text-secondary);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px;
+}
+
+/* 删除按钮 */
+.card-wrap { position: relative; }
+.card-del {
+  position: absolute; top: -6px; right: -6px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--red); color: #fff;
+  border: 2px solid var(--bg-primary);
+  display: none; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; cursor: pointer; z-index: 2;
+}
+.card-wrap:hover .card-del { display: flex; }
+.card-del:hover { background: #c0392b; }
+
+/* 移动端菜单 */
+.menu-toggle {
+  display: none; position: fixed; top: 12px; left: 12px; z-index: 1100;
+  width: 40px; height: 40px; border-radius: 10px;
+  background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: #fff; font-size: 20px; cursor: pointer;
+  align-items: center; justify-content: center;
+}
+.overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  z-index: 999; opacity: 0; transition: opacity 0.3s;
+}
+
+/* FAB 添加按钮 */
+.fab {
+  position: fixed; bottom: 30px; right: 30px; z-index: 900;
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff; font-size: 28px; border: none; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(108,99,255,0.6); }
+
+/* 弹窗 */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  z-index: 2000; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #1a1a2e; border: 1px solid var(--border-card);
+  border-radius: 16px; padding: 24px;
+  width: 90%; max-width: 420px; max-height: 90vh; overflow-y: auto;
+}
+.modal h3 { font-size: 18px; margin-bottom: 20px; }
+.modal label { display: block; font-size: 13px; color: var(--text-secondary); margin: 12px 0 4px; }
+.modal input, .modal select {
+  width: 100%; padding: 10px 14px; border-radius: 8px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border-card);
+  color: var(--text-primary); font-size: 14px; outline: none;
+}
+.modal input:focus, .modal select:focus { border-color: var(--accent-1); }
+.modal select option { background: #1a1a2e; color: var(--text-primary); }
+.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+.modal-actions button {
+  padding: 8px 20px; border-radius: 8px; font-size: 14px;
+  cursor: pointer; border: 1px solid var(--border-card); transition: all 0.2s;
+}
+.btn-primary { background: var(--accent-1); color: #fff; border-color: var(--accent-1); }
+.btn-primary:hover { opacity: 0.85; }
+.btn-secondary { background: transparent; color: var(--text-secondary); }
+.btn-secondary:hover { color: #fff; background: rgba(255,255,255,0.06); }
+.btn-danger { background: transparent; color: var(--red); border-color: var(--red); }
+.btn-danger:hover { background: rgba(231,76,60,0.1); }
+
+/* 颜色选择器 */
+.color-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+.color-picker span {
+  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+  border: 2px solid transparent; transition: all 0.15s;
+}
+.color-picker span:hover { transform: scale(1.15); }
+.color-picker span.active { border-color: #fff; transform: scale(1.1); }
+
+/* 页脚 */
+.footer {
+  text-align: center; padding: 30px 0 10px;
+  font-size: 12px; color: var(--text-muted);
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+@media (max-width: 768px) {
+  .menu-toggle { display: flex; }
+  .sidebar { transform: translateX(-100%); }
+  .sidebar.open { transform: translateX(0); }
+  .overlay.show { display: block; opacity: 1; }
+  .main { margin-left: 0; padding: 60px 16px 30px; }
+  .cards { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+  .fab { bottom: 20px; right: 20px; width: 48px; height: 48px; font-size: 24px; }
+}
+</style>
+</head>
+<body>
+
+<button class="menu-toggle" id="menuToggle">☰</button>
+<div class="overlay" id="overlay"></div>
+
+<!-- 侧边栏 -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="avatar">J</div>
+    <h2>Joke Lin</h2>
+    <p>网址导航</p>
+  </div>
+  <nav class="sidebar-nav" id="sidebarNav">
+    <!-- 由 JS 动态生成 -->
+  </nav>
+</aside>
+
+<!-- 主内容 -->
+<div class="main">
+  <a class="back-home" href="../">← 返回门户首页</a>
+  <div id="contentArea">
+    <!-- 由 JS 动态生成书签分区 -->
+  </div>
+  <footer class="footer">
+    <p>&copy; 2026 Joke Lin's Bookmarks | 基于 data.json 配置驱动</p>
+  </footer>
+</div>
+
+<!-- 添加书签 FAB -->
+<button class="fab" id="addBtn" title="添加书签">+</button>
+
+<!-- 添加书签弹窗 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3>添加书签</h3>
+    <label>网站名称</label>
+    <input type="text" id="inputName" placeholder="例如：百度">
+    <label>网址</label>
+    <input type="text" id="inputUrl" placeholder="https://example.com">
+    <label>图标字母</label>
+    <input type="text" id="inputIcon" placeholder="B" maxlength="3" style="width:80px">
+    <label>分类</label>
+    <select id="inputSection"></select>
+    <label>图标颜色</label>
+    <div class="color-picker" id="colorPicker"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="modalCancel">取消</button>
+      <button class="btn-danger" id="resetBtn" style="margin-right:auto">重置默认</button>
+      <button class="btn-primary" id="modalSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/**
+ * 书签导航页核心逻辑
+ * - 从 data.json 加载所有书签数据
+ * - 渲染侧边栏导航 + 分类卡片网格
+ * - 支持用户自定义添加/删除书签（存入 localStorage）
+ */
+(function() {
+  'use strict';
+
+  var DATA_URL = 'data.json';
+  var COLORS = ['#6c63ff','#f093fb','#4facfe','#2ecc71','#e74c3c','#f39c12','#1abc9c','#3498db','#9b59b6','#e67e22','#1e3c72','#c31432'];
+  var activeColor = COLORS[0];
+  var bookData = null;  // 原始 JSON 数据
+  var userData = null;  // 用户自定义数据（deleted / custom）
+
+  /* --- 工具函数 --- */
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2000);
+  }
+
+  function saveUser() {
+    try { localStorage.setItem('bookmarks-user', JSON.stringify(userData)); } catch (e) {}
+  }
+
+  function loadUser() {
+    try { return JSON.parse(localStorage.getItem('bookmarks-user')) || { deleted: [], custom: [] }; }
+    catch (e) { return { deleted: [], custom: [] }; }
+  }
+
+  /* --- 加载数据 --- */
+  function loadData() {
+    return fetch(DATA_URL).then(function(r) { return r.json(); });
+  }
+
+  /* --- 渲染侧边栏导航 --- */
+  function renderSidebar() {
+    var nav = document.getElementById('sidebarNav');
+    var html = '';
+    bookData.categories.forEach(function(cat) {
+      html += '<a href="#' + cat.id + '"><span class="icon">' + cat.icon + '</span>' + cat.name + '</a>';
+    });
+    html += '<div class="nav-sep"></div>';
+    html += '<a href="../"><span class="icon">🏠</span>返回门户</a>';
+    nav.innerHTML = html;
+
+    // 滚动监听
+    var navLinks = nav.querySelectorAll('a[href^="#"]');
+    var sections = document.querySelectorAll('.section');
+    window.addEventListener('scroll', function() {
+      var top = window.scrollY + 100;
+      var current = '';
+      sections.forEach(function(sec) { if (sec.offsetTop <= top) current = sec.id; });
+      navLinks.forEach(function(a) {
+        a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+      });
+    });
+  }
+
+  /* --- 渲染书签卡片 --- */
+  function createCard(item) {
+    var card = document.createElement('a');
+    card.className = 'card';
+    card.href = item.url;
+    card.target = '_blank';
+    var g = item.gradient || ['#6c63ff', '#4630b3'];
+    var desc = item.desc ? '<div class="desc">' + item.desc + '</div>' : '';
+    card.innerHTML = '<div class="card-icon" style="background:linear-gradient(135deg,' + g[0] + ',' + g[1] + ')">' + item.icon + '</div>'
+      + '<div class="card-body"><div class="name">' + item.name + '</div>' + desc + '</div>';
+    return card;
+  }
+
+  function renderContent() {
+    var area = document.getElementById('contentArea');
+    area.innerHTML = '';
+
+    // 从 JSON 构建被删除的 URL 集合
+    var deletedSet = {};
+    (userData.deleted || []).forEach(function(url) { deletedSet[url] = true; });
+
+    bookData.categories.forEach(function(cat) {
+      var sec = document.createElement('div');
+      sec.className = 'section';
+      sec.id = cat.id;
+      sec.innerHTML = '<h2 class="section-title"><span class="dot"></span>' + cat.name + '</h2>';
+      var grid = document.createElement('div');
+      grid.className = 'cards';
+
+      // 渲染默认书签
+      (cat.items || []).forEach(function(item) {
+        if (deletedSet[item.url]) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'card-wrap';
+        wrap.appendChild(createCard(item));
+        var del = document.createElement('span');
+        del.className = 'card-del';
+        del.textContent = '×';
+        del.onclick = function(e) {
+          e.preventDefault(); e.stopPropagation();
+          userData.deleted.push(item.url);
+          saveUser();
+          wrap.style.opacity = '0'; wrap.style.transform = 'scale(0.8)';
+          setTimeout(function() { wrap.remove(); }, 200);
+          toast('已删除');
+        };
+        wrap.appendChild(del);
+        grid.appendChild(wrap);
+      });
+
+      // 渲染用户自定义书签
+      (userData.custom || []).forEach(function(item, idx) {
+        if (item.section !== cat.id) return;
+        var wrap = document.createElement('div');
+        wrap.className = 'card-wrap';
+        wrap.appendChild(createCard(item));
+        var del = document.createElement('span');
+        del.className = 'card-del';
+        del.textContent = '×';
+        del.onclick = function(e) {
+          e.preventDefault(); e.stopPropagation();
+          userData.custom.splice(idx, 1);
+          saveUser();
+          wrap.style.opacity = '0';
+          setTimeout(function() { wrap.remove(); }, 200);
+          toast('已删除');
+        };
+        wrap.appendChild(del);
+        grid.appendChild(wrap);
+      });
+
+      sec.appendChild(grid);
+      area.appendChild(sec);
+    });
+
+    // 填充分类下拉
+    var sel = document.getElementById('inputSection');
+    sel.innerHTML = '';
+    bookData.categories.forEach(function(cat) {
+      var o = document.createElement('option');
+      o.value = cat.id; o.textContent = cat.name;
+      sel.appendChild(o);
+    });
+  }
+
+  /* --- 颜色选择器 --- */
+  function initColorPicker() {
+    var cp = document.getElementById('colorPicker');
+    cp.innerHTML = '';
+    COLORS.forEach(function(c) {
+      var s = document.createElement('span');
+      s.style.background = c;
+      s.onclick = function() {
+        cp.querySelectorAll('span').forEach(function(x) { x.classList.remove('active'); });
+        s.classList.add('active');
+        activeColor = c;
+      };
+      cp.appendChild(s);
+    });
+    cp.firstChild.classList.add('active');
+  }
+
+  /* --- 移动端菜单 --- */
+  var sidebar = document.getElementById('sidebar');
+  var menuToggle = document.getElementById('menuToggle');
+  var menuOverlay = document.getElementById('overlay');
+  menuToggle.onclick = function() {
+    sidebar.classList.toggle('open');
+    menuOverlay.classList.toggle('show');
+  };
+  menuOverlay.onclick = function() {
+    sidebar.classList.remove('open');
+    menuOverlay.classList.remove('show');
+  };
+
+  /* --- 弹窗事件 --- */
+  var mo = document.getElementById('modalOverlay');
+  document.getElementById('addBtn').onclick = function() {
+    document.getElementById('inputName').value = '';
+    document.getElementById('inputUrl').value = 'https://';
+    document.getElementById('inputIcon').value = '';
+    mo.classList.add('show');
+  };
+  document.getElementById('modalCancel').onclick = function() { mo.classList.remove('show'); };
+  mo.onclick = function(e) { if (e.target === mo) mo.classList.remove('show'); };
+
+  document.getElementById('modalSave').onclick = function() {
+    var name = document.getElementById('inputName').value.trim();
+    var url = document.getElementById('inputUrl').value.trim();
+    var icon = document.getElementById('inputIcon').value.trim() || name.charAt(0).toUpperCase();
+    var section = document.getElementById('inputSection').value;
+    if (!name || !url) { toast('请填写名称和网址'); return; }
+    if (url.indexOf('http') !== 0) { toast('请输入有效网址'); return; }
+
+    var b = { name: name, url: url, icon: icon, gradient: [activeColor, activeColor], section: section };
+    userData.custom.push(b);
+    saveUser();
+    mo.classList.remove('show');
+    renderContent();
+    toast('已添加 ✓');
+  };
+
+  document.getElementById('resetBtn').onclick = function() {
+    if (confirm('确定重置所有自定义修改？')) {
+      userData = { deleted: [], custom: [] };
+      saveUser();
+      toast('已重置，刷新中…');
+      setTimeout(function() { location.reload(); }, 500);
+    }
+  };
+
+  /* --- 初始化 --- */
+  initColorPicker();
+  userData = loadUser();
+
+  loadData().then(function(data) {
+    bookData = data;
+    renderSidebar();
+    renderContent();
+  }).catch(function(err) {
+    console.error('加载书签数据失败:', err);
+    document.getElementById('contentArea').innerHTML = '<p style="color:var(--red);text-align:center;padding:60px">加载数据失败，请检查 data.json</p>';
+  });
+})();
+</script>
+</body>
+</html>

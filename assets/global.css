@@ -1,0 +1,182 @@
+/* ================================================================
+   全局设计系统 — Joke Lin's Portal
+   所有子站点共享此样式文件，保证风格统一
+   ================================================================ */
+
+/* --- CSS 变量（设计令牌） --- */
+:root {
+  --bg-primary: #0f0f1a;             /* 主背景色 */
+  --bg-card: rgba(255,255,255,0.05); /* 卡片背景 */
+  --border-card: rgba(255,255,255,0.1); /* 卡片边框 */
+  --text-primary: #e8e8f0;           /* 主文本 */
+  --text-secondary: #9999b3;         /* 次要文本 */
+  --text-muted: #666680;             /* 淡化文本 */
+  --accent-1: #6c63ff;               /* 主强调色 紫 */
+  --accent-2: #f093fb;               /* 辅强调色 粉 */
+  --accent-3: #4facfe;               /* 辅强调色 蓝 */
+  --green: #2ecc71;                  /* 绿色 */
+  --red: #e74c3c;                    /* 红色 */
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.3);
+  --radius-lg: 20px;                 /* 大圆角 */
+  --radius-md: 14px;                 /* 中圆角 */
+  --radius-sm: 10px;                 /* 小圆角 */
+  --font-stack: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+                'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+
+/* --- 重置 --- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-stack);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; }
+
+/* --- 返回首页按钮 --- */
+.back-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  color: var(--text-secondary);
+  font-size: 13px;
+  transition: all 0.2s;
+  margin-bottom: 20px;
+}
+.back-home:hover {
+  color: #fff;
+  border-color: var(--accent-1);
+  background: rgba(108,99,255,0.12);
+}
+
+/* --- 页面容器 --- */
+.page-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 30px 28px 60px;
+}
+
+/* --- 页头 --- */
+.page-header {
+  text-align: center;
+  padding: 30px 0 24px;
+  border-bottom: 1px solid var(--border-card);
+  margin-bottom: 28px;
+}
+.page-header h1 {
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.page-header p {
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-top: 6px;
+}
+
+/* --- 通用卡片网格 --- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+.card:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-card);
+  border-color: rgba(108,99,255,0.3);
+}
+.card-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.card-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* --- 分类筛选标签 --- */
+.tag-bar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.tag-bar button {
+  padding: 5px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid var(--border-card);
+  background: transparent;
+  color: var(--text-secondary);
+  transition: all 0.2s;
+}
+.tag-bar button:hover {
+  color: #fff;
+  border-color: var(--accent-1);
+}
+.tag-bar button.active {
+  background: var(--accent-1);
+  color: #fff;
+  border-color: var(--accent-1);
+}
+
+/* --- 提示条 --- */
+.toast {
+  position: fixed;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5000;
+  padding: 10px 28px;
+  border-radius: var(--radius-sm);
+  background: rgba(26,26,46,0.95);
+  border: 1px solid var(--border-card);
+  color: var(--text-primary);
+  font-size: 14px;
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; }
+
+/* --- 页脚 --- */
+.page-footer {
+  text-align: center;
+  padding: 32px 0 0;
+  border-top: 1px solid var(--border-card);
+  margin-top: 40px;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* --- 隐藏 --- */
+.hide { display: none !important; }
+
+/* --- 响应式 --- */
+@media (max-width: 768px) {
+  .page-container { padding: 20px 16px 40px; }
+  .page-header h1 { font-size: 22px; }
+  .card-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+}

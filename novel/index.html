@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!--
+  ================================================================
+  AI 小说 — novel/index.html
+  从 data.json 读取故事数据
+  支持故事列表、详情阅读、标签筛选
+  修改 data.json 即可管理所有故事
+  ================================================================
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 小说 · Joke Lin</title>
+<link rel="stylesheet" href="../assets/global.css">
+<style>
+.page-container { max-width: 860px; }
+
+/* 标签筛选 */
+.tag-bar { margin-bottom: 24px; }
+
+/* 故事列表 */
+.story-list { display: flex; flex-direction: column; gap: 14px; }
+.story-card {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 22px 26px;
+  transition: all 0.25s; cursor: pointer; position: relative;
+  overflow: hidden;
+}
+.story-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+  opacity: 0; transition: opacity 0.3s;
+}
+.story-card:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateX(4px);
+  border-color: rgba(108,99,255,0.3);
+}
+.story-card:hover::before { opacity: 1; }
+.story-card .story-title {
+  font-size: 20px; font-weight: 600; margin-bottom: 6px;
+}
+.story-card .story-meta {
+  display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary);
+  margin-bottom: 10px; align-items: center;
+}
+.story-card .story-summary {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.7;
+}
+.story-card .story-tags {
+  display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap;
+}
+.story-card .story-tags span {
+  padding: 3px 10px; border-radius: 12px; font-size: 11px;
+  background: rgba(108,99,255,0.1); color: var(--accent-1);
+}
+
+/* 故事详情 */
+.detail { display: none; }
+.detail.show { display: block; }
+.detail-header { margin-bottom: 28px; }
+.detail-header .back-link {
+  display: inline-block; margin-bottom: 16px;
+  padding: 6px 14px; border-radius: 6px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary); font-size: 13px; cursor: pointer;
+  transition: all 0.2s;
+}
+.detail-header .back-link:hover { color: #fff; border-color: var(--accent-1); }
+.detail-header h1 {
+  font-size: 28px; font-weight: 700; margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.detail-header .detail-meta {
+  display: flex; gap: 14px; font-size: 13px; color: var(--text-secondary);
+  align-items: center; flex-wrap: wrap;
+}
+.detail-header .detail-tags { display: flex; gap: 6px; margin-top: 10px; }
+.detail-header .detail-tags span {
+  padding: 3px 10px; border-radius: 12px; font-size: 11px;
+  background: rgba(108,99,255,0.1); color: var(--accent-1);
+}
+
+/* 正文 */
+.story-body {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 32px 36px;
+  font-size: 15px; line-height: 2; color: #d0d0e0;
+}
+.story-body h2 {
+  font-size: 20px; margin: 32px 0 16px; padding-left: 14px;
+  border-left: 3px solid var(--accent-1); color: var(--text-primary);
+}
+.story-body h2:first-child { margin-top: 0; }
+.story-body p { margin-bottom: 16px; }
+.story-body em { color: var(--accent-2); font-style: italic; }
+.story-body blockquote {
+  border-left: 3px solid var(--accent-1); padding: 12px 18px;
+  margin: 16px 0; background: rgba(108,99,255,0.06);
+  border-radius: 0 8px 8px 0; color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .story-body { padding: 24px 20px; font-size: 14px; }
+  .story-card { padding: 18px 20px; }
+  .story-card .story-title { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+<div class="page-container">
+  <a class="back-home" href="../">← 返回门户首页</a>
+
+  <header class="page-header">
+    <h1 id="pageTitle">AI 小说</h1>
+    <p id="pageSubtitle">AI 辅助创作的文学作品与短篇故事集</p>
+  </header>
+
+  <!-- 列表视图 -->
+  <div id="viewList">
+    <div class="tag-bar" id="tagFilter"></div>
+    <div class="story-list" id="storyList"></div>
+  </div>
+
+  <!-- 详情视图 -->
+  <div class="detail" id="viewDetail">
+    <div class="detail-header">
+      <span class="back-link" id="detailBack">← 返回列表</span>
+      <h1 id="detailTitle"></h1>
+      <div class="detail-meta">
+        <span id="detailAuthor"></span>
+        <span id="detailDate"></span>
+      </div>
+      <div class="detail-tags" id="detailTags"></div>
+    </div>
+    <div class="story-body" id="detailContent"></div>
+  </div>
+
+  <footer class="page-footer">
+    <p>&copy; 2026 Joke Lin's Novel &nbsp;|&nbsp; 修改 data.json 即可管理故事</p>
+  </footer>
+</div>
+
+<script>
+/**
+ * 小说页核心逻辑
+ * 从 data.json 加载故事数据
+ * 支持标签筛选、故事详情阅读
+ */
+(function() {
+  'use strict';
+
+  var stories = [];
+  var allTags = [];
+  var activeTag = 'all';
+
+  /* --- 渲染标签筛选 --- */
+  function renderTags() {
+    var el = document.getElementById('tagFilter');
+    var html = '<button class="' + (activeTag === 'all' ? 'active' : '') + '" data-tag="all">全部</button>';
+    allTags.forEach(function(t) {
+      html += '<button class="' + (activeTag === t ? 'active' : '') + '" data-tag="' + t + '">' + t + '</button>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll('button').forEach(function(btn) {
+      btn.onclick = function() {
+        activeTag = btn.getAttribute('data-tag');
+        renderList();
+      };
+    });
+  }
+
+  /* --- 渲染故事列表 --- */
+  function renderList() {
+    renderTags();
+    var list = document.getElementById('storyList');
+    var filtered = activeTag === 'all' ? stories : stories.filter(function(s) {
+      return (s.tags || []).indexOf(activeTag) > -1;
+    });
+
+    var html = '';
+    filtered.forEach(function(s) {
+      var tags = (s.tags || []).map(function(t) { return '<span>' + t + '</span>'; }).join('');
+      html += '<div class="story-card" data-id="' + s.id + '">'
+        + '<div class="story-title">' + s.title + '</div>'
+        + '<div class="story-meta">'
+        + '<span>✍️ ' + (s.author || '') + '</span>'
+        + '<span>📅 ' + (s.date || '') + '</span>'
+        + '</div>'
+        + '<div class="story-summary">' + (s.summary || '') + '</div>'
+        + (tags ? '<div class="story-tags">' + tags + '</div>' : '')
+        + '</div>';
+    });
+
+    if (filtered.length === 0) {
+      html = '<div style="text-align:center;padding:60px;color:var(--text-secondary)">暂无该标签下的故事</div>';
+    }
+    list.innerHTML = html;
+
+    // 绑定点击
+    list.querySelectorAll('.story-card').forEach(function(card) {
+      card.onclick = function() { showDetail(card.getAttribute('data-id')); };
+    });
+  }
+
+  /* --- 显示详情 --- */
+  function showDetail(id) {
+    var s = stories.find(function(x) { return x.id === id; });
+    if (!s) return;
+    document.getElementById('detailTitle').textContent = s.title;
+    document.getElementById('detailAuthor').textContent = '✍️ ' + (s.author || '');
+    document.getElementById('detailDate').textContent = '📅 ' + (s.date || '');
+    document.getElementById('detailTags').innerHTML = (s.tags || []).map(function(t) {
+      return '<span>' + t + '</span>';
+    }).join('');
+    document.getElementById('detailContent').innerHTML = s.content;
+
+    document.getElementById('viewList').style.display = 'none';
+    document.getElementById('viewDetail').classList.add('show');
+    document.getElementById('viewDetail').style.display = '';
+    window.scrollTo(0, 0);
+  }
+
+  document.getElementById('detailBack').onclick = function() {
+    document.getElementById('viewDetail').classList.remove('show');
+    document.getElementById('viewDetail').style.display = 'none';
+    document.getElementById('viewList').style.display = '';
+  };
+
+  /* --- 加载数据 --- */
+  fetch('data.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.title) document.getElementById('pageTitle').textContent = data.title;
+      if (data.subtitle) document.getElementById('pageSubtitle').textContent = data.subtitle;
+      stories = data.stories || [];
+
+      // 收集所有标签
+      var tagSet = {};
+      stories.forEach(function(s) {
+        (s.tags || []).forEach(function(t) { tagSet[t] = true; });
+      });
+      allTags = Object.keys(tagSet);
+
+      renderList();
+    })
+    .catch(function(err) {
+      console.error('加载小说数据失败:', err);
+      document.getElementById('storyList').innerHTML = '<p style="color:var(--red);text-align:center;padding:60px">加载数据失败</p>';
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!--
+  ================================================================
+  AI 音乐 — music/index.html
+  从 data.json 读取歌单数据
+  支持展示歌曲名、歌手、封面、播放备注
+  修改 data.json 即可批量管理歌单
+  ================================================================
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 音乐 · Joke Lin</title>
+<link rel="stylesheet" href="../assets/global.css">
+<style>
+.page-container { max-width: 960px; }
+
+/* 歌单区块 */
+.playlist-section {
+  margin-bottom: 36px;
+}
+.playlist-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-card);
+}
+.playlist-header .pl-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+}
+.playlist-header h2 { font-size: 20px; font-weight: 600; }
+.playlist-header .pl-desc {
+  font-size: 13px; color: var(--text-secondary); margin-left: auto;
+}
+
+/* 歌曲列表 */
+.song-list {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.song-card {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 14px 18px;
+  transition: all 0.25s;
+}
+.song-card:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateX(4px);
+  border-color: rgba(108,99,255,0.3);
+}
+.song-cover {
+  width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px;
+}
+.song-body { flex: 1; min-width: 0; }
+.song-body .song-title {
+  font-size: 15px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.song-body .song-artist {
+  font-size: 13px; color: var(--text-secondary); margin-top: 2px;
+}
+.song-body .song-note {
+  font-size: 12px; color: var(--text-muted); margin-top: 6px;
+  line-height: 1.5;
+}
+.song-tags {
+  display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px;
+}
+.song-tags span {
+  padding: 2px 8px; border-radius: 10px; font-size: 11px;
+  background: rgba(108,99,255,0.1); color: var(--accent-1);
+}
+.song-index {
+  width: 28px; text-align: center; font-size: 14px;
+  color: var(--text-muted); font-weight: 600; flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .playlist-header { flex-wrap: wrap; }
+  .playlist-header .pl-desc { margin-left: 0; width: 100%; margin-top: 4px; }
+  .song-card { padding: 12px 14px; gap: 12px; }
+  .song-cover { width: 48px; height: 48px; font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="page-container">
+  <a class="back-home" href="../">← 返回门户首页</a>
+
+  <header class="page-header">
+    <h1 id="pageTitle">AI 音乐</h1>
+    <p id="pageSubtitle">AI 驱动的音乐灵感与歌单收藏</p>
+  </header>
+
+  <div id="musicContent">
+    <!-- 由 JS 动态渲染 -->
+  </div>
+
+  <footer class="page-footer">
+    <p>&copy; 2026 Joke Lin's Music &nbsp;|&nbsp; 修改 data.json 即可管理歌单</p>
+  </footer>
+</div>
+
+<script>
+/**
+ * 歌单页核心逻辑
+ * 从 data.json 加载歌单数据，按歌单分组渲染
+ */
+(function() {
+  'use strict';
+
+  function renderMusic(data) {
+    // 页面标题
+    if (data.title) document.getElementById('pageTitle').textContent = data.title;
+    if (data.subtitle) document.getElementById('pageSubtitle').textContent = data.subtitle;
+
+    var container = document.getElementById('musicContent');
+    var html = '';
+
+    (data.playlists || []).forEach(function(pl) {
+      html += '<div class="playlist-section">';
+      html += '<div class="playlist-header">'
+        + '<div class="pl-icon">' + (pl.icon || '🎵') + '</div>'
+        + '<h2>' + pl.name + '</h2>'
+        + '<span class="pl-desc">' + (pl.description || '') + '</span>'
+        + '</div>';
+      html += '<div class="song-list">';
+
+      (pl.songs || []).forEach(function(song, idx) {
+        var g = song.coverBg || ['#6c63ff', '#4630b3'];
+        var tags = (song.tags || []).map(function(t) { return '<span>' + t + '</span>'; }).join('');
+        html += '<div class="song-card">'
+          + '<span class="song-index">' + String(idx + 1).padStart(2, '0') + '</span>'
+          + '<div class="song-cover" style="background:linear-gradient(135deg,' + g[0] + ',' + g[1] + ')">' + (song.cover || '🎵') + '</div>'
+          + '<div class="song-body">'
+          + '<div class="song-title">' + song.title + '</div>'
+          + '<div class="song-artist">' + (song.artist || '') + '</div>'
+          + (song.note ? '<div class="song-note">💬 ' + song.note + '</div>' : '')
+          + (tags ? '<div class="song-tags">' + tags + '</div>' : '')
+          + '</div></div>';
+      });
+
+      html += '</div></div>';
+    });
+
+    container.innerHTML = html;
+  }
+
+  /* --- 加载数据 --- */
+  fetch('data.json')
+    .then(function(r) { return r.json(); })
+    .then(renderMusic)
+    .catch(function(err) {
+      console.error('加载歌单数据失败:', err);
+      document.getElementById('musicContent').innerHTML = '<p style="color:var(--red);text-align:center;padding:60px">加载歌单数据失败</p>';
+    });
+})();
+</script>
+</body>
+</html>

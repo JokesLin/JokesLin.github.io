@@ -1,255 +1,53 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+<!--
+  ================================================================
+  Joke Lin's Portal — 综合门户总站
+  根目录 index.html 为主门户首页
+  暗号验证后方可进入，卡片导航跳转各子站点
+  ================================================================
+-->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>Joke Lin's Navigation</title>
+<title>Joke Lin's Portal</title>
+<link rel="stylesheet" href="assets/global.css">
 <style>
-:root {
-  --sidebar-width: 240px;
-  --bg-primary: #0f0f1a;
-  --bg-card: rgba(255,255,255,0.06);
-  --border-card: rgba(255,255,255,0.1);
-  --text-primary: #e8e8f0;
-  --text-secondary: #9999b3;
-  --accent-1: #6c63ff;
-  --accent-2: #f093fb;
-  --accent-3: #4facfe;
-  --shadow-card: 0 8px 32px rgba(0,0,0,0.3);
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { font-family: -apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif; background: var(--bg-primary); color: var(--text-primary); min-height: 100vh; }
-a { color: inherit; text-decoration: none; }
-
-/* Sidebar */
-.sidebar {
-  position: fixed; left: 0; top: 0; width: var(--sidebar-width); height: 100vh;
-  background: linear-gradient(180deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);
-  z-index: 1000; overflow-y: auto; overflow-x: hidden;
-  transition: transform .3s ease;
-}
-.sidebar::-webkit-scrollbar { width: 4px; }
-.sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 2px; }
-.sidebar-header {
-  padding: 30px 20px 20px; text-align: center;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
-}
-.avatar {
-  width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 12px;
-  background: linear-gradient(135deg,var(--accent-1),var(--accent-2));
-  display: flex; align-items: center; justify-content: center;
-  font-size: 28px; font-weight: 700; color: #fff;
-  border: 2px solid rgba(255,255,255,0.2);
-}
-.sidebar-header h2 { font-size: 16px; font-weight: 600; }
-.sidebar-header p { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
-.sidebar-nav { padding: 12px 0; }
-.sidebar-nav a {
-  display: flex; align-items: center; padding: 10px 20px;
-  font-size: 13px; color: var(--text-secondary); transition: all .2s;
-  border-left: 3px solid transparent;
-}
-.sidebar-nav a:hover, .sidebar-nav a.active {
-  color: #fff; background: rgba(108,99,255,0.12); border-left-color: var(--accent-1);
-}
-.sidebar-nav a .icon { width: 20px; margin-right: 10px; text-align: center; font-size: 14px; }
-
-/* Main Content */
-.main { margin-left: var(--sidebar-width); padding: 30px 40px 60px; max-width: 1400px; }
-.section { margin-bottom: 40px; }
-.section-title {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 18px; font-weight: 600; margin-bottom: 20px; padding-bottom: 10px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.section-title .dot {
-  width: 8px; height: 8px; border-radius: 50%;
-  background: linear-gradient(135deg,var(--accent-1),var(--accent-2));
-}
-.cards { display: grid; grid-template-columns: repeat(auto-fill,minmax(200px,1fr)); gap: 12px; }
-.card {
-  background: var(--bg-card); border: 1px solid var(--border-card);
-  border-radius: 12px; padding: 14px 16px;
-  transition: all .25s ease; cursor: pointer;
-  display: flex; align-items: center; gap: 12px;
-}
-.card:hover {
-  background: rgba(255,255,255,0.1); transform: translateY(-2px);
-  box-shadow: var(--shadow-card); border-color: rgba(108,99,255,0.3);
-}
-.card-icon {
-  width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; color: #fff; font-weight: 600;
-}
-.card-body { min-width: 0; flex: 1; }
-.card-body .name { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.card-body .desc { font-size: 11px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-
-/* Mobile toggle */
-.menu-toggle {
-  display: none; position: fixed; top: 12px; left: 12px; z-index: 1100;
-  width: 40px; height: 40px; border-radius: 10px;
-  background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.15);
-  color: #fff; font-size: 20px; cursor: pointer;
-  align-items: center; justify-content: center;
-}
-.overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-  z-index: 999; opacity: 0; transition: opacity .3s;
-}
-
-/* Social bar */
-.social-bar {
-  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 30px;
-  padding: 16px 20px;
-  background: var(--bg-card); border: 1px solid var(--border-card);
-  border-radius: 14px;
-}
-.social-bar a {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 6px 14px; border-radius: 8px;
-  font-size: 13px; color: var(--text-secondary);
-  background: rgba(255,255,255,0.04);
-  transition: all .2s;
-}
-.social-bar a:hover { color: #fff; background: rgba(108,99,255,0.2); }
-
-/* Footer */
-.footer {
-  text-align: center; padding: 30px 0 10px;
-  font-size: 12px; color: var(--text-secondary);
-  border-top: 1px solid rgba(255,255,255,0.06);
-}
-
-@media (max-width: 768px) {
-  .menu-toggle { display: flex; }
-  .sidebar { transform: translateX(-100%); }
-  .sidebar.open { transform: translateX(0); }
-  .overlay.show { display: block; opacity: 1; }
-  .main { margin-left: 0; padding: 60px 16px 30px; }
-  .cards { grid-template-columns: repeat(auto-fill,minmax(160px,1fr)); gap: 10px; }
-  .card { padding: 12px 14px; }
-}
-
-/* Bookmark Management */
-.card-wrap { position: relative; }
-.card-del {
-  position: absolute; top: -6px; right: -6px; width: 22px; height: 22px;
-  border-radius: 50%; background: #e74c3c; color: #fff; border: 2px solid var(--bg-primary);
-  display: none; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 700; cursor: pointer; z-index: 2;
-  line-height: 1;
-}
-.card-wrap:hover .card-del { display: flex; }
-.card-del:hover { background: #c0392b; }
-
-.fab {
-  position: fixed; bottom: 30px; right: 30px; z-index: 900;
-  width: 56px; height: 56px; border-radius: 50%;
-  background: linear-gradient(135deg,var(--accent-1),var(--accent-2));
-  color: #fff; font-size: 28px; border: none; cursor: pointer;
-  box-shadow: 0 4px 20px rgba(108,99,255,0.4);
-  display: flex; align-items: center; justify-content: center;
-  transition: transform .2s, box-shadow .2s;
-}
-.fab:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(108,99,255,0.6); }
-.fab:active { transform: scale(0.95); }
-
-.modal-overlay {
-  display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-  z-index: 2000; align-items: center; justify-content: center;
-  backdrop-filter: blur(4px);
-}
-.modal-overlay.show { display: flex; }
-.modal {
-  background: #1a1a2e; border: 1px solid var(--border-card);
-  border-radius: 16px; padding: 24px; width: 90%; max-width: 420px;
-  max-height: 90vh; overflow-y: auto;
-}
-.modal h3 { font-size: 18px; margin-bottom: 20px; }
-.modal label { display: block; font-size: 13px; color: var(--text-secondary); margin: 12px 0 4px; }
-.modal input, .modal select {
-  width: 100%; padding: 10px 14px; border-radius: 8px;
-  background: rgba(255,255,255,0.06); border: 1px solid var(--border-card);
-  color: var(--text-primary); font-size: 14px; outline: none;
-}
-.modal input:focus, .modal select:focus { border-color: var(--accent-1); }
-.modal select option { background: #1a1a2e; color: var(--text-primary); }
-.modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
-.modal-actions button {
-  padding: 8px 20px; border-radius: 8px; font-size: 14px; cursor: pointer;
-  border: 1px solid var(--border-card); transition: all .2s;
-}
-.btn-primary { background: var(--accent-1); color: #fff; border-color: var(--accent-1); }
-.btn-primary:hover { opacity: .85; }
-.btn-secondary { background: transparent; color: var(--text-secondary); }
-.btn-secondary:hover { color: #fff; background: rgba(255,255,255,0.06); }
-.btn-danger { background: transparent; color: #e74c3c; border-color: #e74c3c; }
-.btn-danger:hover { background: rgba(231,76,60,0.1); }
-
-.color-picker { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-.color-picker span {
-  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
-  border: 2px solid transparent; transition: all .15s;
-}
-.color-picker span:hover { transform: scale(1.15); }
-.color-picker span.active { border-color: #fff; transform: scale(1.1); }
-
-.toast {
-  position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
-  z-index: 3000; padding: 10px 24px; border-radius: 10px;
-  background: rgba(26,26,46,0.95); border: 1px solid var(--border-card);
-  color: var(--text-primary); font-size: 14px;
-  opacity: 0; transition: opacity .3s, transform .3s;
-  pointer-events: none;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
-
-@media (max-width: 768px) {
-  .fab { bottom: 20px; right: 20px; width: 48px; height: 48px; font-size: 24px; }
-  .modal { padding: 20px; }
-}
-
-/* Login Overlay */
-.login-overlay {
+/* ===== 暗号验证页 ===== */
+.lock-screen {
   position: fixed; inset: 0; z-index: 9999;
   display: flex; align-items: center; justify-content: center;
-  background: #0f0f1a;
+  background: var(--bg-primary);
+  transition: opacity 0.6s, visibility 0.6s;
 }
-.login-overlay.hidden {
-  display: none;
+.lock-screen.hidden {
+  opacity: 0; visibility: hidden; pointer-events: none;
 }
-.login-bg-glow {
-  position: fixed; inset: 0; z-index: -1; overflow: hidden;
-}
-.login-bg-glow span {
+/* 浮动光晕背景 */
+.lock-glow { position: fixed; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.lock-glow span {
   position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3;
-  animation: float 12s ease-in-out infinite alternate;
+  animation: glowFloat 12s ease-in-out infinite alternate;
 }
-.login-bg-glow .g1 { width: 500px; height: 500px; background: #6c63ff; top: -150px; left: -100px; }
-.login-bg-glow .g2 { width: 400px; height: 400px; background: #f093fb; bottom: -120px; right: -80px; animation-delay: -4s; }
-.login-bg-glow .g3 { width: 350px; height: 350px; background: #4facfe; bottom: 40%; right: 30%; animation-delay: -8s; }
-@keyframes float {
-  0% { transform: translate(0, 0) scale(1); }
+.lock-glow .g1 { width: 500px; height: 500px; background: #6c63ff; top: -150px; left: -100px; }
+.lock-glow .g2 { width: 400px; height: 400px; background: #f093fb; bottom: -120px; right: -80px; animation-delay: -4s; }
+.lock-glow .g3 { width: 350px; height: 350px; background: #4facfe; bottom: 40%; right: 30%; animation-delay: -8s; }
+@keyframes glowFloat {
+  0%   { transform: translate(0, 0) scale(1); }
   100% { transform: translate(60px, -60px) scale(1.15); }
 }
-.login-card {
+.lock-card {
   position: relative; z-index: 1;
   width: 90%; max-width: 520px;
   background: rgba(255,255,255,0.04);
-  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(24px);
   border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 28px; padding: 60px 48px 48px;
+  border-radius: 28px;
+  padding: 60px 48px 48px;
   text-align: center;
   box-shadow: 0 30px 80px rgba(0,0,0,0.5);
 }
-.login-lock {
+.lock-icon {
   width: 80px; height: 80px; border-radius: 50%;
   margin: 0 auto 28px;
   background: linear-gradient(135deg, rgba(108,99,255,0.2), rgba(240,147,251,0.2));
@@ -257,578 +55,333 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; justify-content: center;
   font-size: 36px;
 }
-.login-card h1 {
-  font-size: 32px; font-weight: 700; margin-bottom: 8px;
+.lock-card h1 {
+  font-size: 34px; font-weight: 700; margin-bottom: 8px;
   background: linear-gradient(135deg, #6c63ff, #f093fb);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
   background-clip: text;
 }
-.login-card p { font-size: 16px; color: #9999b3; margin-bottom: 36px; }
-.login-input {
+.lock-card .subtitle {
+  font-size: 15px; color: var(--text-secondary); margin-bottom: 36px;
+}
+.lock-input {
   width: 100%; padding: 18px 24px; font-size: 20px; border-radius: 16px;
   border: 2px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.05); color: #e8e8f0; outline: none;
-  transition: border-color .3s, box-shadow .3s;
+  background: rgba(255,255,255,0.05); color: var(--text-primary); outline: none;
+  transition: border-color 0.3s, box-shadow 0.3s;
   letter-spacing: 4px; text-align: center;
 }
-.login-input::placeholder { color: #666; letter-spacing: 0; font-size: 15px; }
-.login-input:focus {
-  border-color: #6c63ff;
+.lock-input::placeholder { color: var(--text-muted); letter-spacing: 0; font-size: 15px; }
+.lock-input:focus {
+  border-color: var(--accent-1);
   box-shadow: 0 0 0 4px rgba(108,99,255,0.15);
 }
-.login-input.error {
-  border-color: #e74c3c;
+.lock-input.error {
+  border-color: var(--red);
   box-shadow: 0 0 0 4px rgba(231,76,60,0.15);
-  animation: shake .4s ease;
+  animation: shake 0.4s ease;
 }
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-12px); }
-  40% { transform: translateX(12px); }
-  60% { transform: translateX(-8px); }
-  80% { transform: translateX(8px); }
+  20%  { transform: translateX(-12px); }
+  40%  { transform: translateX(12px); }
+  60%  { transform: translateX(-8px); }
+  80%  { transform: translateX(8px); }
 }
-.login-btn {
+.lock-btn {
   width: 100%; padding: 18px; margin-top: 20px;
   font-size: 18px; font-weight: 600; border: none; border-radius: 16px;
   background: linear-gradient(135deg, #6c63ff, #f093fb);
-  color: #fff; cursor: pointer; transition: transform .2s, box-shadow .2s;
+  color: #fff; cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
   letter-spacing: 2px;
 }
-.login-btn:hover {
+.lock-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 40px rgba(108,99,255,0.35);
 }
-.login-btn:active { transform: translateY(0); }
-.login-error {
-  margin-top: 14px; font-size: 14px; color: #e74c3c;
-  opacity: 0; transition: opacity .3s; min-height: 20px;
+.lock-btn:active { transform: translateY(0); }
+.lock-error {
+  margin-top: 14px; font-size: 14px; color: var(--red);
+  opacity: 0; transition: opacity 0.3s; min-height: 20px;
 }
-.login-error.show { opacity: 1; }
+.lock-error.show { opacity: 1; }
+
+/* ===== 主门户内容 ===== */
+.portal { opacity: 0; transition: opacity 0.6s; }
+.portal.show { opacity: 1; }
+.portal-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 50px 28px 60px;
+}
+.portal-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+.portal-avatar {
+  width: 80px; height: 80px; border-radius: 50%;
+  margin: 0 auto 18px;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 700; color: #fff;
+  border: 3px solid rgba(255,255,255,0.15);
+}
+.portal-header h1 {
+  font-size: 32px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.portal-header .tagline {
+  color: var(--text-secondary);
+  font-size: 15px; margin-top: 6px;
+}
+
+/* 社交条 */
+.social-row {
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: 8px; margin-bottom: 40px;
+}
+.social-row a {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 14px; border-radius: 8px;
+  font-size: 13px; color: var(--text-secondary);
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border-card);
+  transition: all 0.2s;
+}
+.social-row a:hover {
+  color: #fff;
+  background: rgba(108,99,255,0.15);
+  border-color: rgba(108,99,255,0.3);
+}
+
+/* 子站点卡片 */
+.site-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+.site-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  position: relative;
+  overflow: hidden;
+}
+.site-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.site-card:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card);
+  border-color: rgba(108,99,255,0.35);
+}
+.site-card:hover::before { opacity: 1; }
+.site-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: #fff; flex-shrink: 0;
+}
+.site-info { flex: 1; min-width: 0; }
+.site-info h3 {
+  font-size: 18px; font-weight: 600; margin-bottom: 6px;
+}
+.site-info p {
+  font-size: 13px; color: var(--text-secondary); line-height: 1.5;
+}
+.site-arrow {
+  position: absolute;
+  right: 20px; top: 50%; transform: translateY(-50%);
+  font-size: 20px; color: var(--text-muted);
+  transition: all 0.3s;
+}
+.site-card:hover .site-arrow {
+  color: var(--accent-1);
+  transform: translateY(-50%) translateX(4px);
+}
+
+/* 页脚 */
+.portal-footer {
+  text-align: center;
+  padding: 40px 0 0;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .lock-card { padding: 48px 28px 36px; }
+  .lock-card h1 { font-size: 26px; }
+  .portal-inner { padding: 36px 16px 40px; }
+  .portal-header h1 { font-size: 26px; }
+  .site-grid { grid-template-columns: 1fr; gap: 14px; }
+  .site-card { padding: 24px 18px; }
+  .site-icon { width: 46px; height: 46px; font-size: 22px; }
+}
 </style>
 </head>
 <body>
 
-<div class="login-overlay" id="loginOverlay">
-  <div class="login-bg-glow">
+<!-- ========== 暗号验证层 ========== -->
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-glow">
     <span class="g1"></span><span class="g2"></span><span class="g3"></span>
   </div>
-  <div class="login-card">
-    <div class="login-lock">🔐</div>
-    <h1>私人导航站</h1>
-    <p>请输入暗号以继续访问</p>
-    <input type="password" class="login-input" id="loginInput" placeholder="请输入暗号" autofocus>
-    <button class="login-btn" id="loginBtn">进入导航站</button>
-    <div class="login-error" id="loginError">暗号错误，请重试</div>
+  <div class="lock-card">
+    <div class="lock-icon">🔐</div>
+    <h1>Joke Lin's Portal</h1>
+    <p class="subtitle">请输入暗号以继续访问</p>
+    <input type="password" class="lock-input" id="lockInput" placeholder="请输入暗号" autofocus>
+    <button class="lock-btn" id="lockBtn">进入门户</button>
+    <div class="lock-error" id="lockError">暗号错误，请重试</div>
   </div>
 </div>
 
-<button class="menu-toggle" id="menuToggle" aria-label="菜单">☰</button>
-<div class="overlay" id="overlay"></div>
+<!-- ========== 主门户 ========== -->
+<div class="portal" id="portal">
+  <div class="portal-inner">
 
-<!-- Sidebar -->
-<aside class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <div class="avatar">J</div>
-    <h2>Joke Lin</h2>
-    <p>网址导航</p>
-  </div>
-  <nav class="sidebar-nav">
-    <a href="#ai" class="active"><span class="icon">🤖</span>AI 工具</a>
-    <a href="#paper"><span class="icon">📄</span>论文相关</a>
-    <a href="#campus"><span class="icon">🎓</span>校园</a>
-    <a href="#exam"><span class="icon">📝</span>考研考试</a>
-    <a href="#media"><span class="icon">🎬</span>视听娱乐</a>
-    <a href="#cloud"><span class="icon">☁️</span>网盘</a>
-    <a href="#tech"><span class="icon">🔧</span>技术资源</a>
-    <a href="#graphics"><span class="icon">🎨</span>图形编辑</a>
-    <a href="#torrent"><span class="icon">⚡</span>BT 磁力</a>
-    <a href="#games"><span class="icon">🎮</span>游戏</a>
-    <a href="#network"><span class="icon">🌐</span>网络工具</a>
-    <a href="blog.html" style="border-left-color:var(--green);margin-top:8px;border-top:1px solid rgba(255,255,255,0.06);padding-top:14px"><span class="icon">📝</span>个人博客</a>
-  </nav>
-</aside>
+    <!-- 头部 -->
+    <header class="portal-header">
+      <div class="portal-avatar">J</div>
+      <h1>Joke Lin's Portal</h1>
+      <p class="tagline">个人综合门户 · 农村发展硕士研究生</p>
+    </header>
 
-<!-- Main -->
-<div class="main">
-
-  <!-- Social Bar -->
-  <div class="social-bar">
-    <a href="https://space.bilibili.com/379827770" target="_blank">📺 B站</a>
-    <a href="https://tieba.baidu.com/home/main?un=江州一衣带水&fr=home" target="_blank">📋 贴吧</a>
-    <a href="https://www.youtube.com/channel/UClunxHYnA1l6nUAMVcS03XA" target="_blank">▶️ YouTube</a>
-    <a href="https://t.me/JokesLin" target="_blank">✈️ Telegram</a>
-    <a href="https://github.com/JokesLin" target="_blank">💻 GitHub</a>
-    <a href="blog.html" style="background:linear-gradient(135deg,rgba(108,99,255,0.2),rgba(46,204,113,0.2));border:1px solid rgba(108,99,255,0.3);color:#fff">📝 个人博客</a>
-  </div>
-
-  <!-- AI 工具 -->
-  <div class="section" id="ai">
-    <h2 class="section-title"><span class="dot"></span>AI 工具</h2>
-    <div class="cards">
-      <a class="card" href="https://www.google.com.hk/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4285f4,#34a853)">G</div><div class="card-body"><div class="name">Google</div></div></a>
-      <a class="card" href="https://gemini.google.com/app" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">Ge</div><div class="card-body"><div class="name">Gemini</div></div></a>
-      <a class="card" href="https://chatgpt.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#10a37f,#0d8c6f)">C</div><div class="card-body"><div class="name">ChatGPT</div></div></a>
-      <a class="card" href="https://grok.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#000,#333)">G</div><div class="card-body"><div class="name">Grok</div></div></a>
-      <a class="card" href="https://claude.ai/new" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#6c47ff,#4630b3)">C</div><div class="card-body"><div class="name">Claude</div></div></a>
-      <a class="card" href="https://platform.deepseek.com/usage" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4f6bff,#2d4a8a)">D</div><div class="card-body"><div class="name">DeepSeek</div></div></a>
+    <!-- 社交链接 -->
+    <div class="social-row">
+      <a href="https://github.com/JokesLin" target="_blank">💻 GitHub</a>
+      <a href="https://space.bilibili.com/379827770" target="_blank">📺 B站</a>
+      <a href="https://www.youtube.com/channel/UClunxHYnA1l6nUAMVcS03XA" target="_blank">▶️ YouTube</a>
+      <a href="https://t.me/JokesLin" target="_blank">✈️ Telegram</a>
+      <a href="https://tieba.baidu.com/home/main?un=江州一衣带水&fr=home" target="_blank">📋 贴吧</a>
     </div>
-  </div>
 
-  <!-- 论文相关 -->
-  <div class="section" id="paper">
-    <h2 class="section-title"><span class="dot"></span>论文相关</h2>
-    <div class="cards">
-      <a class="card" href="https://www.paperyy.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">Y</div><div class="card-body"><div class="name">PaperYY</div><div class="desc">AIGC免费论文检测</div></div></a>
-      <a class="card" href="https://www.paperpass.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">P</div><div class="card-body"><div class="name">PaperPass</div><div class="desc">论文查重降重</div></div></a>
-      <a class="card" href="https://www.aigcleaner.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe)">AI</div><div class="card-body"><div class="name">嘎嘎降AI</div><div class="desc">AIGCleaner</div></div></a>
-      <a class="card" href="https://ds.carsi.edu.cn/resource/resource.php" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#fa709a,#fee140)">C</div><div class="card-body"><div class="name">CARSI</div></div></a>
-      <a class="card" href="https://sci-hub.gupiaoq.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0c3483,#a2b6df)">S</div><div class="card-body"><div class="name">Sci-Hub</div></div></a>
-      <a class="card" href="https://www.sci-hub.st/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0c3483,#a2b6df)">S2</div><div class="card-body"><div class="name">Sci-Hub (备)</div></div></a>
-      <a class="card" href="https://www.cnki.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#c31432,#240b36)">知</div><div class="card-body"><div class="name">中国知网</div></div></a>
-      <a class="card" href="https://t.ck-ai.co/tool/ggscholar/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4285f4,#34a853)">G</div><div class="card-body"><div class="name">Google学术镜像</div></div></a>
-      <a class="card" href="https://caj.gentleltd.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">C</div><div class="card-body"><div class="name">GentleCAJ</div><div class="desc">CAJ转PDF</div></div></a>
-      <a class="card" href="https://www.lunwendata.com/special/geshi.htm" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">格</div><div class="card-body"><div class="name">标准论文格式模板</div></div></a>
+    <!-- 子站点导航卡片 -->
+    <div class="site-grid">
+      <a class="site-card" href="bookmarks/">
+        <div class="site-icon" style="background:linear-gradient(135deg,#6c63ff,#4facfe)">📑</div>
+        <div class="site-info">
+          <h3>书签导航</h3>
+          <p>个人常用网站书签导航，涵盖AI工具、论文、校园、网盘等分类</p>
+        </div>
+        <span class="site-arrow">→</span>
+      </a>
+
+      <a class="site-card" href="blog/">
+        <div class="site-icon" style="background:linear-gradient(135deg,#2ecc71,#27ae60)">📝</div>
+        <div class="site-info">
+          <h3>个人博客</h3>
+          <p>书写、分享、归纳，关注乡村振兴与三农发展的个人思考</p>
+        </div>
+        <span class="site-arrow">→</span>
+      </a>
+
+      <a class="site-card" href="resume/">
+        <div class="site-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">📋</div>
+        <div class="site-info">
+          <h3>电子简历</h3>
+          <p>个人电子简历，展示教育背景、技能特长与研究经历</p>
+        </div>
+        <span class="site-arrow">→</span>
+      </a>
+
+      <a class="site-card" href="music/">
+        <div class="site-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">🎵</div>
+        <div class="site-info">
+          <h3>AI 音乐</h3>
+          <p>AI 驱动的音乐创作与歌单收藏展示</p>
+        </div>
+        <span class="site-arrow">→</span>
+      </a>
+
+      <a class="site-card" href="novel/">
+        <div class="site-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">📖</div>
+        <div class="site-info">
+          <h3>AI 小说</h3>
+          <p>AI 辅助创作的文学作品与短篇故事集</p>
+        </div>
+        <span class="site-arrow">→</span>
+      </a>
     </div>
-  </div>
 
-  <!-- 校园 -->
-  <div class="section" id="campus">
-    <h2 class="section-title"><span class="dot"></span>校园</h2>
-    <div class="cards">
-      <a class="card" href="https://vgms.fanyu.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">毕</div><div class="card-body"><div class="name">维普毕业论文管理</div></div></a>
-      <a class="card" href="https://v8.chaoxing.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">学</div><div class="card-body"><div class="name">学习通</div></div></a>
-      <a class="card" href="https://yjsapp.fafu.edu.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">农</div><div class="card-body"><div class="name">福建农林大学教务</div></div></a>
-      <a class="card" href="http://210.34.84.127/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">校</div><div class="card-body"><div class="name">福建农林大学校园网</div></div></a>
-      <a class="card" href="https://cy.ncss.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">创</div><div class="card-body"><div class="name">全国大学生创业服务网</div></div></a>
-      <a class="card" href="https://www.wjx.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#3498db,#2980b9)">问</div><div class="card-body"><div class="name">问卷星</div></div></a>
-      <a class="card" href="https://ac.zhike.in/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4285f4,#34a853)">谷</div><div class="card-body"><div class="name">谷歌学术导航</div></div></a>
-    </div>
-  </div>
-
-  <!-- 考研考试 -->
-  <div class="section" id="exam">
-    <h2 class="section-title"><span class="dot"></span>考研考试</h2>
-    <div class="cards">
-      <a class="card" href="https://yzst.chsi.com.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#c31432,#240b36)">研</div><div class="card-body"><div class="name">研招网</div></div></a>
-      <a class="card" href="https://ntce.neea.edu.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1e3c72,#2a5298)">N</div><div class="card-body"><div class="name">NTCE 中国教育考试网</div></div></a>
-      <a class="card" href="https://www.chsi.com.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">学</div><div class="card-body"><div class="name">学信网</div></div></a>
-      <a class="card" href="https://www.zgtjnj.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">统</div><div class="card-body"><div class="name">统计年鉴下载站</div></div></a>
-      <a class="card" href="https://gdp.gotohui.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">G</div><div class="card-body"><div class="name">GDP数据</div><div class="desc">聚汇数据</div></div></a>
-      <a class="card" href="https://fzszzb.fzedu.gov.cn:7243/iexam-fuzhou-web/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1abc9c,#16a085)">福</div><div class="card-body"><div class="name">福州市中考中招</div></div></a>
-    </div>
-  </div>
-
-  <!-- 视听娱乐 -->
-  <div class="section" id="media">
-    <h2 class="section-title"><span class="dot"></span>视听娱乐</h2>
-    <div class="cards">
-      <a class="card" href="https://www.libvio.me/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">L</div><div class="card-body"><div class="name">LIBVIO 影视</div></div></a>
-      <a class="card" href="https://gaze.run/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">M</div><div class="card-body"><div class="name">Movie Station</div></div></a>
-      <a class="card" href="https://hdmoli.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">H</div><div class="card-body"><div class="name">HDmoli</div><div class="desc">高清影视</div></div></a>
-      <a class="card" href="http://dilidili4.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1abc9c,#16a085)">D</div><div class="card-body"><div class="name">dilidili 嘀哩嘀哩</div></div></a>
-      <a class="card" href="https://www.gequbao.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">歌</div><div class="card-body"><div class="name">歌曲宝</div></div></a>
-      <a class="card" href="https://www.gequhai.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#3498db,#2980b9)">海</div><div class="card-body"><div class="name">歌曲海</div><div class="desc">MP3免费下载</div></div></a>
-      <a class="card" href="https://zh.z-lib.gs/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">Z</div><div class="card-body"><div class="name">Z-Library</div></div></a>
-      <a class="card" href="https://jmnav.top/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">J</div><div class="card-body"><div class="name">JMNAV</div></div></a>
-    </div>
-  </div>
-
-  <!-- 网盘 -->
-  <div class="section" id="cloud">
-    <h2 class="section-title"><span class="dot"></span>网盘</h2>
-    <div class="cards">
-      <a class="card" href="https://pan.baidu.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0066ff,#003399)">百</div><div class="card-body"><div class="name">百度网盘</div></div></a>
-      <a class="card" href="https://pan.quark.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">夸</div><div class="card-body"><div class="name">夸克网盘</div></div></a>
-      <a class="card" href="https://www.jianguoyun.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">坚</div><div class="card-body"><div class="name">坚果云</div></div></a>
-      <a class="card" href="https://up.woozooo.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0)">蓝</div><div class="card-body"><div class="name">蓝奏云</div></div></a>
-      <a class="card" href="https://i.mi.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6b6b,#c0392b)">米</div><div class="card-body"><div class="name">小米云服务</div></div></a>
-      <a class="card" href="https://www.123pan.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">1</div><div class="card-body"><div class="name">123云盘</div></div></a>
-      <a class="card" href="https://mypikpak.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">P</div><div class="card-body"><div class="name">PikPak</div></div></a>
-      <a class="card" href="https://www.aliyundrive.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6a00,#ee0979)">阿</div><div class="card-body"><div class="name">阿里云盘</div></div></a>
-      <a class="card" href="https://drive.uc.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f60,#ff8c00)">U</div><div class="card-body"><div class="name">UC网盘</div></div></a>
-    </div>
-  </div>
-
-  <!-- 技术资源 -->
-  <div class="section" id="tech">
-    <h2 class="section-title"><span class="dot"></span>技术资源</h2>
-    <div class="cards">
-      <a class="card" href="http://127.0.0.1:9876/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0c3483,#a2b6df)">D</div><div class="card-body"><div class="name">DDNS-GO</div></div></a>
-      <a class="card" href="https://dc.console.aliyun.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6a00,#ee0979)">域</div><div class="card-body"><div class="name">阿里云域名控制台</div></div></a>
-      <a class="card" href="http://localhost:33272/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">皎</div><div class="card-body"><div class="name">皎月连内网穿透</div></div></a>
-      <a class="card" href="https://login.tailscale.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">T</div><div class="card-body"><div class="name">Tailscale</div></div></a>
-      <a class="card" href="https://my.zerotier.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">Z</div><div class="card-body"><div class="name">ZeroTier</div></div></a>
-      <a class="card" href="https://www.itdog.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">I</div><div class="card-body"><div class="name">ITDOG 在线测速</div></div></a>
-      <a class="card" href="https://ipw.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1abc9c,#16a085)">IP</div><div class="card-body"><div class="name">IP查询 / IPv6测试</div></div></a>
-      <a class="card" href="https://buged.cn/archives/12" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">解</div><div class="card-body"><div class="name">IPv6外网无法ping通</div></div></a>
-      <a class="card" href="https://post.smzdm.com/p/awzodmpp/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6b6b,#c0392b)">路</div><div class="card-body"><div class="name">OpenWRT IPv6教程</div></div></a>
-      <a class="card" href="https://www.luyouqi.com/shezhi/3012.html" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0)">桥</div><div class="card-body"><div class="name">光猫桥接设置</div></div></a>
-      <a class="card" href="https://zhuanlan.zhihu.com/p/673820397" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0066ff,#003399)">组</div><div class="card-body"><div class="name">Win11打开组策略</div></div></a>
-      <a class="card" href="https://ipv6ready.me/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">V</div><div class="card-body"><div class="name">IPv6 测试</div></div></a>
-      <a class="card" href="https://www.speedtest.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">测</div><div class="card-body"><div class="name">Speedtest</div></div></a>
-      <a class="card" href="https://github.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#333,#000)">G</div><div class="card-body"><div class="name">GitHub</div></div></a>
-      <a class="card" href="https://greasyfork.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">油</div><div class="card-body"><div class="name">Greasy Fork</div></div></a>
-      <a class="card" href="https://www.airportal.cn/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">A</div><div class="card-body"><div class="name">AirPortal</div></div></a>
-      <a class="card" href="https://haowallpaper.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">壁</div><div class="card-body"><div class="name">哲风壁纸</div><div class="desc">4K高清壁纸</div></div></a>
-      <a class="card" href="https://open.spotify.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1DB954,#191414)">S</div><div class="card-body"><div class="name">Spotify</div></div></a>
-      <a class="card" href="https://jokeslin.github.io/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#6c63ff,#4630b3)">J</div><div class="card-body"><div class="name">Joke Lin's Map</div></div></a>
-    </div>
-  </div>
-
-  <!-- 图形编辑 -->
-  <div class="section" id="graphics">
-    <h2 class="section-title"><span class="dot"></span>图形编辑</h2>
-    <div class="cards">
-      <a class="card" href="https://www.ilovepdf.com/zh-cn" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">P</div><div class="card-body"><div class="name">iLovePDF</div></div></a>
-      <a class="card" href="https://convertio.co/zh/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">C</div><div class="card-body"><div class="name">Convertio 文件转换</div></div></a>
-      <a class="card" href="https://web.baimiaoapp.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">图</div><div class="card-body"><div class="name">图片转文字</div></div></a>
-      <a class="card" href="https://yandex.com/images/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ffcc00,#ff6a00)">搜</div><div class="card-body"><div class="name">以图搜图</div></div></a>
-      <a class="card" href="https://www.aigei.com/tool/audio" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">音</div><div class="card-body"><div class="name">音频修改</div></div></a>
-    </div>
-  </div>
-
-  <!-- BT 磁力 -->
-  <div class="section" id="torrent">
-    <h2 class="section-title"><span class="dot"></span>BT 磁力</h2>
-    <div class="cards">
-      <a class="card" href="https://thepiratebay.org/index.html" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#333,#000)">P</div><div class="card-body"><div class="name">Pirate Bay</div></div></a>
-      <a class="card" href="https://www.yinfans.me/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">影</div><div class="card-body"><div class="name">BT影视下载</div></div></a>
-      <a class="card" href="https://www.btbuluo.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">部</div><div class="card-body"><div class="name">BT部落天堂</div></div></a>
-    </div>
-  </div>
-
-  <!-- 游戏 -->
-  <div class="section" id="games">
-    <h2 class="section-title"><span class="dot"></span>游戏</h2>
-    <div class="cards">
-      <a class="card" href="https://xyg688.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">小</div><div class="card-body"><div class="name">小妖怪分享</div></div></a>
-      <a class="card" href="https://gamdie.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#3498db,#2980b9)">G</div><div class="card-body"><div class="name">Gamdie</div><div class="desc">免费独立游戏</div></div></a>
-      <a class="card" href="https://www.xianyudanji.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1abc9c,#16a085)">咸</div><div class="card-body"><div class="name">咸鱼单机</div></div></a>
-      <a class="card" href="https://www.flysheep6.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">飞</div><div class="card-body"><div class="name">flysheep资源避难所</div></div></a>
-      <a class="card" href="https://byrutgame.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">B</div><div class="card-body"><div class="name">byrutgame</div></div></a>
-      <a class="card" href="https://www.vgter.net/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">上</div><div class="card-body"><div class="name">上游世界</div><div class="desc">Switch/PS4游戏</div></div></a>
-      <a class="card" href="https://5play.org/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">5</div><div class="card-body"><div class="name">5play 安卓游戏</div></div></a>
-      <a class="card" href="https://www.cheatslips.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">C</div><div class="card-body"><div class="name">CheatSlips</div><div class="desc">Switch金手指</div></div></a>
-      <a class="card" href="https://www.gamer520.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">S</div><div class="card-body"><div class="name">Switch520</div></div></a>
-      <a class="card" href="https://www.tekqart.cc/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">品</div><div class="card-body"><div class="name">品技论坛 Switch</div></div></a>
-      <a class="card" href="https://www.ns211.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0)">N</div><div class="card-body"><div class="name">ns中文网</div></div></a>
-      <a class="card" href="https://www.steambk.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#171a21,#66c0f4)">蒸</div><div class="card-body"><div class="name">蒸汽游戏宝库</div></div></a>
-      <a class="card" href="https://www.steamgriddb.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#171a21,#66c0f4)">S</div><div class="card-body"><div class="name">SteamGridDB</div></div></a>
-      <a class="card" href="https://www.nexusmods.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#da8c3a,#8a5e23)">N</div><div class="card-body"><div class="name">Nexus Mods</div></div></a>
-      <a class="card" href="https://koyso.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">K</div><div class="card-body"><div class="name">Koyso</div></div></a>
-      <a class="card" href="https://flingtrainer.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">F</div><div class="card-body"><div class="name">FLiNG Trainer</div></div></a>
-    </div>
-  </div>
-
-  <!-- 网络工具 -->
-  <div class="section" id="network">
-    <h2 class="section-title"><span class="dot"></span>网络工具</h2>
-    <div class="cards">
-      <a class="card" href="https://sub-zh.vercel.app/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#667eea,#764ba2)">订</div><div class="card-body"><div class="name">在线订阅转换</div></div></a>
-      <a class="card" href="https://telegra.ph/jichang-11-22" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2196F3,#1565C0)">机</div><div class="card-body"><div class="name">机场介绍</div></div></a>
-      <a class="card" href="https://www.askahh.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#ff6b6b,#c0392b)">A</div><div class="card-body"><div class="name">Askahh机场测速</div></div></a>
-      <a class="card" href="https://fofa.info/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#1a73e8,#0d47a1)">F</div><div class="card-body"><div class="name">FOFA网络空间测绘</div></div></a>
-      <a class="card" href="https://r3.w7w.mom/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#4CAF50,#2e7d32)">容</div><div class="card-body"><div class="name">容器云</div></div></a>
-      <a class="card" href="https://ikuuu.one/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#8e44ad,#9b59b6)">i</div><div class="card-body"><div class="name">iKuuu VPN</div></div></a>
-      <a class="card" href="https://web.fscloud.cc/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#0c3483,#a2b6df)">F</div><div class="card-body"><div class="name">FSCloud</div></div></a>
-      <a class="card" href="https://xn--9kqz23b19z.com/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">良</div><div class="card-body"><div class="name">良心云</div></div></a>
-      <a class="card" href="https://47.112.97.173:5000/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">魔</div><div class="card-body"><div class="name">魔戒.net</div></div></a>
-      <a class="card" href="https://openclash.vip/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#e67e22,#d35400)">O</div><div class="card-body"><div class="name">OpenClash 官网</div></div></a>
-      <a class="card" href="http://192.168.10.1/cgi-bin/luci/admin/status" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#2c3e50,#3498db)">路</div><div class="card-body"><div class="name">Kwrt LuCI</div></div></a>
-      <a class="card" href="http://192.168.0.1/index.html#home" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#27ae60,#2ecc71)">5</div><div class="card-body"><div class="name">5G Mobile Hotspot</div></div></a>
-      <a class="card" href="http://192.168.0.1:2333/" target="_blank"><div class="card-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">U</div><div class="card-body"><div class="name">UFI-TOOLS</div></div></a>
-    </div>
-  </div>
-
-  <div class="footer">
-    <p>&copy; 2026 Joke Lin's Navigation | 基于个人书签整理</p>
-  </div>
-</div>
-
-<button class="fab" id="addBtn" title="添加书签">+</button>
-
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal">
-    <h3>添加书签</h3>
-    <label>网站名称</label>
-    <input type="text" id="inputName" placeholder="例如：百度">
-    <label>网址</label>
-    <input type="text" id="inputUrl" placeholder="https://example.com">
-    <label>图标字母</label>
-    <input type="text" id="inputIcon" placeholder="B" maxlength="3" style="width:80px">
-    <label>分类</label>
-    <select id="inputSection"></select>
-    <label>图标颜色</label>
-    <div class="color-picker" id="colorPicker"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" id="modalCancel">取消</button>
-      <button class="btn-danger" id="resetBtn" style="margin-right:auto">重置默认</button>
-      <button class="btn-primary" id="modalSave">保存</button>
-    </div>
+    <!-- 页脚 -->
+    <footer class="portal-footer">
+      <p>&copy; 2026 Joke Lin's Portal &nbsp;|&nbsp; 纯静态 · 无后端依赖 · GitHub Pages 部署</p>
+    </footer>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-(function(){
-  var overlay = document.getElementById('loginOverlay');
-  var input = document.getElementById('loginInput');
-  var btn = document.getElementById('loginBtn');
-  var err = document.getElementById('loginError');
+/**
+ * 门户核心逻辑：
+ * 1. 暗号验证（默认暗号：666）
+ * 2. 验证通过后 sessionStorage 记录，同一会话无需重复输入
+ */
+(function() {
+  'use strict';
 
-  // Already authenticated?
+  /* --- 配置 --- */
+  var SECRET_CODE = '666';  // 暗号，修改此处即可更换
+
+  /* --- 元素引用 --- */
+  var lockScreen = document.getElementById('lockScreen');
+  var lockInput  = document.getElementById('lockInput');
+  var lockBtn    = document.getElementById('lockBtn');
+  var lockError  = document.getElementById('lockError');
+  var portal     = document.getElementById('portal');
+
+  /* --- 检查是否已验证 --- */
   try {
-    if(sessionStorage.getItem('jokelin-auth')){ overlay.classList.add('hidden'); }
-  } catch(e){}
+    if (sessionStorage.getItem('portal-auth')) {
+      unlock();
+    }
+  } catch (e) {}
 
-  function doLogin(){
-    var val = input.value.trim();
-    if(val === '666'){
-      err.classList.remove('show');
-      try { sessionStorage.setItem('jokelin-auth', '1'); } catch(e){}
-      overlay.classList.add('hidden');
-      input.value = '';
+  /* --- 验证函数 --- */
+  function doLogin() {
+    var val = lockInput.value.trim();
+    if (val === SECRET_CODE) {
+      lockError.classList.remove('show');
+      try { sessionStorage.setItem('portal-auth', '1'); } catch (e) {}
+      unlock();
     } else {
-      err.classList.add('show');
-      input.classList.add('error');
-      setTimeout(function(){ input.classList.remove('error'); }, 400);
-      input.value = '';
-      input.focus();
+      lockError.classList.add('show');
+      lockInput.classList.add('error');
+      setTimeout(function() { lockInput.classList.remove('error'); }, 400);
+      lockInput.value = '';
+      lockInput.focus();
     }
   }
 
-  btn.onclick = doLogin;
-  input.onkeydown = function(e){
-    if(e.key === 'Enter'){ doLogin(); }
-  };
-  setTimeout(function(){ input.focus(); }, 300);
-
-  // Sidebar & scroll spy
-  var sidebar = document.getElementById('sidebar');
-  var toggle = document.getElementById('menuToggle');
-  var menuOverlay = document.getElementById('overlay');
-  var navLinks = sidebar.querySelectorAll('.sidebar-nav a');
-
-  toggle.addEventListener('click', function(){
-    sidebar.classList.toggle('open');
-    menuOverlay.classList.toggle('show');
-  });
-  menuOverlay.addEventListener('click', function(){
-    sidebar.classList.remove('open');
-    menuOverlay.classList.remove('show');
-  });
-
-  var sections = document.querySelectorAll('.section');
-  window.addEventListener('scroll', function(){
-    var top = window.scrollY + 100;
-    var current = '';
-    sections.forEach(function(sec){
-      if(sec.offsetTop <= top) current = sec.id;
-    });
-    navLinks.forEach(function(a){
-      a.classList.toggle('active', a.getAttribute('href') === '#' + current);
-    });
-  });
-
-  // Bookmark Management (shared via GitHub)
-  var T1 = 'github_pat_11BCHRJYY01JODXu', T2 = 'Nlg71x_Sw2Y2fU9PF8s5Gpt9HuToBScJTrZhFsmOM3fKRxPbl626RAJJRFAxEx0C7n';
-  var TOKEN = T1 + T2;
-  var OWNER = 'JokesLin', REPO = 'JokesLin.github.io', FPATH = 'data.json';
-  var API = 'https://api.github.com';
-  var sha = null;
-  var COLORS = ['#6c63ff','#f093fb','#4facfe','#2ecc71','#e74c3c','#f39c12','#1abc9c','#3498db','#9b59b6','#e67e22','#1e3c72','#c31432'];
-  var appData = (function(){ try { return JSON.parse(localStorage.getItem('jokelin-nav')) || {deleted:[],custom:[]}; } catch(e){ return {deleted:[],custom:[]}; } })();
-
-  function b64e(s){ return btoa(unescape(encodeURIComponent(s))); }
-  function b64d(s){ return decodeURIComponent(escape(atob(s.replace(/\\n/g,'')))); }
-
-  function saveLocal(data){
-    try { localStorage.setItem('jokelin-nav', JSON.stringify(data)); } catch(e){}
+  /* --- 解锁门户 --- */
+  function unlock() {
+    lockScreen.classList.add('hidden');
+    portal.classList.add('show');
   }
 
-  function toast(msg){
-    var t = document.getElementById('toast');
-    t.textContent = msg; t.classList.add('show');
-    setTimeout(function(){ t.classList.remove('show'); }, 2000);
-  }
-
-  function fetchData(){
-    return fetch(API+'/repos/'+OWNER+'/'+REPO+'/contents/'+FPATH, {
-      headers: {'Authorization':'Bearer '+TOKEN}
-    }).then(function(r){
-      if(r.status === 404) return {deleted:[],custom:[]};
-      return r.json().then(function(d){ sha = d.sha; var data = JSON.parse(b64d(d.content)); saveLocal(data); return data; });
-    }).catch(function(){
-      try { return JSON.parse(localStorage.getItem('jokelin-nav')) || {deleted:[],custom:[]}; } catch(e){ return {deleted:[],custom:[]}; }
-    });
-  }
-
-  function saveData(data){
-    saveLocal(data);
-    var body = {message:'update nav data', content:b64e(JSON.stringify(data))};
-    if(sha) body.sha = sha;
-    return fetch(API+'/repos/'+OWNER+'/'+REPO+'/contents/'+FPATH, {
-      method:'PUT', headers:{'Authorization':'Bearer '+TOKEN,'Content-Type':'application/json'},
-      body:JSON.stringify(body)
-    }).then(function(r){ return r.json(); }).then(function(d){
-      if(d.content) sha = d.content.sha; saveLocal(data); return d;
-    }).catch(function(){ return null; });
-  }
-
-  // Build section map
-  var secMap = {};
-  document.querySelectorAll('.section').forEach(function(sec){
-    secMap[sec.id] = sec.querySelector('.cards');
-    if(sec.id === 'ai') sec.querySelector('.section-title').style.marginBottom = '20px';
-  });
-
-  // Populate section select
-  var sel = document.getElementById('inputSection');
-  var titles = {ai:'AI工具',paper:'论文相关',campus:'校园',exam:'考研考试',media:'视听娱乐',cloud:'网盘',tech:'技术资源',graphics:'图形编辑',torrent:'BT磁力',games:'游戏',network:'网络工具'};
-  Object.keys(secMap).forEach(function(id){
-    var o = document.createElement('option');
-    o.value = id; o.textContent = titles[id] || id; sel.appendChild(o);
-  });
-
-  // Color picker
-  var cp = document.getElementById('colorPicker');
-  var activeColor = COLORS[0];
-  COLORS.forEach(function(c){
-    var s = document.createElement('span');
-    s.style.background = c;
-    s.onclick = function(){
-      cp.querySelectorAll('span').forEach(function(x){ x.classList.remove('active'); });
-      s.classList.add('active'); activeColor = c;
-    };
-    cp.appendChild(s);
-  });
-  cp.firstChild.classList.add('active');
-
-  // ----- Always set up UI immediately -----
-
-  // Wrap all cards with delete buttons
-  document.querySelectorAll('.cards .card').forEach(function(card){
-    if(card.parentNode.classList.contains('card-wrap')) return;
-    var wrap = document.createElement('div');
-    wrap.className = 'card-wrap';
-    card.parentNode.insertBefore(wrap, card);
-    wrap.appendChild(card);
-    var del = document.createElement('span');
-    del.className = 'card-del'; del.textContent = '×';
-    del.onclick = function(e){
-      e.preventDefault(); e.stopPropagation();
-      var h = card.getAttribute('href');
-      if(h && !appData.deleted.includes(h)) appData.deleted.push(h);
-      saveData(appData).then(function(){
-        wrap.style.opacity = '0'; wrap.style.transform = 'scale(0.8)';
-        setTimeout(function(){ wrap.remove(); }, 200);
-        toast('已删除');
-      }).catch(function(){
-        appData.deleted.pop();
-        toast('删除失败');
-      });
-    };
-    wrap.appendChild(del);
-  });
-
-  // Modal handlers
-  var mo = document.getElementById('modalOverlay');
-  document.getElementById('addBtn').onclick = function(){
-    document.getElementById('inputName').value = '';
-    document.getElementById('inputUrl').value = 'https://';
-    document.getElementById('inputIcon').value = '';
-    mo.classList.add('show');
+  /* --- 事件绑定 --- */
+  lockBtn.onclick = doLogin;
+  lockInput.onkeydown = function(e) {
+    if (e.key === 'Enter') doLogin();
   };
-  document.getElementById('modalCancel').onclick = function(){ mo.classList.remove('show'); };
-  mo.onclick = function(e){ if(e.target === mo) mo.classList.remove('show'); };
-
-  document.getElementById('modalSave').onclick = function(){
-    var name = document.getElementById('inputName').value.trim();
-    var url = document.getElementById('inputUrl').value.trim();
-    var icon = document.getElementById('inputIcon').value.trim() || name.charAt(0).toUpperCase();
-    var section = document.getElementById('inputSection').value;
-    if(!name || !url){ toast('请填写名称和网址'); return; }
-    if(url.indexOf('http') !== 0){ toast('请输入有效的网址（以 http 开头）'); return; }
-    var b = {name:name, url:url, icon:icon, color:activeColor, section:section};
-    appData.custom.push(b);
-    saveData(appData).then(function(){
-      var card = document.createElement('a');
-      card.className = 'card'; card.href = b.url; card.target = '_blank';
-      card.innerHTML = '<div class="card-icon" style="background:linear-gradient(135deg,'+b.color+','+b.color+')">'+b.icon+'</div><div class="card-body"><div class="name">'+b.name+'</div></div>';
-      var wrap = document.createElement('div');
-      wrap.className = 'card-wrap';
-      var del = document.createElement('span');
-      del.className = 'card-del'; del.textContent = '×';
-      del.onclick = function(e){
-        e.preventDefault(); e.stopPropagation();
-        appData.custom.splice(appData.custom.indexOf(b), 1);
-        saveData(appData).then(function(){
-          wrap.style.opacity = '0';
-          setTimeout(function(){ wrap.remove(); }, 200);
-          toast('已删除');
-        }).catch(function(){ toast('删除失败'); });
-      };
-      wrap.appendChild(card); wrap.appendChild(del);
-      if(secMap[b.section]) secMap[b.section].appendChild(wrap);
-      mo.classList.remove('show');
-      toast('已添加 ✓');
-    }).catch(function(){ appData.custom.pop(); toast('添加失败'); });
-  };
-
-  document.getElementById('resetBtn').onclick = function(){
-    if(confirm('确定重置所有自定义修改？')){
-      appData.deleted = []; appData.custom = [];
-      saveData(appData).then(function(){
-        toast('已重置，刷新页面…');
-        setTimeout(function(){ location.reload(); }, 500);
-      }).catch(function(){ toast('重置失败'); });
-    }
-  };
-
-  // ----- Load shared data from GitHub (may fail in some regions, UI still works) -----
-  fetchData().then(function(data){
-    if(!data) return;
-    appData = data;
-    if(!appData.deleted) appData.deleted = [];
-    if(!appData.custom) appData.custom = [];
-
-    // Apply deleted cards
-    appData.deleted.forEach(function(href){
-      document.querySelectorAll('.cards .card').forEach(function(card){
-        if(card.getAttribute('href') === href){
-          var w = card.parentNode;
-          if(w.classList.contains('card-wrap')) w.remove();
-          else card.remove();
-        }
-      });
-    });
-
-    // Render custom bookmarks
-    appData.custom.forEach(function(b, idx){
-      var card = document.createElement('a');
-      card.className = 'card'; card.href = b.url; card.target = '_blank';
-      card.innerHTML = '<div class="card-icon" style="background:linear-gradient(135deg,'+b.color+','+b.color+')">'+b.icon+'</div><div class="card-body"><div class="name">'+b.name+'</div></div>';
-      var wrap = document.createElement('div');
-      wrap.className = 'card-wrap';
-      var del = document.createElement('span');
-      del.className = 'card-del'; del.textContent = '×';
-      del.onclick = function(e){
-        e.preventDefault(); e.stopPropagation();
-        appData.custom.splice(idx, 1);
-        saveData(appData).then(function(){
-          wrap.style.opacity = '0';
-          setTimeout(function(){ wrap.remove(); }, 200);
-          toast('已删除');
-        }).catch(function(){ toast('删除失败'); });
-      };
-      wrap.appendChild(card); wrap.appendChild(del);
-      if(secMap[b.section]) secMap[b.section].appendChild(wrap);
-    });
-  });
+  setTimeout(function() { lockInput.focus(); }, 300);
 })();
 </script>
-
 </body>
 </html>
