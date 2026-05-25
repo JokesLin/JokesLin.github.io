@@ -1,5 +1,5 @@
 {
-  "title": "AI 软件中心",
+  "title": "AI 软件",
   "subtitle": "精选 AI 工具与实用软件资源",
   "categories": [
     {"id": "ai-reader", "name": "AI 阅读", "icon": "📖"},
@@ -33,7 +33,7 @@
       ],
       "downloadUrl": "files/ZhiYuanReader_v1.0.0.apk",
       "updateDate": "2026-05-25",
-      "note": "首次安装请允许\"未知来源应用\"权限。如遇到下载问题，请尝试使用外部浏览器打开此页面。"
+      "note": "请将真实 APK 文件放入 ai-software/files/ 目录替换占位文件。如仍无法下载，请尝试右键→另存为，或使用外部浏览器打开。"
     },
     {
       "id": "ai-writing-assistant",
