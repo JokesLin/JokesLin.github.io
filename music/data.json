@@ -12,34 +12,58 @@
           "title": "数字田园",
           "artist": "AI 作曲 · Joke Lin 作词",
           "cover": "🎹",
-          "coverBg": ["#6c63ff", "#4facfe"],
+          "coverBg": [
+            "#6c63ff",
+            "#4facfe"
+          ],
           "note": "以乡村振兴为主题，融合电子音色与民乐采样",
-          "tags": ["原创", "电子"],
+          "tags": [
+            "原创",
+            "电子"
+          ],
           "file": "files/1779705960618.mp3"
         },
         {
           "title": "竹海听风",
           "artist": "Suno AI",
           "cover": "🎋",
-          "coverBg": ["#2ecc71", "#27ae60"],
+          "coverBg": [
+            "#2ecc71",
+            "#27ae60"
+          ],
           "note": "安吉竹海采风灵感，自然白噪音+古风旋律",
-          "tags": ["AI生成", "古风"]
+          "tags": [
+            "AI生成",
+            "古风"
+          ]
         },
         {
           "title": "村口老榕树",
           "artist": "Udio AI",
           "cover": "🌳",
-          "coverBg": ["#f39c12", "#e67e22"],
+          "coverBg": [
+            "#f39c12",
+            "#e67e22"
+          ],
           "note": "童年回忆系列，民谣风格",
-          "tags": ["AI生成", "民谣"]
+          "tags": [
+            "AI生成",
+            "民谣"
+          ]
         },
         {
           "title": "代码与稻田",
           "artist": "AI 作曲 · Joke Lin 作词",
           "cover": "💻",
-          "coverBg": ["#e74c3c", "#c0392b"],
+          "coverBg": [
+            "#e74c3c",
+            "#c0392b"
+          ],
           "note": "数字农业主题，赛博朋克混搭乡土元素",
-          "tags": ["原创", "实验"]
+          "tags": [
+            "原创",
+            "实验"
+          ]
         }
       ]
     },
@@ -53,49 +77,85 @@
           "title": "晴天",
           "artist": "周杰伦",
           "cover": "☀️",
-          "coverBg": ["#f39c12", "#f1c40f"],
+          "coverBg": [
+            "#f39c12",
+            "#f1c40f"
+          ],
           "note": "经典中的经典，百听不厌",
-          "tags": ["华语", "流行"]
+          "tags": [
+            "华语",
+            "流行"
+          ]
         },
         {
           "title": "起风了",
           "artist": "买辣椒也用券",
           "cover": "🌬️",
-          "coverBg": ["#4facfe", "#00f2fe"],
+          "coverBg": [
+            "#4facfe",
+            "#00f2fe"
+          ],
           "note": "关于遗憾与释怀，旋律极美",
-          "tags": ["华语", "民谣"]
+          "tags": [
+            "华语",
+            "民谣"
+          ]
         },
         {
           "title": "Lemon",
           "artist": "米津玄師",
           "cover": "🍋",
-          "coverBg": ["#f1c40f", "#e67e22"],
-          "note": "日剧《非自然死亡》主题曲",
-          "tags": ["日语", "影视"]
+          "coverBg": [
+            "#f1c40f",
+            "#e67e22"
+          ],
+          "note": "日剧非自然死亡主题曲",
+          "tags": [
+            "日语",
+            "影视"
+          ]
         },
         {
           "title": "Bohemian Rhapsody",
           "artist": "Queen",
           "cover": "👑",
-          "coverBg": ["#8e44ad", "#9b59b6"],
+          "coverBg": [
+            "#8e44ad",
+            "#9b59b6"
+          ],
           "note": "摇滚歌剧的巅峰之作",
-          "tags": ["英文", "摇滚"]
+          "tags": [
+            "英文",
+            "摇滚"
+          ]
         },
         {
           "title": "稻香",
           "artist": "周杰伦",
           "cover": "🌾",
-          "coverBg": ["#f39c12", "#d35400"],
+          "coverBg": [
+            "#f39c12",
+            "#d35400"
+          ],
           "note": "回归田园的质朴感动",
-          "tags": ["华语", "流行"]
+          "tags": [
+            "华语",
+            "流行"
+          ]
         },
         {
           "title": "Blinding Lights",
           "artist": "The Weeknd",
           "cover": "🌃",
-          "coverBg": ["#e74c3c", "#c0392b"],
+          "coverBg": [
+            "#e74c3c",
+            "#c0392b"
+          ],
           "note": "复古合成器浪潮，节奏感十足",
-          "tags": ["英文", "电子"]
+          "tags": [
+            "英文",
+            "电子"
+          ]
         }
       ]
     },
@@ -109,25 +169,43 @@
           "title": "Weightless",
           "artist": "Marconi Union",
           "cover": "🧘",
-          "coverBg": ["#1abc9c", "#16a085"],
-          "note": "被称为"世界上最放松的音乐"",
-          "tags": ["纯音乐", "环境"]
+          "coverBg": [
+            "#1abc9c",
+            "#16a085"
+          ],
+          "note": "被称为最放松的音乐",
+          "tags": [
+            "纯音乐",
+            "环境"
+          ]
         },
         {
           "title": "River Flows in You",
           "artist": "Yiruma",
           "cover": "🌊",
-          "coverBg": ["#3498db", "#2980b9"],
+          "coverBg": [
+            "#3498db",
+            "#2980b9"
+          ],
           "note": "钢琴曲，适合安静阅读",
-          "tags": ["纯音乐", "钢琴"]
+          "tags": [
+            "纯音乐",
+            "钢琴"
+          ]
         },
         {
           "title": "Experience",
           "artist": "Ludovico Einaudi",
           "cover": "🎭",
-          "coverBg": ["#2c3e50", "#34495e"],
+          "coverBg": [
+            "#2c3e50",
+            "#34495e"
+          ],
           "note": "意大利钢琴大师，层次丰富",
-          "tags": ["纯音乐", "古典"]
+          "tags": [
+            "纯音乐",
+            "古典"
+          ]
         }
       ]
     }
