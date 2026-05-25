@@ -6,8 +6,7 @@
 <title>AI Novel - Joke Lin</title>
 <link rel="stylesheet" href="../assets/global.css">
 <style>
-.page-container { max-width: 860px; }
-.tag-bar { margin-bottom: 24px; }
+.page-container { max-width: 1100px; }
 .story-list { display: flex; flex-direction: column; gap: 14px; }
 .story-card {
   background: var(--bg-card); border: 1px solid var(--border-card);
@@ -19,98 +18,87 @@
   background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
   opacity: 0; transition: opacity 0.3s;
 }
-.story-card:hover {
-  background: rgba(255,255,255,0.1); transform: translateX(4px);
-  border-color: rgba(108,99,255,0.3);
-}
+.story-card:hover { background: rgba(255,255,255,0.1); transform: translateX(4px); border-color: rgba(108,99,255,0.3); }
 .story-card:hover::before { opacity: 1; }
 .story-card .story-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
-.story-card .story-meta {
-  display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary);
-  margin-bottom: 10px; align-items: center;
-}
+.story-card .story-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
 .story-card .story-summary { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
-.story-card .story-tags { display: flex; gap: 6px; margin-top: 12px; flex-wrap: wrap; }
-.story-card .story-tags span {
-  padding: 3px 10px; border-radius: 12px; font-size: 11px;
-  background: rgba(108,99,255,0.1); color: var(--accent-1);
-}
-.story-card .file-badge {
-  display: inline-block; padding: 3px 10px; border-radius: 10px;
-  font-size: 11px; background: rgba(46,204,113,0.15); color: var(--green);
-  margin-top: 8px;
-}
 
-/* Detail / Reader */
-.detail { display: none; }
-.detail.show { display: block; }
-.detail-header { margin-bottom: 28px; }
-.detail-header .back-link {
-  display: inline-block; margin-bottom: 16px;
+/* Reader */
+.reader { display: none; }
+.reader.show { display: block; }
+.reader-top { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.reader-top .back-link {
   padding: 6px 14px; border-radius: 6px;
   background: var(--bg-card); border: 1px solid var(--border-card);
-  color: var(--text-secondary); font-size: 13px; cursor: pointer;
-  transition: all 0.2s;
+  color: var(--text-secondary); font-size: 13px; cursor: pointer; transition: all 0.2s;
 }
-.detail-header .back-link:hover { color: #fff; border-color: var(--accent-1); }
-.detail-header h1 {
-  font-size: 28px; font-weight: 700; margin-bottom: 8px;
-  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.detail-header .detail-meta {
-  display: flex; gap: 14px; font-size: 13px; color: var(--text-secondary);
-  align-items: center; flex-wrap: wrap;
-}
-.detail-header .detail-tags { display: flex; gap: 6px; margin-top: 10px; }
-.detail-header .detail-tags span {
-  padding: 3px 10px; border-radius: 12px; font-size: 11px;
-  background: rgba(108,99,255,0.1); color: var(--accent-1);
-}
-.story-body {
-  background: var(--bg-card); border: 1px solid var(--border-card);
-  border-radius: var(--radius-md); padding: 32px 36px;
-  font-size: 16px; line-height: 2; color: #d0d0e0;
-}
-.story-body h2 {
-  font-size: 20px; margin: 32px 0 16px; padding-left: 14px;
-  border-left: 3px solid var(--accent-1); color: var(--text-primary);
-}
-.story-body h2:first-child { margin-top: 0; }
-.story-body p { margin-bottom: 16px; text-indent: 2em; }
-.story-body em { color: var(--accent-2); font-style: italic; }
-.story-body blockquote {
-  border-left: 3px solid var(--accent-1); padding: 12px 18px;
-  margin: 16px 0; background: rgba(108,99,255,0.06);
-  border-radius: 0 8px 8px 0; color: var(--text-secondary);
-}
-
-/* Reader toolbar */
-.reader-toolbar {
-  display: none; align-items: center; gap: 12px;
-  background: var(--bg-card); border: 1px solid var(--border-card);
-  border-radius: var(--radius-sm); padding: 10px 16px;
-  margin-bottom: 16px;
-}
-.reader-toolbar.show { display: flex; }
-.reader-toolbar .font-btn {
+.reader-top .back-link:hover { color: #fff; border-color: var(--accent-1); }
+.reader-top .title { font-size: 22px; font-weight: 700; flex: 1; }
+.reader-tools { display: flex; gap: 8px; }
+.reader-tools button {
   padding: 4px 12px; border-radius: 6px; font-size: 13px;
   background: rgba(255,255,255,0.06); border: 1px solid var(--border-card);
   color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
 }
-.reader-toolbar .font-btn:hover { color: #fff; border-color: var(--accent-1); }
-.reader-toolbar .font-label { font-size: 12px; color: var(--text-muted); }
-.reader-toolbar .progress { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+.reader-tools button:hover { color: #fff; border-color: var(--accent-1); }
 
+/* Chapter TOC */
+.chapter-toc {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 20px;
+}
+.chapter-toc h3 { font-size: 15px; margin-bottom: 12px; color: var(--text-secondary); }
+.toc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px;
+}
+.toc-item {
+  padding: 6px 12px; border-radius: 6px; font-size: 13px;
+  color: var(--text-secondary); cursor: pointer;
+  background: rgba(255,255,255,0.03); border: 1px solid transparent;
+  transition: all 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toc-item:hover { color: #fff; background: rgba(108,99,255,0.12); border-color: rgba(108,99,255,0.2); }
+.toc-item.active { color: #fff; background: var(--accent-1); }
+
+/* Chapter content */
+.chapter-content {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 32px 36px;
+  font-size: 16px; line-height: 2; color: #d0d0e0;
+}
+.chapter-content h2 {
+  font-size: 22px; margin-bottom: 24px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-card);
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.chapter-content p { margin-bottom: 16px; text-indent: 2em; }
+.chapter-nav {
+  display: flex; justify-content: space-between; margin-top: 24px; gap: 12px;
+}
+.chapter-nav button {
+  flex: 1; padding: 12px 20px; border-radius: 10px; font-size: 14px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary); cursor: pointer; transition: all 0.2s;
+}
+.chapter-nav button:hover { color: #fff; border-color: var(--accent-1); background: rgba(108,99,255,0.1); }
+.chapter-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  transition: width 0.2s;
+}
 @media (max-width: 768px) {
-  .story-body { padding: 24px 20px; font-size: 14px; }
-  .story-card { padding: 18px 20px; }
-  .story-card .story-title { font-size: 17px; }
+  .chapter-content { padding: 24px 18px; font-size: 14px; }
+  .toc-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .reader-top .title { font-size: 18px; }
 }
 </style>
 </head>
 <body>
+<div class="progress-bar" id="progressBar" style="width:0"></div>
 <div class="page-container">
   <a class="back-home" href="../">Back to Portal</a>
   <header class="page-header">
@@ -119,32 +107,30 @@
   </header>
 
   <div id="viewList">
-    <div class="tag-bar" id="tagFilter"></div>
     <div class="story-list" id="storyList"></div>
   </div>
 
-  <div class="detail" id="viewDetail">
-    <div class="detail-header">
-      <span class="back-link" id="detailBack">Back to list</span>
-      <h1 id="detailTitle"></h1>
-      <div class="detail-meta">
-        <span id="detailAuthor"></span>
-        <span id="detailDate"></span>
+  <div class="reader" id="viewReader">
+    <div class="reader-top">
+      <span class="back-link" id="backToList">Back</span>
+      <span class="title" id="readerTitle"></span>
+      <div class="reader-tools">
+        <button id="fontDec">A-</button>
+        <button id="fontInc">A+</button>
       </div>
-      <div class="detail-tags" id="detailTags"></div>
     </div>
-    <div class="reader-toolbar" id="readerToolbar">
-      <span class="font-label">Font:</span>
-      <button class="font-btn" id="fontDec">A-</button>
-      <button class="font-btn" id="fontInc">A+</button>
-      <span class="progress" id="readProgress"></span>
+    <div class="chapter-toc" id="chapterToc">
+      <h3>Chapters</h3>
+      <div class="toc-grid" id="tocGrid"></div>
     </div>
-    <div class="story-body" id="detailContent"></div>
+    <div class="chapter-content" id="chapterContent"></div>
+    <div class="chapter-nav">
+      <button id="prevChapter">Prev</button>
+      <button id="nextChapter">Next</button>
+    </div>
   </div>
 
-  <footer class="page-footer">
-    <p>&copy; 2026 Joke Lin's Novel | Edit data.json to manage stories</p>
-  </footer>
+  <footer class="page-footer"><p>&copy; 2026 Joke Lin's Novel | Edit data.json to manage</p></footer>
 </div>
 
 <script>
@@ -152,121 +138,124 @@
   'use strict';
 
   var stories = [];
-  var allTags = [];
-  var activeTag = 'all';
+  var chapters = [];
+  var currentChapter = 0;
   var fontSize = 16;
 
-  function renderTags() {
-    var el = document.getElementById('tagFilter');
-    var html = '<button class="' + (activeTag === 'all' ? 'active' : '') + '" data-tag="all">All</button>';
-    allTags.forEach(function(t) {
-      html += '<button class="' + (activeTag === t ? 'active' : '') + '" data-tag="' + t + '">' + t + '</button>';
-    });
-    el.innerHTML = html;
-    el.querySelectorAll('button').forEach(function(btn) {
-      btn.onclick = function() { activeTag = btn.getAttribute('data-tag'); renderList(); };
-    });
-  }
-
   function renderList() {
-    renderTags();
     var list = document.getElementById('storyList');
-    var filtered = activeTag === 'all' ? stories : stories.filter(function(s) {
-      return (s.tags || []).indexOf(activeTag) > -1;
-    });
-
     var html = '';
-    filtered.forEach(function(s) {
-      var tags = (s.tags || []).map(function(t) { return '<span>' + t + '</span>'; }).join('');
-      var fileBadge = s.file ? '<span class="file-badge">FILE: ' + s.file.split('/').pop() + '</span>' : '';
+    stories.forEach(function(s) {
       html += '<div class="story-card" data-id="' + s.id + '">'
         + '<div class="story-title">' + s.title + '</div>'
-        + '<div class="story-meta">'
-        + '<span>' + (s.author || '') + '</span>'
-        + '<span>' + (s.date || '') + '</span>'
-        + '</div>'
-        + '<div class="story-summary">' + (s.summary || '') + '</div>'
-        + (tags ? '<div class="story-tags">' + tags + '</div>' : '')
-        + fileBadge
-        + '</div>';
+        + '<div class="story-meta"><span>' + (s.author||'') + '</span><span>' + (s.date||'') + '</span></div>'
+        + '<div class="story-summary">' + (s.summary||'') + '</div></div>';
     });
-    if (filtered.length === 0) {
-      html = '<div style="text-align:center;padding:60px;color:var(--text-secondary)">No stories</div>';
-    }
+    if (!stories.length) html = '<div style="text-align:center;padding:60px;color:var(--text-secondary)">No stories</div>';
     list.innerHTML = html;
     list.querySelectorAll('.story-card').forEach(function(card) {
-      card.onclick = function() { showDetail(card.getAttribute('data-id')); };
+      card.onclick = function() { loadStory(card.getAttribute('data-id')); };
     });
   }
 
-  function showDetail(id) {
-    var s = stories.find(function(x) { return x.id === id; });
-    if (!s) return;
-
-    document.getElementById('detailTitle').textContent = s.title;
-    document.getElementById('detailAuthor').textContent = s.author || '';
-    document.getElementById('detailDate').textContent = s.date || '';
-    document.getElementById('detailTags').innerHTML = (s.tags || []).map(function(t) {
-      return '<span>' + t + '</span>';
-    }).join('');
-
-    document.getElementById('viewList').style.display = 'none';
-    document.getElementById('viewDetail').classList.add('show');
-    document.getElementById('viewDetail').style.display = '';
-
-    if (s.file) {
-      document.getElementById('readerToolbar').classList.add('show');
-      document.getElementById('detailContent').innerHTML = '<p style="text-align:center;color:var(--text-muted)">Loading...</p>';
-      fetch(s.file).then(function(r) {
-        if (!r.ok) throw new Error('load failed');
-        return r.text();
-      }).then(function(text) {
-        var html = text.split(/\n\s*\n/).map(function(para) {
-          para = para.trim();
-          if (!para) return '';
-          if (para.startsWith('# ')) return '<h2>' + para.slice(2) + '</h2>';
-          if (para.startsWith('## ')) return '<h2>' + para.slice(3) + '</h2>';
-          return '<p>' + para.replace(/\n/g, '<br>') + '</p>';
-        }).join('');
-        document.getElementById('detailContent').innerHTML = html || '<p>No content</p>';
-        fontSize = 16;
-        document.getElementById('detailContent').style.fontSize = fontSize + 'px';
-        updateProgress();
-      }).catch(function() {
-        document.getElementById('detailContent').innerHTML = '<p style="color:var(--red)">Failed to load file: ' + s.file + '</p>';
-      });
-    } else {
-      document.getElementById('readerToolbar').classList.remove('show');
-      document.getElementById('detailContent').innerHTML = s.content || '<p>No content</p>';
+  function parseChapters(text) {
+    var lines = text.split('\n');
+    var result = [];
+    var current = null;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (/^第.{1,5}章/.test(line)) {
+        if (current) result.push(current);
+        current = { title: line, content: '' };
+      } else if (current) {
+        if (line) current.content += '<p>' + line + '</p>';
+      } else {
+        // Before first chapter - treat as prologue
+        if (line) {
+          if (!current) current = { title: 'Prologue', content: '' };
+          current.content += '<p>' + line + '</p>';
+        }
+      }
     }
+    if (current) result.push(current);
+    return result;
+  }
 
-    window.scrollTo(0, 0);
+  function loadStory(id) {
+    var s = stories.find(function(x) { return x.id === id; });
+    if (!s || !s.file) return;
+
+    document.getElementById('readerTitle').textContent = s.title;
+    document.getElementById('viewList').style.display = 'none';
+    document.getElementById('viewReader').classList.add('show');
+
+    fetch(s.file).then(function(r) {
+      if (!r.ok) throw new Error('fail');
+      return r.text();
+    }).then(function(text) {
+      chapters = parseChapters(text);
+      renderToc();
+      showChapter(0);
+    }).catch(function() {
+      document.getElementById('chapterContent').innerHTML = '<p style="color:var(--red)">Failed to load file</p>';
+    });
+  }
+
+  function renderToc() {
+    var grid = document.getElementById('tocGrid');
+    var html = '';
+    chapters.forEach(function(ch, i) {
+      html += '<div class="toc-item" data-idx="' + i + '">' + ch.title + '</div>';
+    });
+    grid.innerHTML = html;
+    grid.querySelectorAll('.toc-item').forEach(function(item) {
+      item.onclick = function() { showChapter(parseInt(item.getAttribute('data-idx'))); };
+    });
+  }
+
+  function showChapter(idx) {
+    if (idx < 0 || idx >= chapters.length) return;
+    currentChapter = idx;
+    var ch = chapters[idx];
+
+    var html = '<h2>' + ch.title + '</h2>' + ch.content;
+    document.getElementById('chapterContent').innerHTML = html;
+    document.getElementById('chapterContent').style.fontSize = fontSize + 'px';
+
+    // Update TOC active state
+    document.querySelectorAll('.toc-item').forEach(function(el, i) {
+      el.classList.toggle('active', i === idx);
+    });
+
+    // Update nav buttons
+    document.getElementById('prevChapter').disabled = (idx === 0);
+    document.getElementById('nextChapter').disabled = (idx === chapters.length - 1);
+
+    // Scroll to content
+    document.getElementById('chapterContent').scrollIntoView({ behavior: 'smooth' });
+    updateProgress();
   }
 
   function updateProgress() {
-    var el = document.getElementById('readProgress');
-    var body = document.getElementById('detailContent');
-    var scrollTop = window.scrollY - body.offsetTop;
-    var total = body.scrollHeight;
-    var pct = total > 0 ? Math.min(100, Math.max(0, Math.round(scrollTop / total * 100))) : 0;
-    el.textContent = pct + '%';
+    var pct = chapters.length > 0 ? Math.round((currentChapter + 1) / chapters.length * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
   }
 
-  window.addEventListener('scroll', updateProgress);
+  document.getElementById('prevChapter').onclick = function() { showChapter(currentChapter - 1); };
+  document.getElementById('nextChapter').onclick = function() { showChapter(currentChapter + 1); };
+  document.getElementById('backToList').onclick = function() {
+    document.getElementById('viewReader').classList.remove('show');
+    document.getElementById('viewList').style.display = '';
+    document.getElementById('progressBar').style.width = '0';
+  };
 
   document.getElementById('fontDec').onclick = function() {
     fontSize = Math.max(12, fontSize - 2);
-    document.getElementById('detailContent').style.fontSize = fontSize + 'px';
+    document.getElementById('chapterContent').style.fontSize = fontSize + 'px';
   };
   document.getElementById('fontInc').onclick = function() {
     fontSize = Math.min(28, fontSize + 2);
-    document.getElementById('detailContent').style.fontSize = fontSize + 'px';
-  };
-
-  document.getElementById('detailBack').onclick = function() {
-    document.getElementById('viewDetail').classList.remove('show');
-    document.getElementById('viewDetail').style.display = 'none';
-    document.getElementById('viewList').style.display = '';
+    document.getElementById('chapterContent').style.fontSize = fontSize + 'px';
   };
 
   fetch('data.json')
@@ -275,9 +264,6 @@
       if (data.title) document.getElementById('pageTitle').textContent = data.title;
       if (data.subtitle) document.getElementById('pageSubtitle').textContent = data.subtitle;
       stories = data.stories || [];
-      var tagSet = {};
-      stories.forEach(function(s) { (s.tags || []).forEach(function(t) { tagSet[t] = true; }); });
-      allTags = Object.keys(tagSet);
       renderList();
     })
     .catch(function() {
