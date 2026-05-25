@@ -10,14 +10,14 @@
   "software": [
     {
       "id": "ai-novel-reader",
-      "name": "AI 小说阅读器",
+      "name": "致远阅读",
       "icon": "📖",
       "gradient": ["#6c63ff", "#4facfe"],
       "category": "ai-reader",
       "version": "1.0.0",
       "size": "12.5 MB",
       "requirements": "Android 6.0 及以上",
-      "description": "AI 小说阅读器是一款基于人工智能技术的移动端小说阅读应用，融合智能推荐、AI 朗读、智能排版等功能，为用户提供沉浸式的阅读体验。应用内置海量小说资源，支持离线下载、自定义主题、阅读进度同步等特性。",
+      "description": "致远阅读是一款基于人工智能技术的移动端小说阅读应用，融合智能推荐、AI 朗读、智能排版等功能，为用户提供沉浸式的阅读体验。应用内置海量小说资源，支持离线下载、自定义主题、阅读进度同步等特性。",
       "features": [
         "AI 智能推荐：根据阅读偏好推荐个性化书单",
         "AI 语音朗读：多种AI声优选择，支持语速调节",
@@ -31,7 +31,7 @@
         {"url": "images/screenshot2.png", "alt": "阅读页面"},
         {"url": "images/screenshot3.png", "alt": "AI推荐页面"}
       ],
-      "downloadUrl": "files/AINovelReader_v1.0.0.apk",
+      "downloadUrl": "files/ZhiYuanReader_v1.0.0.apk",
       "updateDate": "2026-05-25",
       "note": "首次安装请允许\"未知来源应用\"权限。如遇到下载问题，请尝试使用外部浏览器打开此页面。"
     },
