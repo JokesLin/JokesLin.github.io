@@ -10,7 +10,13 @@
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Joke Lin 的个人综合门户 - 农村发展硕士研究生的个人博客、书签导航、简历与AI作品集">
+<meta property="og:title" content="Joke Lin's Portal">
+<meta property="og:description" content="个人综合门户 · 农村发展硕士研究生">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jokeslin.github.io/">
 <title>Joke Lin's Portal</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
 <link rel="stylesheet" href="assets/global.css">
 <style>
 /* ===== 暗号验证页 ===== */
@@ -231,6 +237,28 @@
   .site-card { padding: 24px 18px; }
   .site-icon { width: 46px; height: 46px; font-size: 22px; }
 }
+
+/* 返回顶部按钮 */
+.scroll-top {
+  position: fixed; bottom: 30px; right: 30px; z-index: 900;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff; font-size: 22px; border: none; cursor: pointer;
+  box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; visibility: hidden; transform: translateY(20px);
+  transition: all 0.3s ease;
+}
+.scroll-top.show {
+  opacity: 1; visibility: visible; transform: translateY(0);
+}
+.scroll-top:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 6px 28px rgba(108,99,255,0.6);
+}
+@media (max-width: 768px) {
+  .scroll-top { bottom: 20px; right: 20px; width: 42px; height: 42px; font-size: 18px; }
+}
 </style>
 </head>
 <body>
@@ -327,6 +355,9 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- 返回顶部按钮 -->
+<button class="scroll-top" id="scrollTopBtn" title="返回顶部">↑</button>
+
 <script>
 /**
  * 门户核心逻辑：
@@ -381,6 +412,15 @@
     if (e.key === 'Enter') doLogin();
   };
   setTimeout(function() { lockInput.focus(); }, 300);
+
+  /* --- 返回顶部 --- */
+  var scrollBtn = document.getElementById('scrollTopBtn');
+  window.addEventListener('scroll', function() {
+    scrollBtn.classList.toggle('show', window.scrollY > 400);
+  });
+  scrollBtn.onclick = function() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 })();
 </script>
 </body>

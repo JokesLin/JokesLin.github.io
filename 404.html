@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="页面未找到 - Joke Lin's Portal">
+<title>404 - 页面未找到</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="assets/global.css">
+<style>
+.error-page {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 80vh; text-align: center; padding: 40px 20px;
+}
+.error-code {
+  font-size: 120px; font-weight: 800; line-height: 1;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.error-title {
+  font-size: 24px; font-weight: 600; margin: 16px 0 10px;
+}
+.error-desc {
+  font-size: 14px; color: var(--text-secondary); max-width: 400px; margin-bottom: 32px;
+}
+.error-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.error-actions a {
+  padding: 12px 28px; border-radius: 12px; font-size: 14px; font-weight: 500;
+  transition: all 0.2s; cursor: pointer;
+}
+.btn-home {
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  color: #fff; border: none;
+}
+.btn-home:hover { opacity: 0.85; transform: translateY(-2px); }
+.btn-back {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary);
+}
+.btn-back:hover { color: #fff; border-color: var(--accent-1); }
+</style>
+</head>
+<body>
+<div class="error-page">
+  <div class="error-code">404</div>
+  <h1 class="error-title">页面未找到</h1>
+  <p class="error-desc">你访问的页面不存在，可能已被移动或删除。不如先回首页看看吧？</p>
+  <div class="error-actions">
+    <a class="btn-home" href="/">返回首页</a>
+    <a class="btn-back" href="javascript:history.back()">← 后退</a>
+  </div>
+</div>
+</body>
+</html>

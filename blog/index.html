@@ -11,8 +11,13 @@
 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Joke Lin 的个人博客 - 书写、分享、归纳，关注乡村振兴与三农发展的个人思考">
+<meta property="og:title" content="Joke Lin's Blog">
+<meta property="og:description" content="书写、分享、归纳，关注乡村振兴与三农发展的个人思考">
+<meta property="og:type" content="website">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>Joke Lin's Blog</title>
+<link rel="icon" href="../favicon.ico" type="image/x-icon">
 <link rel="stylesheet" href="../assets/global.css">
 <style>
 .page-container { max-width: 800px; }
@@ -176,8 +181,7 @@
 
   <!-- 操作栏 -->
   <div class="actions">
-    <button class="primary" id="newPostBtn">✏️ 写新文章</button>
-    <button id="catMgrBtn">📂 管理分类</button>
+    <span style="font-size:13px;color:var(--text-muted)">💡 编辑 data.json 即可管理博文</span>
   </div>
 
   <!-- 分类筛选 -->
@@ -187,24 +191,11 @@
 
   <!-- 文章列表视图 -->
   <div id="viewList">
-    <div class="post-list" id="postList"></div>
+    <div class="post-list" id="postList">
+      <div style="text-align:center;padding:60px;color:var(--text-muted)">加载中…</div>
+    </div>
     <div class="empty hide" id="emptyState">
-      <p>还没有文章，点击「写新文章」开始写吧！</p>
-    </div>
-  </div>
-
-  <!-- 编辑器视图 -->
-  <div class="editor" id="viewEditor">
-    <div class="editor-header">
-      <input type="text" id="editTitle" placeholder="文章标题">
-    </div>
-    <div class="editor-body" id="editBody" contenteditable="true"></div>
-    <div class="editor-meta">
-      <select id="editCategory"></select>
-      <div class="btn-group">
-        <button class="cancel-btn" id="editCancel">取消</button>
-        <button class="save-btn" id="editSave">发布</button>
-      </div>
+      <p>还没有文章，编辑 data.json 添加第一篇吧！</p>
     </div>
   </div>
 
@@ -219,19 +210,6 @@
     <div class="content" id="detailContent"></div>
   </div>
 
-  <!-- 分类管理器 -->
-  <div class="cat-mgr" id="viewCatMgr">
-    <h3>管理分类</h3>
-    <div class="cat-list" id="catList"></div>
-    <div class="add-row">
-      <input type="text" id="newCatInput" placeholder="新分类名称" maxlength="20">
-      <button id="addCatBtn">添加</button>
-    </div>
-    <div style="margin-top:12px">
-      <button class="cancel-btn" id="catMgrClose" style="padding:6px 14px;border-radius:6px;font-size:13px;cursor:pointer;border:1px solid var(--border-card);background:transparent;color:var(--text-secondary)">关闭</button>
-    </div>
-  </div>
-
   <footer class="page-footer">
     <p>&copy; 2026 Joke Lin's Blog &nbsp;|&nbsp; 修改 data.json 即可管理博文</p>
   </footer>
@@ -240,25 +218,9 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/**
- * 博客核心逻辑
- * - 从 data.json 加载博文与分类
- * - 支持在线新增/编辑/删除文章（通过 GitHub API 持久化）
- * - 支持分类筛选、分类管理
- * - 修改 data.json 文件即可离线更新所有内容
- */
 (function() {
   'use strict';
 
-  /* --- GitHub API 配置（用于在线编辑持久化） --- */
-  var T1 = 'github_pat_11BCHRJYY01JODXu';
-  var T2 = 'Nlg71x_Sw2Y2fU9PF8s5Gpt9HuToBScJTrZhFsmOM3fKRxPbl626RAJJRFAxEx0C7n';
-  var TOKEN = T1 + T2;
-  var OWNER = 'JokesLin';
-  var REPO = 'JokesLin.github.io';
-  var FPATH = 'blog/data.json';
-  var API = 'https://api.github.com';
-  var sha = null;
   var data = null;
 
   var DEFAULT_CATS = [
@@ -267,67 +229,18 @@
     { name: '农村发展', color: '#f39c12' }
   ];
 
-  function b64e(s) { return btoa(unescape(encodeURIComponent(s))); }
-  function b64d(s) { return decodeURIComponent(escape(atob(s.replace(/\n/g, '')))); }
-
   function toast(msg) {
     var t = document.getElementById('toast');
     t.textContent = msg; t.classList.add('show');
     setTimeout(function() { t.classList.remove('show'); }, 2000);
   }
 
-  /* --- 数据加载（优先 GitHub API，回退本地 JSON） --- */
-  function fetchData() {
-    return fetch(API + '/repos/' + OWNER + '/' + REPO + '/contents/' + FPATH, {
-      headers: { 'Authorization': 'Bearer ' + TOKEN }
-    }).then(function(r) {
-      if (r.status === 404) return null;
-      return r.json().then(function(d) { sha = d.sha; return JSON.parse(b64d(d.content)); });
-    }).catch(function() {
-      // 回退：读取本地 data.json
-      return fetch('data.json').then(function(r) { return r.json(); }).catch(function() { return null; });
-    });
-  }
-
-  function saveData() {
-    var body = { message: 'update blog data', content: b64e(JSON.stringify(data)) };
-    if (sha) body.sha = sha;
-    return fetch(API + '/repos/' + OWNER + '/' + REPO + '/contents/' + FPATH, {
-      method: 'PUT',
-      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    }).then(function(r) { return r.json(); }).then(function(d) {
-      if (d.content) sha = d.content.sha;
-      return d;
-    });
-  }
-
-  function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
-  function formatDate() {
-    var d = new Date();
-    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-  }
-
   /* --- 视图切换 --- */
   function showView(id) {
-    ['viewList', 'viewEditor', 'viewDetail', 'viewCatMgr'].forEach(function(v) {
+    ['viewList', 'viewDetail'].forEach(function(v) {
       document.getElementById(v).classList.toggle('show', v === id);
-      if (v !== id) document.getElementById(v).style.display = 'none';
-      else document.getElementById(v).style.display = '';
+      document.getElementById(v).style.display = (v === id) ? '' : 'none';
     });
-  }
-
-  /* --- 分类选择器 --- */
-  function populateCatSelect() {
-    var sel = document.getElementById('editCategory');
-    var cur = sel.value;
-    sel.innerHTML = '';
-    (data.categories || []).forEach(function(c) {
-      var o = document.createElement('option');
-      o.value = o.textContent = c.name;
-      sel.appendChild(o);
-    });
-    if (cur) sel.value = cur;
   }
 
   /* --- 分类筛选标签 --- */
@@ -358,41 +271,21 @@
     var html = '';
     posts.forEach(function(p) {
       var cat = p.category || '未分类';
-      var excerpt = p.content.replace(/<[^>]+>/g, '').slice(0, 80);
+      var excerpt = p.content.replace(/<[^>]+>/g, '').slice(0, 100);
       html += '<div class="post-card" data-id="' + p.id + '">'
         + '<div class="title">' + p.title + '</div>'
         + '<div class="excerpt">' + excerpt + '…</div>'
         + '<div class="meta">'
         + '<span class="cat-tag">' + cat + '</span>'
         + '<span>' + p.date + '</span>'
-        + '<div class="post-card-actions">'
-        + '<button class="edit-btn" data-id="' + p.id + '">编辑</button>'
-        + '<button class="del-btn" data-id="' + p.id + '">删除</button>'
-        + '</div></div></div>';
+        + '</div></div>';
     });
     list.innerHTML = html;
 
-    // 绑定事件
     list.querySelectorAll('.post-card').forEach(function(card) {
-      card.addEventListener('click', function(e) {
-        if (e.target.closest('.post-card-actions')) return;
+      card.addEventListener('click', function() {
         showDetail(card.getAttribute('data-id'));
       });
-    });
-    list.querySelectorAll('.edit-btn').forEach(function(btn) {
-      btn.onclick = function(e) { e.stopPropagation(); openEditor(btn.getAttribute('data-id')); };
-    });
-    list.querySelectorAll('.del-btn').forEach(function(btn) {
-      btn.onclick = function(e) {
-        e.stopPropagation();
-        if (!confirm('确定删除这篇文章？')) return;
-        var id = btn.getAttribute('data-id');
-        data.posts = data.posts.filter(function(p) { return p.id !== id; });
-        saveData().then(function() {
-          renderPosts(document.querySelector('#catFilter .active').getAttribute('data-cat'));
-          toast('已删除');
-        }).catch(function() { toast('删除失败'); });
-      };
     });
   }
 
@@ -408,105 +301,16 @@
   }
   document.getElementById('detailBack').onclick = function() { showView('viewList'); };
 
-  /* --- 编辑器 --- */
-  function openEditor(id) {
-    populateCatSelect();
-    if (id) {
-      var p = (data.posts || []).find(function(x) { return x.id === id; });
-      if (!p) return;
-      document.getElementById('editTitle').value = p.title;
-      document.getElementById('editBody').innerHTML = p.content;
-      document.getElementById('editCategory').value = p.category || '';
-      document.getElementById('editSave').dataset.editId = id;
-    } else {
-      document.getElementById('editTitle').value = '';
-      document.getElementById('editBody').innerHTML = '';
-      document.getElementById('editSave').dataset.editId = '';
-    }
-    showView('viewEditor');
-    document.getElementById('editTitle').focus();
-  }
-
-  document.getElementById('editSave').onclick = function() {
-    var title = document.getElementById('editTitle').value.trim();
-    var body = document.getElementById('editBody').innerHTML.trim();
-    var cat = document.getElementById('editCategory').value;
-    var editId = this.dataset.editId;
-    if (!title) { toast('请输入文章标题'); return; }
-    if (!body || body === '<br>') { toast('请填写文章内容'); return; }
-    if (!data.posts) data.posts = [];
-    if (editId) {
-      var idx = data.posts.findIndex(function(x) { return x.id === editId; });
-      if (idx > -1) {
-        data.posts[idx].title = title;
-        data.posts[idx].content = body;
-        data.posts[idx].category = cat;
-        data.posts[idx].updated = formatDate();
-      }
-    } else {
-      data.posts.unshift({
-        id: genId(), title: title, content: body, category: cat,
-        date: formatDate(), updated: formatDate()
-      });
-    }
-    saveData().then(function() {
-      showView('viewList');
-      renderPosts(document.querySelector('#catFilter .active').getAttribute('data-cat'));
-      toast(editId ? '已更新 ✓' : '已发布 ✓');
-    }).catch(function() { toast('保存失败，请重试'); });
-  };
-
-  document.getElementById('editCancel').onclick = function() { showView('viewList'); };
-  document.getElementById('newPostBtn').onclick = function() { openEditor(null); };
-
-  /* --- 分类管理 --- */
-  function renderCatMgr() {
-    var list = document.getElementById('catList');
-    var cats = data.categories || [];
-    var html = '';
-    cats.forEach(function(c, i) {
-      html += '<div class="cat-item">'
-        + '<span class="dot" style="background:' + c.color + '"></span>'
-        + '<span class="name">' + c.name + '</span>'
-        + (cats.length > 1 ? '<span class="del" data-idx="' + i + '">✕</span>' : '')
-        + '</div>';
-    });
-    list.innerHTML = html;
-    list.querySelectorAll('.del').forEach(function(el) {
-      el.onclick = function() {
-        var idx = parseInt(el.getAttribute('data-idx'));
-        var cats = data.categories;
-        if (cats.length <= 1) { toast('至少保留一个分类'); return; }
-        var name = cats[idx].name;
-        cats.splice(idx, 1);
-        (data.posts || []).forEach(function(p) { if (p.category === name) p.category = cats[0].name; });
-        saveData().then(function() { renderCatMgr(); populateCatSelect(); toast('已删除分类'); })
-          .catch(function() { toast('删除失败'); });
-      };
-    });
-  }
-
-  document.getElementById('catMgrBtn').onclick = function() { renderCatMgr(); showView('viewCatMgr'); };
-  document.getElementById('catMgrClose').onclick = function() { showView('viewList'); renderPosts('all'); };
-  document.getElementById('addCatBtn').onclick = function() {
-    var input = document.getElementById('newCatInput');
-    var name = input.value.trim();
-    if (!name) { toast('请输入分类名称'); return; }
-    var cats = data.categories || [];
-    if (cats.find(function(c) { return c.name === name; })) { toast('分类已存在'); return; }
-    var colors = ['#6c63ff', '#2ecc71', '#f39c12', '#e74c3c', '#3498db', '#9b59b6', '#1abc9c', '#e67e22'];
-    cats.push({ name: name, color: colors[cats.length % colors.length] });
-    saveData().then(function() { input.value = ''; renderCatMgr(); populateCatSelect(); toast('已添加分类'); })
-      .catch(function() { toast('添加失败'); });
-  };
-
   /* --- 初始化 --- */
-  fetchData().then(function(d) {
+  document.getElementById('loadingState').classList.add('hide');
+  fetch('data.json').then(function(r) { return r.json(); }).then(function(d) {
     data = d || { posts: [], categories: DEFAULT_CATS };
     if (!data.posts) data.posts = [];
     if (!data.categories || data.categories.length === 0) data.categories = DEFAULT_CATS;
     showView('viewList');
     renderPosts('all');
+  }).catch(function() {
+    document.getElementById('postList').innerHTML = '<div style="text-align:center;padding:60px;color:var(--red)">加载数据失败，请检查 data.json</div>';
   });
 })();
 </script>
