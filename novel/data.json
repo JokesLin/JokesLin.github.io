@@ -7,12 +7,18 @@
       "title": "达娜的贴身高手",
       "author": "Joke Lin",
       "date": "2026-05-25",
-      "tags": [
-        "Novel",
-        "Action"
-      ],
+      "tags": ["Novel", "Action"],
       "summary": "达娜的贴身高手",
       "file": "files/dana.txt"
+    },
+    {
+      "id": "story-002",
+      "title": "斗破农大",
+      "author": "Joke Lin",
+      "date": "2026-05-26",
+      "tags": ["Novel", "Parody"],
+      "summary": "斗破苍穹农大版——林致远的陨落与崛起",
+      "file": "files/斗破农大.txt"
     }
   ]
 }
