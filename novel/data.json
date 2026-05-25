@@ -4,41 +4,15 @@
   "stories": [
     {
       "id": "story-001",
-      "title": "The Last Rice Field",
-      "author": "Joke Lin + Claude",
-      "date": "2026-04-15",
+      "title": "达娜的贴身高手",
+      "author": "Joke Lin",
+      "date": "2026-05-25",
       "tags": [
-        "Sci-Fi",
-        "Rural",
-        "AI"
+        "Novel",
+        "Action"
       ],
-      "summary": "2075, when the last manual rice field faces being swallowed by smart farms, an old farmer and his AI assistant have a conversation about memory and the future.",
-      "file": "files/story001.txt"
-    },
-    {
-      "id": "story-002",
-      "title": "Hermes at the Convenience Store",
-      "author": "Joke Lin + GPT-4",
-      "date": "2026-03-20",
-      "tags": [
-        "Fantasy",
-        "Urban",
-        "AI"
-      ],
-      "summary": "At 3AM in a convenience store, cashier Xiao Lin meets a strange customer claiming to be the Greek messenger god.",
-      "file": "files/story002.txt"
-    },
-    {
-      "id": "story-003",
-      "title": "Letter to 2050",
-      "author": "Joke Lin + Gemini",
-      "date": "2026-05-01",
-      "tags": [
-        "Essay",
-        "Future"
-      ],
-      "summary": "A rural development researcher writes to their future self, about villages, technology, memory and hope.",
-      "file": "files/story003.txt"
+      "summary": "达娜的贴身高手",
+      "file": "files/dana.txt"
     }
   ]
 }
