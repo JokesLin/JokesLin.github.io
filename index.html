@@ -387,7 +387,7 @@
 
     <!-- 子站点导航卡片 -->
     <div class="site-grid">
-      <a class="site-card" href="bookmarks/">
+      <a class="site-card" href="content/bookmarks/">
         <div class="site-icon" style="background:linear-gradient(135deg,#6c63ff,#4facfe)">📑</div>
         <div class="site-info">
           <h3>书签导航</h3>
@@ -397,7 +397,7 @@
         <span class="site-arrow">→</span>
       </a>
 
-      <a class="site-card" href="blog/">
+      <a class="site-card" href="content/blog/">
         <div class="site-icon" style="background:linear-gradient(135deg,#2ecc71,#27ae60)">📝</div>
         <div class="site-info">
           <h3>个人博客</h3>
@@ -407,7 +407,7 @@
         <span class="site-arrow">→</span>
       </a>
 
-      <a class="site-card" href="resume/">
+      <a class="site-card" href="content/resume/">
         <div class="site-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c)">📋</div>
         <div class="site-info">
           <h3>电子简历</h3>
@@ -417,7 +417,7 @@
         <span class="site-arrow">→</span>
       </a>
 
-      <a class="site-card" href="music/">
+      <a class="site-card" href="content/music/">
         <div class="site-icon" style="background:linear-gradient(135deg,#f39c12,#e67e22)">🎵</div>
         <div class="site-info">
           <h3>AI 音乐</h3>
@@ -427,7 +427,7 @@
         <span class="site-arrow">→</span>
       </a>
 
-      <a class="site-card" href="novel/">
+      <a class="site-card" href="content/novel/">
         <div class="site-icon" style="background:linear-gradient(135deg,#e74c3c,#c0392b)">📖</div>
         <div class="site-info">
           <h3>AI 小说</h3>
@@ -437,7 +437,7 @@
         <span class="site-arrow">→</span>
       </a>
 
-      <a class="site-card" href="ai-software/">
+      <a class="site-card" href="content/ai-software/">
         <div class="site-icon" style="background:linear-gradient(135deg,#00b894,#00cec9)">📦</div>
         <div class="site-info">
           <h3>AI 软件</h3>
@@ -597,7 +597,7 @@
   /* --- 子站点数据统计 --- */
   function fetchStats() {
     // 书签导航
-    fetch('bookmarks/data.json').then(function(r) { return r.json(); }).then(function(d) {
+    fetch('content/bookmarks/data.json').then(function(r) { return r.json(); }).then(function(d) {
       var cats = d.categories || [];
       var totalItems = 0;
       cats.forEach(function(c) { totalItems += (c.items || []).length; });
@@ -608,21 +608,21 @@
     }).catch(function() {});
 
     // 博客
-    fetch('blog/data.json').then(function(r) { return r.json(); }).then(function(d) {
+    fetch('content/blog/data.json').then(function(r) { return r.json(); }).then(function(d) {
       var posts = d.posts || [];
       var el = document.getElementById('stat-blog');
       if (el) el.textContent = posts.length;
     }).catch(function() {});
 
     // 简历
-    fetch('resume/data.json').then(function(r) { return r.json(); }).then(function(d) {
+    fetch('content/resume/data.json').then(function(r) { return r.json(); }).then(function(d) {
       var tags = d.personalityTags || [];
       var el = document.getElementById('stat-resume');
       if (el) el.textContent = tags.length;
     }).catch(function() {});
 
     // 音乐
-    fetch('music/data.json').then(function(r) { return r.json(); }).then(function(d) {
+    fetch('content/music/data.json').then(function(r) { return r.json(); }).then(function(d) {
       var playlists = d.playlists || [];
       var totalSongs = 0;
       playlists.forEach(function(p) { totalSongs += (p.songs || []).length; });
@@ -631,14 +631,14 @@
     }).catch(function() {});
 
     // 小说
-    fetch('novel/data.json').then(function(r) { return r.json(); }).then(function(d) {
+    fetch('content/novel/data.json').then(function(r) { return r.json(); }).then(function(d) {
       var stories = d.stories || [];
       var el = document.getElementById('stat-novel');
       if (el) el.textContent = stories.length;
     }).catch(function() {});
 
     // AI软件
-    fetch('ai-software/data.json').then(function(r) { return r.json(); }).then(function(d) {
+    fetch('content/ai-software/data.json').then(function(r) { return r.json(); }).then(function(d) {
       var apps = d.software || [];
       var el = document.getElementById('stat-soft');
       if (el) el.textContent = apps.length;
