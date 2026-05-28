@@ -4,14 +4,14 @@
     "avatar": "J",
     "title": "硕士研究生",
     "university": "福建农林大学",
-    "college": "经管学院",
+    "college": "经济与管理学院",
     "email": "jokeslin@outlook.com",
     "github": "https://github.com/JokesLin",
     "telegram": "https://t.me/JokesLin",
-    "bio": "专注于乡村振兴与农村发展领域的学术研究，关注数字农业、乡村治理与产业发展融合方向。善于运用数据分析与AI工具辅助研究，具有较强的跨学科整合能力。",
+    "bio": "专注于乡村与农村领域的学术研究，关注数字农业、乡村治理与产业发展融合方向。善于运用数据分析与AI工具辅助研究，具有较强的跨学科整合能力。业余时间活跃于各大内容平台，持续吸收数字世界的精神食粮。",
     "reportId": "JOKE-LIN-DP-2026",
     "generatedAt": "2026-05-26",
-    "dataSource": "本机文件扫描 · 学术经历 · 技能评估"
+    "dataSource": "本机文件扫描 · 学术经历 · 技能评估 · 娱乐活动全量追踪"
   },
   "workHabits": {
     "coreTools": ["WPS 教育版", "Git", "Python 3.14", "Trae AI", "SPSS", "Stata"],
@@ -26,16 +26,7 @@
       "college": "经济与管理学院",
       "period": "2025 - 至今",
       "status": "在读",
-      "focus": "研究方向：乡村产业振兴、数字农业、农村治理创新"
-    },
-    {
-      "degree": "学士",
-      "major": "农林经济管理",
-      "school": "福建农林大学",
-      "college": "经济与管理学院",
-      "period": "2020 - 2024",
-      "status": "已毕业",
-      "focus": "GPA 3.5/4.0，连续三年获得校级奖学金"
+      "focus": "研究方向：乡村振兴、数字农业、农村创新"
     }
   ],
   "skills": [
@@ -54,7 +45,16 @@
     {"label": "全栈网络操盘手", "icon": "🌐", "evidence": "Tailscale 私有组网 · Clash Verge · Sunshine 串流"},
     {"label": "野生开发者", "icon": "💻", "evidence": "Git + Python 3.14 + Trae AI · 记事本改配置"},
     {"label": "AI 双持体验家", "icon": "🤖", "evidence": "同时安装豆包和 Marvis 两款 AI 助手"},
-    {"label": "Deadline 爆发型选手", "icon": "⚡", "evidence": "周日文件活跃量130个（37.5%），周五仅15个"}
+    {"label": "Deadline 爆发型选手", "icon": "⚡", "evidence": "周日文件活跃量130个（37.5%），周五仅15个"},
+    {"label": "诺贝尔文学奖忠实读者", "icon": "📖", "evidence": "每年诺奖公布当天光速下单，次日看到第3页"},
+    {"label": "Spotify终身聆听者", "icon": "🎧", "evidence": "年度报告：你的品味很独特，我们看不懂"},
+    {"label": "抖音常驻观影人", "icon": "📱", "evidence": "日均摄入短视频2.5小时，已形成肌肉记忆"},
+    {"label": "B站资深鉴赏者", "icon": "📺", "evidence": "Lv6大会员 · 收藏夹吃灰率98.7%"},
+    {"label": "福州美食业余品评官", "icon": "🍜", "evidence": "吃遍福州八县 · 大众点评V7 · 鱼丸鉴赏十级学者"},
+    {"label": "AI灵感持有者", "icon": "✨", "evidence": "每天向AI提问50+次，把大模型当赛博许愿池"},
+    {"label": "泡面料包特级获得者", "icon": "🍜", "evidence": "三分钟泡面技艺炉火纯青，汤底一滴不剩"},
+    {"label": "马桶深度思索者", "icon": "🚽", "evidence": "80%的人生重大决定在此诞生"},
+    {"label": "显卡专职收集者", "icon": "🎮", "evidence": "云评测懂王 · Steam库存比显卡多"}
   ],
   "research": [
     {
@@ -73,7 +73,12 @@
   "awards": [
     {"name": "校级一等奖学金", "year": "2023"},
     {"name": "省级大学生创新创业大赛 铜奖", "year": "2023"},
-    {"name": "优秀毕业论文", "year": "2024"},
-    {"name": "研究生学业奖学金", "year": "2025"}
+    {"name": "校优秀毕业论文", "year": "2024"},
+    {"name": "校学业奖学金", "year": "2025"},
+    {"name": "诺贝尔文学奖忠实读者", "year": "2026"},
+    {"name": "泡面料包速食锦标赛 特等奖", "year": "2025"},
+    {"name": "福州鱼丸鉴赏大赛 荣誉评委", "year": "2024"},
+    {"name": "深夜Emo文学创作奖 年度得主", "year": "2026"},
+    {"name": "「下次一定」三连成就达成者", "year": "永久"}
   ]
 }
