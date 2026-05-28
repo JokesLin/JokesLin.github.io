@@ -61,6 +61,10 @@
   display: flex; align-items: center; justify-content: center;
   font-size: 36px;
 }
+.lock-quote {
+  font-size: 13px; color: var(--text-muted); font-style: italic;
+  margin-bottom: 8px; letter-spacing: 0.5px;
+}
 .lock-card h1 {
   font-size: 34px; font-weight: 700; margin-bottom: 8px;
   background: linear-gradient(135deg, #6c63ff, #f093fb);
@@ -68,7 +72,7 @@
   background-clip: text;
 }
 .lock-card .subtitle {
-  font-size: 15px; color: var(--text-secondary); margin-bottom: 36px;
+  font-size: 15px; color: var(--text-secondary); margin-bottom: 32px;
 }
 .lock-input {
   width: 100%; padding: 18px 24px; font-size: 20px; border-radius: 16px;
@@ -94,6 +98,13 @@
   60%  { transform: translateX(-8px); }
   80%  { transform: translateX(8px); }
 }
+.lock-hint {
+  margin-top: 8px; font-size: 12px; color: var(--text-muted);
+}
+.lock-attempt {
+  margin-top: 6px; font-size: 12px; color: var(--text-muted);
+}
+.lock-attempt span { color: var(--accent-1); font-weight: 600; }
 .lock-btn {
   width: 100%; padding: 18px; margin-top: 20px;
   font-size: 18px; font-weight: 600; border: none; border-radius: 16px;
@@ -112,6 +123,14 @@
   opacity: 0; transition: opacity 0.3s; min-height: 20px;
 }
 .lock-error.show { opacity: 1; }
+.lock-screen.fade-out {
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.lock-screen.fade-out .lock-card {
+  transform: scale(0.92);
+  transition: transform 0.5s ease;
+}
 
 /* ===== 主门户内容 ===== */
 .portal { opacity: 0; transition: opacity 0.6s; }
@@ -143,25 +162,53 @@
   color: var(--text-secondary);
   font-size: 15px; margin-top: 6px;
 }
+.portal-header .typing-tagline {
+  display: inline-block; min-height: 24px;
+}
+.portal-header .typing-tagline .cursor {
+  display: inline-block; width: 2px; height: 18px;
+  background: var(--accent-1); margin-left: 2px;
+  vertical-align: text-bottom; animation: blink 0.8s infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
 
 /* 社交条 */
 .social-row {
   display: flex; flex-wrap: wrap; justify-content: center;
-  gap: 8px; margin-bottom: 40px;
+  gap: 10px; margin-bottom: 40px;
 }
 .social-row a {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 6px 14px; border-radius: 8px;
-  font-size: 13px; color: var(--text-secondary);
-  background: rgba(255,255,255,0.04);
-  border: 1px solid var(--border-card);
-  transition: all 0.2s;
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 24px;
+  font-size: 14px; font-weight: 500; color: #fff;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  transition: all 0.25s ease;
+  position: relative; overflow: hidden;
 }
-.social-row a:hover {
-  color: #fff;
-  background: rgba(108,99,255,0.15);
-  border-color: rgba(108,99,255,0.3);
+.social-row a::before {
+  content: ''; position: absolute; inset: 0; opacity: 0;
+  transition: opacity 0.25s ease; z-index: 0;
 }
+.social-row a:hover::before { opacity: 1; }
+.social-row a > * { position: relative; z-index: 1; }
+.social-row a.bilibili { border-color: rgba(251,114,153,0.3); }
+.social-row a.bilibili::before { background: linear-gradient(135deg, rgba(251,114,153,0.25), rgba(251,114,153,0.05)); }
+.social-row a.bilibili:hover { border-color: rgba(251,114,153,0.6); box-shadow: 0 4px 20px rgba(251,114,153,0.2); }
+.social-row a.tieba { border-color: rgba(74,144,226,0.3); }
+.social-row a.tieba::before { background: linear-gradient(135deg, rgba(74,144,226,0.25), rgba(74,144,226,0.05)); }
+.social-row a.tieba:hover { border-color: rgba(74,144,226,0.6); box-shadow: 0 4px 20px rgba(74,144,226,0.2); }
+.social-row a.github { border-color: rgba(110,84,148,0.3); }
+.social-row a.github::before { background: linear-gradient(135deg, rgba(110,84,148,0.25), rgba(110,84,148,0.05)); }
+.social-row a.github:hover { border-color: rgba(110,84,148,0.6); box-shadow: 0 4px 20px rgba(110,84,148,0.2); }
+.social-row a.youtube { border-color: rgba(255,0,0,0.3); }
+.social-row a.youtube::before { background: linear-gradient(135deg, rgba(255,0,0,0.25), rgba(255,0,0,0.05)); }
+.social-row a.youtube:hover { border-color: rgba(255,0,0,0.6); box-shadow: 0 4px 20px rgba(255,0,0,0.2); }
+.social-row a.telegram { border-color: rgba(0,136,204,0.3); }
+.social-row a.telegram::before { background: linear-gradient(135deg, rgba(0,136,204,0.25), rgba(0,136,204,0.05)); }
+.social-row a.telegram:hover { border-color: rgba(0,136,204,0.6); box-shadow: 0 4px 20px rgba(0,136,204,0.2); }
 
 /* 子站点卡片 */
 .site-grid {
@@ -227,6 +274,41 @@
   font-size: 12px;
   color: var(--text-muted);
 }
+.portal-footer .footer-line { margin-bottom: 8px; }
+.portal-footer .tech-badges {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+  margin: 12px 0 8px;
+}
+.portal-footer .tech-badge {
+  font-size: 10px; padding: 2px 10px; border-radius: 6px;
+  background: rgba(108,99,255,0.08); border: 1px solid rgba(108,99,255,0.15);
+  color: var(--text-muted);
+}
+.portal-footer .footer-quote {
+  font-size: 13px; color: var(--text-secondary); font-style: italic;
+  margin: 10px 0;
+}
+.portal-footer .footer-runtime {
+  font-size: 11px; color: var(--text-muted); margin-top: 6px;
+}
+.portal-footer .footer-runtime span { color: var(--accent-1); }
+
+/* 站点卡片统计 */
+.site-stats {
+  margin-top: 10px; display: flex; gap: 12px; flex-wrap: wrap;
+}
+.site-stat {
+  font-size: 11px; color: var(--text-muted);
+  display: flex; align-items: center; gap: 3px;
+}
+.site-stat strong { color: var(--accent-1); font-weight: 600; }
+
+/* 页面进度条 */
+.page-progress {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 10000;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  width: 0%; transition: width 0.1s linear;
+}
 
 @media (max-width: 768px) {
   .lock-card { padding: 48px 28px 36px; }
@@ -263,6 +345,8 @@
 </head>
 <body>
 
+<div class="page-progress" id="pageProgress"></div>
+
 <!-- ========== 暗号验证层 ========== -->
 <div class="lock-screen" id="lockScreen">
   <div class="lock-glow">
@@ -270,10 +354,13 @@
   </div>
   <div class="lock-card">
     <div class="lock-icon">🔐</div>
+    <div class="lock-quote">"The door to the digital world"</div>
     <h1>Joke Lin's Portal</h1>
     <p class="subtitle">请输入暗号以继续访问</p>
     <input type="password" class="lock-input" id="lockInput" placeholder="请输入暗号" autofocus>
     <button class="lock-btn" id="lockBtn">进入门户</button>
+    <div class="lock-hint">按 Enter 确认</div>
+    <div class="lock-attempt" id="lockAttempt">剩余尝试次数: <span>3</span></div>
     <div class="lock-error" id="lockError">暗号错误，请重试</div>
   </div>
 </div>
@@ -286,16 +373,16 @@
     <header class="portal-header">
       <div class="portal-avatar">J</div>
       <h1>Joke Lin's Portal</h1>
-      <p class="tagline">个人综合门户 · 硕士研究生</p>
+      <p class="tagline"><span class="typing-tagline" id="typingTagline"></span></p>
     </header>
 
     <!-- 社交链接 -->
     <div class="social-row">
-      <a href="https://github.com/JokesLin" target="_blank">💻 GitHub</a>
-      <a href="https://space.bilibili.com/379827770" target="_blank">📺 B站</a>
-      <a href="https://www.youtube.com/channel/UClunxHYnA1l6nUAMVcS03XA" target="_blank">▶️ YouTube</a>
-      <a href="https://t.me/JokesLin" target="_blank">✈️ Telegram</a>
-      <a href="https://tieba.baidu.com/home/main?un=江州一衣带水&fr=home" target="_blank">📋 贴吧</a>
+      <a class="bilibili" href="https://space.bilibili.com/379827770" target="_blank">� Bilibili</a>
+      <a class="tieba" href="https://tieba.baidu.com/home/main?un=江州一衣带水&fr=home" target="_blank">📋 百度贴吧</a>
+      <a class="github" href="https://github.com/JokesLin" target="_blank">� GitHub</a>
+      <a class="youtube" href="https://www.youtube.com/channel/UClunxHYnA1l6nUAMVcS03XA" target="_blank">▶️ YouTube</a>
+      <a class="telegram" href="https://t.me/JokesLin" target="_blank">✈️ Telegram</a>
     </div>
 
     <!-- 子站点导航卡片 -->
@@ -305,6 +392,7 @@
         <div class="site-info">
           <h3>书签导航</h3>
           <p>个人常用网站书签导航，涵盖AI工具、论文、校园、网盘等分类</p>
+          <div class="site-stats"><span class="site-stat">📂 <strong id="stat-bm-cat">—</strong> 分类</span><span class="site-stat">🔗 <strong id="stat-bm-link">—</strong> 网址</span></div>
         </div>
         <span class="site-arrow">→</span>
       </a>
@@ -314,6 +402,7 @@
         <div class="site-info">
           <h3>个人博客</h3>
           <p>书写、分享、归纳个人思考</p>
+          <div class="site-stats"><span class="site-stat">📄 <strong id="stat-blog">—</strong> 篇文章</span></div>
         </div>
         <span class="site-arrow">→</span>
       </a>
@@ -323,6 +412,7 @@
         <div class="site-info">
           <h3>电子简历</h3>
           <p>个人电子简历，展示教育背景、技能特长与研究经历</p>
+          <div class="site-stats"><span class="site-stat">🏷️ <strong id="stat-resume">—</strong> 个性标签</span></div>
         </div>
         <span class="site-arrow">→</span>
       </a>
@@ -332,6 +422,7 @@
         <div class="site-info">
           <h3>AI 音乐</h3>
           <p>AI 驱动的音乐创作与歌单收藏展示</p>
+          <div class="site-stats"><span class="site-stat">🎶 <strong id="stat-music">—</strong> 首曲目</span></div>
         </div>
         <span class="site-arrow">→</span>
       </a>
@@ -341,6 +432,7 @@
         <div class="site-info">
           <h3>AI 小说</h3>
           <p>AI 辅助创作的文学作品与短篇故事集</p>
+          <div class="site-stats"><span class="site-stat">📚 <strong id="stat-novel">—</strong> 部作品</span></div>
         </div>
         <span class="site-arrow">→</span>
       </a>
@@ -350,6 +442,7 @@
         <div class="site-info">
           <h3>AI 软件</h3>
           <p>精选 AI 工具与实用软件资源下载，涵盖阅读、对话、图像等类别</p>
+          <div class="site-stats"><span class="site-stat">🛠️ <strong id="stat-soft">—</strong> 款应用</span></div>
         </div>
         <span class="site-arrow">→</span>
       </a>
@@ -357,7 +450,16 @@
 
     <!-- 页脚 -->
     <footer class="portal-footer">
-      <p>&copy; 2026 Joke Lin's Portal &nbsp;|&nbsp; 纯静态 · 无后端依赖 · GitHub Pages 部署</p>
+      <p class="footer-line">&copy; 2026 Joke Lin's Portal</p>
+      <div class="tech-badges">
+        <span class="tech-badge">纯静态</span>
+        <span class="tech-badge">零依赖</span>
+        <span class="tech-badge">GitHub Pages</span>
+        <span class="tech-badge">CSS Variables</span>
+        <span class="tech-badge">data.json 驱动</span>
+      </div>
+      <p class="footer-quote">「用代码写诗，用数据种田 🌾」</p>
+      <p class="footer-runtime">本站已运行 <span id="runtimeDays">—</span> 天</p>
     </footer>
   </div>
 </div>
@@ -368,32 +470,25 @@
 <button class="scroll-top" id="scrollTopBtn" title="返回顶部">↑</button>
 
 <script>
-/**
- * 门户核心逻辑：
- * 1. 暗号验证（默认暗号：666）
- * 2. 验证通过后 sessionStorage 记录，同一会话无需重复输入
- */
 (function() {
   'use strict';
 
-  /* --- 配置 --- */
-  var SECRET_CODE = '666';  // 暗号，修改此处即可更换
+  var SECRET_CODE = '666';
+  var MAX_ATTEMPTS = 3;
+  var remainingAttempts = MAX_ATTEMPTS;
+  var SITE_LAUNCH_DATE = new Date('2025-08-01');
 
-  /* --- 元素引用 --- */
   var lockScreen = document.getElementById('lockScreen');
   var lockInput  = document.getElementById('lockInput');
   var lockBtn    = document.getElementById('lockBtn');
   var lockError  = document.getElementById('lockError');
+  var lockAttempt = document.getElementById('lockAttempt');
   var portal     = document.getElementById('portal');
 
-  /* --- 检查是否已验证 --- */
   try {
-    if (sessionStorage.getItem('portal-auth')) {
-      unlock();
-    }
+    if (sessionStorage.getItem('portal-auth')) { unlock(); }
   } catch (e) {}
 
-  /* --- 验证函数 --- */
   function doLogin() {
     var val = lockInput.value.trim();
     if (val === SECRET_CODE) {
@@ -401,21 +496,32 @@
       try { sessionStorage.setItem('portal-auth', '1'); } catch (e) {}
       unlock();
     } else {
+      remainingAttempts--;
       lockError.classList.add('show');
       lockInput.classList.add('error');
       setTimeout(function() { lockInput.classList.remove('error'); }, 400);
+
+      if (remainingAttempts <= 0) {
+        lockBtn.disabled = true;
+        lockInput.disabled = true;
+        lockBtn.style.opacity = '0.5';
+        lockAttempt.innerHTML = '剩余尝试次数: <span style="color:var(--red)">0</span>';
+        lockError.textContent = '暗号错误，请稍后再试';
+      } else {
+        lockAttempt.innerHTML = '剩余尝试次数: <span>' + remainingAttempts + '</span>';
+        lockError.textContent = '暗号错误，请重试';
+      }
       lockInput.value = '';
       lockInput.focus();
     }
   }
 
-  /* --- 解锁门户 --- */
   function unlock() {
-    lockScreen.classList.add('hidden');
+    lockScreen.classList.add('fade-out');
     portal.classList.add('show');
+    setTimeout(function() { lockScreen.classList.add('hidden'); }, 500);
   }
 
-  /* --- 事件绑定 --- */
   lockBtn.onclick = doLogin;
   lockInput.onkeydown = function(e) {
     if (e.key === 'Enter') doLogin();
@@ -430,6 +536,115 @@
   scrollBtn.onclick = function() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  /* --- 页面进度条 --- */
+  var pageProgress = document.getElementById('pageProgress');
+  window.addEventListener('scroll', function() {
+    var scrollTop = window.scrollY || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+    pageProgress.style.width = pct + '%';
+  });
+
+  /* --- 运行时天数 --- */
+  (function updateRuntime() {
+    var days = Math.floor((new Date() - SITE_LAUNCH_DATE) / (1000 * 60 * 60 * 24));
+    var el = document.getElementById('runtimeDays');
+    if (el) el.textContent = days;
+  })();
+
+  /* --- 打字机标语 --- */
+  var taglines = [
+    '个人综合门户 · 硕士研究生',
+    '野生开发者 · AI 双持体验家',
+    'Deadline 爆发型选手 · 福州美食业余品评官',
+    '🎧 Spotify 终身聆听者 · 📺 B站资深鉴赏者',
+    '泡面料包特级获得者 · 马桶深度思索者'
+  ];
+  var taglineIdx = 0;
+  var typingEl = document.getElementById('typingTagline');
+  var charIdx = 0;
+  var isDeleting = false;
+  var typingSpeed = 60;
+  var deletingSpeed = 30;
+  var pauseEnd = 2500;
+  var pauseStart = 600;
+
+  function typeLoop() {
+    var current = taglines[taglineIdx];
+    if (isDeleting) {
+      charIdx--;
+      typingEl.innerHTML = current.substring(0, charIdx) + '<span class="cursor"></span>';
+      if (charIdx <= 0) {
+        isDeleting = false;
+        taglineIdx = (taglineIdx + 1) % taglines.length;
+        setTimeout(typeLoop, pauseStart);
+        return;
+      }
+      setTimeout(typeLoop, deletingSpeed);
+    } else {
+      charIdx++;
+      typingEl.innerHTML = current.substring(0, charIdx) + '<span class="cursor"></span>';
+      if (charIdx >= current.length) {
+        setTimeout(function() { isDeleting = true; typeLoop(); }, pauseEnd);
+        return;
+      }
+      setTimeout(typeLoop, typingSpeed);
+    }
+  }
+  setTimeout(typeLoop, 800);
+
+  /* --- 子站点数据统计 --- */
+  function fetchStats() {
+    // 书签导航
+    fetch('bookmarks/data.json').then(function(r) { return r.json(); }).then(function(d) {
+      var cats = d.categories || [];
+      var totalItems = 0;
+      cats.forEach(function(c) { totalItems += (c.items || []).length; });
+      var elCat = document.getElementById('stat-bm-cat');
+      var elLink = document.getElementById('stat-bm-link');
+      if (elCat) elCat.textContent = cats.length;
+      if (elLink) elLink.textContent = totalItems;
+    }).catch(function() {});
+
+    // 博客
+    fetch('blog/data.json').then(function(r) { return r.json(); }).then(function(d) {
+      var posts = d.posts || [];
+      var el = document.getElementById('stat-blog');
+      if (el) el.textContent = posts.length;
+    }).catch(function() {});
+
+    // 简历
+    fetch('resume/data.json').then(function(r) { return r.json(); }).then(function(d) {
+      var tags = d.personalityTags || [];
+      var el = document.getElementById('stat-resume');
+      if (el) el.textContent = tags.length;
+    }).catch(function() {});
+
+    // 音乐
+    fetch('music/data.json').then(function(r) { return r.json(); }).then(function(d) {
+      var playlists = d.playlists || [];
+      var totalSongs = 0;
+      playlists.forEach(function(p) { totalSongs += (p.songs || []).length; });
+      var el = document.getElementById('stat-music');
+      if (el) el.textContent = totalSongs;
+    }).catch(function() {});
+
+    // 小说
+    fetch('novel/data.json').then(function(r) { return r.json(); }).then(function(d) {
+      var stories = d.stories || [];
+      var el = document.getElementById('stat-novel');
+      if (el) el.textContent = stories.length;
+    }).catch(function() {});
+
+    // AI软件
+    fetch('ai-software/data.json').then(function(r) { return r.json(); }).then(function(d) {
+      var apps = d.software || [];
+      var el = document.getElementById('stat-soft');
+      if (el) el.textContent = apps.length;
+    }).catch(function() {});
+  }
+  fetchStats();
 })();
 </script>
 </body>
