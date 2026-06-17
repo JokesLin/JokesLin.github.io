@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<meta name="description" content="Joke Lin 的个人博客 - 乡村振兴、三农研究与个人随笔">
+<meta property="og:title" content="Joke Lin's Blog">
+<meta property="og:description" content="乡村振兴、三农研究与个人随笔">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jokeslin.github.io/content/blog/">
+<meta property="og:image" content="https://jokeslin.github.io/assets/JokeLIn.png">
+<title>Joke Lin's Blog</title>
+<link rel="stylesheet" href="../../assets/global.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/bgm.css">
+<style>
+.wrapper { max-width: 800px; margin: 0 auto; padding: 30px 24px 80px; }
+
+.back-btn {
+  display: inline-block; margin-bottom: 16px;
+  padding: 8px 20px; border-radius: 50px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary); font-size: 13px; text-decoration: none;
+  transition: var(--transition-fast);
+}
+.back-btn:hover { color: var(--text-primary); border-color: var(--accent-1); background: rgba(51,112,255,0.08); }
+
+.blog-header {
+  text-align: center; padding: 40px 0 28px;
+  margin-bottom: 28px;
+}
+.blog-header h1 {
+  font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.blog-header p { color: var(--text-secondary); font-size: 14px; margin-top: 6px; }
+
+.cat-filter { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }
+.cat-filter button {
+  padding: 6px 18px; border-radius: 50px; font-size: 13px; cursor: pointer;
+  border: 1px solid var(--border-card); background: transparent; color: var(--text-secondary);
+  transition: var(--transition-fast); font-weight: 500;
+}
+.cat-filter button:hover { color: var(--text-primary); border-color: var(--accent-1); background: rgba(51,112,255,0.06); }
+.cat-filter button.active { background: var(--accent-1); color: #fff; border-color: var(--accent-1); }
+
+.post-list { display: flex; flex-direction: column; gap: 12px; }
+.post-card {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 20px;
+  transition: var(--transition-base); cursor: pointer;
+}
+.post-card:hover {
+  border-color: var(--border-card-hover);
+  background: var(--bg-card-hover);
+  transform: translateY(-2px);
+}
+.post-card .title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+.post-card .excerpt {
+  font-size: 13px; color: var(--text-secondary);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.post-card .meta {
+  display: flex; gap: 14px; font-size: 12px; color: var(--text-muted);
+  margin-top: 10px; align-items: center;
+}
+.post-card .cat-tag {
+  display: inline-block; padding: 3px 12px; border-radius: 50px;
+  font-size: 11px; background: rgba(51,112,255,0.1); color: var(--accent-1);
+}
+
+.empty { text-align: center; padding: 60px 20px; color: var(--text-secondary); font-size: 14px; }
+
+.detail { display: none; }
+.detail.show { display: block; }
+.detail .back-link {
+  display: inline-block; margin-bottom: 20px;
+  padding: 8px 20px; border-radius: 50px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary); font-size: 13px; cursor: pointer; text-decoration: none;
+  transition: var(--transition-fast);
+}
+.detail .back-link:hover { color: var(--text-primary); border-color: var(--accent-1); }
+.detail h1 { font-size: clamp(1.3rem, 3vw, 1.8rem); margin: 16px 0 12px; font-weight: 700; }
+.detail .meta {
+  display: flex; gap: 14px; font-size: 13px; color: var(--text-secondary);
+  padding-bottom: 16px; border-bottom: 1px solid var(--border-card); margin-bottom: 24px;
+  align-items: center;
+}
+.detail .content { font-size: 15px; color: var(--text-secondary); line-height: 1.9; }
+.detail .content p { margin-bottom: 16px; }
+.detail .content h2 {
+  font-size: 20px; margin: 32px 0 14px; padding-left: 14px;
+  border-left: 3px solid var(--accent-1); color: var(--text-primary);
+}
+.detail .content h3 { font-size: 17px; margin: 24px 0 10px; color: var(--text-primary); }
+.detail .content blockquote {
+  border-left: 3px solid var(--accent-1); padding: 12px 18px; margin: 18px 0;
+  background: rgba(51,112,255,0.04); border-radius: 0 var(--radius-xs) var(--radius-xs) 0;
+  color: var(--text-secondary);
+}
+.detail .content ul, .detail .content ol { padding-left: 24px; margin-bottom: 14px; }
+.detail .content li { margin-bottom: 6px; }
+.detail .content a { color: var(--accent-1); text-decoration: underline; }
+.detail .content .highlight {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 20px; margin: 18px 0;
+}
+
+.blog-footer {
+  text-align: center; padding: 40px 0 0;
+  border-top: 1px solid var(--border-card); margin-top: 48px;
+  font-size: 12px; color: var(--text-muted);
+}
+
+.hide { display: none; }
+.loading-state { text-align: center; padding: 60px; color: var(--text-secondary); font-size: 14px; }
+
+@media (max-width: 600px) {
+  .wrapper { padding: 20px 16px 60px; }
+  .blog-header { padding: 24px 0 20px; }
+  .blog-header h1 { font-size: 1.3rem; }
+  .detail h1 { font-size: 1.2rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper fade-in-up">
+  <a class="back-btn" href="../../">← 返回门户首页</a>
+
+  <header class="blog-header">
+    <h1>Joke Lin's Blog</h1>
+    <p>书写、分享、归纳</p>
+  </header>
+
+  <div class="cat-filter" id="catFilter"></div>
+
+  <div id="viewList">
+    <div class="post-list" id="postList">
+      <div class="loading-state" id="loadingState">加载中…</div>
+    </div>
+    <div class="empty hide" id="emptyState">暂无文章</div>
+  </div>
+
+  <div class="detail" id="viewDetail">
+    <a class="back-link" id="detailBack">← 返回列表</a>
+    <h1 id="detailTitle"></h1>
+    <div class="meta">
+      <span id="detailDate"></span>
+      <span id="detailCat"></span>
+    </div>
+    <div class="content" id="detailContent"></div>
+  </div>
+
+  <footer class="blog-footer">
+    <p>&copy; 2026 Joke Lin's Blog</p>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function() {
+  'use strict';
+
+  var data = null;
+  var DEFAULT_CATS = [
+    { name: '乡村振兴', color: '#e94560' },
+    { name: '三农', color: '#2ecc71' },
+    { name: '农村发展', color: '#f39c12' }
+  ];
+
+  function toast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2000);
+  }
+
+  function showView(id) {
+    ['viewList', 'viewDetail'].forEach(function(v) {
+      document.getElementById(v).classList.toggle('show', v === id);
+      document.getElementById(v).style.display = (v === id) ? '' : 'none';
+    });
+  }
+
+  function renderCatFilter(active) {
+    var el = document.getElementById('catFilter');
+    var cats = data.categories || DEFAULT_CATS;
+    var html = '<button class="' + (active === 'all' ? 'active' : '') + '" data-cat="all">全部</button>';
+    cats.forEach(function(c) {
+      html += '<button class="' + (active === c.name ? 'active' : '') + '" data-cat="' + c.name + '">' + c.name + '</button>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll('button').forEach(function(btn) {
+      btn.onclick = function() { renderPosts(btn.getAttribute('data-cat')); };
+    });
+  }
+
+  function renderPosts(filter) {
+    filter = filter || 'all';
+    renderCatFilter(filter);
+    var posts = data.posts || [];
+    if (filter !== 'all') posts = posts.filter(function(p) { return p.category === filter; });
+    var list = document.getElementById('postList');
+    var empty = document.getElementById('emptyState');
+    if (posts.length === 0) { list.innerHTML = ''; empty.classList.remove('hide'); return; }
+    empty.classList.add('hide');
+    var html = '';
+    posts.forEach(function(p) {
+      var cat = p.category || '未分类';
+      var excerpt = p.content.replace(/<[^>]+>/g, '').slice(0, 80);
+      html += '<div class="post-card fade-in-up" data-id="' + p.id + '">'
+        + '<div class="title">' + p.title + '</div>'
+        + '<div class="excerpt">' + excerpt + '…</div>'
+        + '<div class="meta">'
+        + '<span class="cat-tag">' + cat + '</span>'
+        + '<span>' + p.date + '</span>'
+        + '</div></div>';
+    });
+    list.innerHTML = html;
+    list.querySelectorAll('.post-card').forEach(function(card) {
+      card.onclick = function() { showDetail(card.getAttribute('data-id')); };
+    });
+    if (window.initScrollAnims) window.initScrollAnims();
+  }
+
+  function showDetail(id) {
+    var p = (data.posts || []).find(function(x) { return x.id === id; });
+    if (!p) return;
+    document.getElementById('detailTitle').textContent = p.title;
+    document.getElementById('detailDate').textContent = '📅 ' + p.date;
+    document.getElementById('detailCat').innerHTML = '<span style="display:inline-block;padding:3px 12px;border-radius:50px;font-size:12px;background:rgba(51,112,255,0.1);color:var(--accent-1)">' + (p.category || '未分类') + '</span>';
+    document.getElementById('detailContent').innerHTML = p.content;
+    showView('viewDetail');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  document.getElementById('detailBack').onclick = function() { showView('viewList'); };
+
+  document.getElementById('loadingState').classList.remove('hide');
+  fetch('data.json').then(function(r) { return r.json(); }).then(function(d) {
+    data = d || { posts: [], categories: DEFAULT_CATS };
+    document.getElementById('loadingState').classList.add('hide');
+    if (!data.categories) data.categories = DEFAULT_CATS;
+    if (!data.posts) data.posts = [];
+    showView('viewList');
+    renderPosts('all');
+  }).catch(function(e) {
+    document.getElementById('postList').innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-secondary)">加载数据失败，请检查 data.json</div>';
+  });
+})();
+</script>
+<script src="../../assets/shared-nav.js"></script>
+<script src="../../assets/bgm.js"></script>
+<script src="../../assets/scroll-anim.js"></script>
+</body>
+</html>

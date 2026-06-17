@@ -1,0 +1,178 @@
+/* ================================================================
+   BGM 全局播放器 — 侧边收缩式
+   ================================================================ */
+
+/* 外层容器：固定左侧底部，可拖动 */
+.bgm-player {
+  position: fixed; left: 0; bottom: 30px; z-index: 9500;
+  display: flex; align-items: center;
+  transition: left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: grab;
+}
+.bgm-player.dragging {
+  cursor: grabbing;
+  transition: none;
+}
+/* 展开状态 */
+.bgm-player.expanded { left: 0; }
+
+/* ---- 收缩态：一个小圆钮 ---- */
+.bgm-peek {
+  width: 44px; height: 44px; border-radius: 0 22px 22px 0;
+  background: rgba(20,20,20,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: none;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+  transition: background 0.2s, width 0.2s;
+  position: relative; overflow: hidden;
+}
+.bgm-peek:hover { background: rgba(30,30,30,0.95); }
+/* 播放时的跳动音柱 */
+.bgm-peek-bars {
+  display: flex; align-items: flex-end; gap: 2px; height: 18px;
+}
+.bgm-peek-bars span {
+  width: 3px; border-radius: 1px;
+  background: var(--accent-1, #3370ff);
+}
+.bgm-peek-bars span:nth-child(1) { animation: bgmBar 0.6s ease-in-out infinite alternate; }
+.bgm-peek-bars span:nth-child(2) { animation: bgmBar 0.6s 0.15s ease-in-out infinite alternate; }
+.bgm-peek-bars span:nth-child(3) { animation: bgmBar 0.6s 0.3s ease-in-out infinite alternate; }
+.bgm-peek-bars span:nth-child(4) { animation: bgmBar 0.6s 0.1s ease-in-out infinite alternate; }
+.bgm-player.paused .bgm-peek-bars span { animation-play-state: paused; height: 4px; }
+@keyframes bgmBar {
+  0% { height: 4px; } 100% { height: 18px; }
+}
+
+/* ---- 展开面板 ---- */
+.bgm-panel {
+  width: 0; overflow: hidden; opacity: 0;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s ease;
+  background: rgba(20,20,20,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: none;
+  border-radius: 0 16px 16px 0;
+}
+.bgm-player.expanded .bgm-panel {
+  width: 260px; opacity: 1;
+}
+
+/* 面板内容 */
+.bgm-panel__inner {
+  padding: 16px 18px;
+  display: flex; flex-direction: column; gap: 12px;
+  min-width: 260px;
+}
+.bgm-panel__header {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.bgm-panel__title {
+  font-size: 13px; font-weight: 600; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 160px;
+}
+.bgm-panel__artist {
+  font-size: 11px; color: rgba(255,255,255,0.45);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.bgm-panel__close {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: none;
+  color: rgba(255,255,255,0.5); font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: background 0.2s;
+  flex-shrink: 0;
+}
+.bgm-panel__close:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+/* 控制行 */
+.bgm-panel__controls {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+}
+.bgm-btn {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: transparent; border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7); font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.bgm-btn:hover { border-color: var(--accent-1, #3370ff); color: var(--accent-1, #3370ff); }
+.bgm-btn--play {
+  width: 40px; height: 40px;
+  background: var(--accent-1, #3370ff); border-color: transparent;
+  color: #fff; font-size: 16px;
+}
+.bgm-btn--play:hover { background: #4a85ff; border-color: transparent; color: #fff; }
+
+/* 音量行 */
+.bgm-panel__volume {
+  display: flex; align-items: center; gap: 8px;
+}
+.bgm-panel__volume-icon {
+  font-size: 12px; color: rgba(255,255,255,0.4); flex-shrink: 0;
+}
+.bgm-volume {
+  flex: 1; height: 3px;
+  -webkit-appearance: none; appearance: none;
+  background: rgba(255,255,255,0.08); border-radius: 2px; outline: none;
+  cursor: pointer;
+}
+.bgm-volume::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 10px; height: 10px;
+  border-radius: 50%; background: var(--accent-1, #3370ff); cursor: pointer;
+}
+.bgm-volume::-moz-range-thumb {
+  width: 10px; height: 10px;
+  border-radius: 50%; background: var(--accent-1, #3370ff); cursor: pointer; border: none;
+}
+
+/* 播放列表 */
+.bgm-panel__list {
+  max-height: 180px; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.bgm-panel__list::-webkit-scrollbar { width: 3px; }
+.bgm-panel__list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+.bgm-track {
+  padding: 8px 10px; border-radius: 8px;
+  font-size: 12px; color: rgba(255,255,255,0.5);
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 8px;
+  border: none; background: transparent; text-align: left;
+  width: 100%;
+}
+.bgm-track:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.8); }
+.bgm-track.active {
+  background: rgba(51,112,255,0.12);
+  color: var(--accent-1, #3370ff);
+  font-weight: 500;
+}
+.bgm-track__idx { font-size: 10px; opacity: 0.4; min-width: 14px; }
+.bgm-track__name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* 移动端：底部横条 */
+@media (max-width: 768px) {
+  .bgm-player {
+    top: auto; bottom: 0; left: 0; right: 0;
+    transform: none;
+    flex-direction: column-reverse;
+  }
+  .bgm-peek {
+    width: 100%; height: 40px; border-radius: 12px 12px 0 0;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-bottom: none;
+  }
+  .bgm-player.expanded .bgm-panel {
+    width: 100%; border-radius: 0;
+  }
+  .bgm-panel__inner { min-width: auto; }
+  .bgm-panel__list { max-height: 140px; }
+}

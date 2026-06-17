@@ -1,0 +1,216 @@
+{
+  "deleted": [],
+  "custom": [],
+  "categories": [
+    {
+      "id": "common",
+      "name": "常用工具",
+      "icon": "⚡",
+      "items": [
+        {"name": "Google", "url": "https://www.google.com.hk/?hl=zh-CN", "icon": "G", "gradient": ["#4285f4", "#34a853"], "tag": "⭐ 推荐"},
+        {"name": "GitHub", "url": "https://github.com/JokesLin", "icon": "GH", "gradient": ["#333", "#000"], "tag": "⭐ 推荐"},
+        {"name": "福建农林大学校园网", "url": "http://210.34.84.127/", "icon": "校", "gradient": ["#27ae60", "#2ecc71"]},
+        {"name": "白嫖API", "url": "https://link.hcnsec.cn/", "icon": "A", "gradient": ["#667eea", "#764ba2"]},
+        {"name": "DeepSeek 开放平台", "url": "https://platform.deepseek.com/usage", "icon": "D", "gradient": ["#4f6bff", "#2d4a8a"], "desc": "API用量查询"},
+        {"name": "Xiaomi MiMo 开放平台", "url": "https://platform.xiaomimimo.com/console/balance", "icon": "Mi", "gradient": ["#ff6b6b", "#c0392b"]},
+        {"name": "qwen 开放平台", "url": "https://bailian.console.aliyun.com/", "icon": "Q", "gradient": ["#ff6a00", "#ee0979"]},
+        {"name": "维云模型开放平台", "url": "https://vsllm.com/console", "icon": "V", "gradient": ["#1a73e8", "#0d47a1"]}
+      ]
+    },
+    {
+      "id": "ai",
+      "name": "AI 工具",
+      "icon": "🤖",
+      "items": [
+        {"name": "ChatGPT", "url": "https://chatgpt.com/", "icon": "C", "gradient": ["#10a37f", "#0d8c6f"], "tag": "⭐ 推荐"},
+        {"name": "Claude", "url": "https://claude.ai/new", "icon": "C", "gradient": ["#6c47ff", "#4630b3"], "tag": "⭐ 推荐"},
+        {"name": "Google Gemini", "url": "https://gemini.google.com/app", "icon": "Ge", "gradient": ["#1a73e8", "#0d47a1"]},
+        {"name": "DeepSeek", "url": "https://chat.deepseek.com/", "icon": "D", "gradient": ["#4f6bff", "#2d4a8a"], "tag": "⭐ 推荐"},
+        {"name": "Grok", "url": "https://grok.com/", "icon": "G", "gradient": ["#000", "#333"]}
+      ]
+    },
+    {
+      "id": "ecommerce",
+      "name": "电商外贸",
+      "icon": "🛒",
+      "items": [
+        {"name": "连连国际", "url": "https://global.lianlianpay.com/", "icon": "连", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "妙手ERP", "url": "https://erp.91miaoshou.com/", "icon": "妙", "gradient": ["#f39c12", "#e67e22"]},
+        {"name": "163网易免费邮", "url": "https://mail.163.com/", "icon": "邮", "gradient": ["#c31432", "#240b36"]},
+        {"name": "Shopee 卖家中心", "url": "https://seller.shopee.cn/", "icon": "S", "gradient": ["#ee4d2d", "#d0011b"]},
+        {"name": "Shopee 菲律宾", "url": "https://ph.xiapibuy.com/", "icon": "PH", "gradient": ["#ee4d2d", "#d0011b"]},
+        {"name": "Shopee 马来西亚", "url": "https://my.xiapibuy.com/", "icon": "MY", "gradient": ["#ee4d2d", "#d0011b"]},
+        {"name": "Shopee 泰国", "url": "https://th.xiapibuy.com/", "icon": "TH", "gradient": ["#ee4d2d", "#d0011b"]},
+        {"name": "Shopee 越南", "url": "https://vn.xiapibuy.com/", "icon": "VN", "gradient": ["#ee4d2d", "#d0011b"]},
+        {"name": "Shopee 台湾", "url": "https://xiapi.xiapibuy.com/", "icon": "TW", "gradient": ["#ee4d2d", "#d0011b"]},
+        {"name": "Shopee 智利", "url": "https://cl.xiapibuy.com/", "icon": "CL", "gradient": ["#ee4d2d", "#d0011b"]},
+        {"name": "Shopee 哥伦比亚", "url": "https://co.xiapibuy.com/", "icon": "CO", "gradient": ["#ee4d2d", "#d0011b"]},
+        {"name": "Shopee 新加坡", "url": "https://sg.xiapibuy.com/", "icon": "SG", "gradient": ["#ee4d2d", "#d0011b"]}
+      ]
+    },
+    {
+      "id": "paper",
+      "name": "论文相关",
+      "icon": "📄",
+      "items": [
+        {"name": "PaperYY", "url": "https://www.paperyy.cn/", "icon": "Y", "gradient": ["#667eea", "#764ba2"], "desc": "AIGC免费论文检测"},
+        {"name": "PaperPass", "url": "https://www.paperpass.com/", "icon": "P", "gradient": ["#f093fb", "#f5576c"], "desc": "论文查重降重"},
+        {"name": "嘎嘎降AI", "url": "https://www.aigcleaner.com/", "icon": "AI", "gradient": ["#4facfe", "#00f2fe"], "desc": "AIGCleaner"},
+        {"name": "CARSI", "url": "https://ds.carsi.edu.cn/resource/resource.php", "icon": "C", "gradient": ["#fa709a", "#fee140"]},
+        {"name": "Sci-Hub", "url": "https://sci-hub.gupiaoq.com/", "icon": "S", "gradient": ["#0c3483", "#a2b6df"], "tag": "⭐ 推荐"},
+        {"name": "Sci-Hub (备)", "url": "https://www.sci-hub.st/", "icon": "S2", "gradient": ["#0c3483", "#a2b6df"]},
+        {"name": "中国知网", "url": "https://www.cnki.net/", "icon": "知", "gradient": ["#c31432", "#240b36"]},
+        {"name": "Google学术镜像", "url": "https://t.ck-ai.co/tool/ggscholar/", "icon": "G", "gradient": ["#4285f4", "#34a853"]},
+        {"name": "谷歌学术导航", "url": "https://ac.zhike.in/", "icon": "谷", "gradient": ["#4285f4", "#34a853"]},
+        {"name": "GentleCAJ", "url": "https://caj.gentleltd.cn/", "icon": "C", "gradient": ["#667eea", "#764ba2"], "desc": "CAJ转PDF"}
+      ]
+    },
+    {
+      "id": "campus",
+      "name": "校园教育",
+      "icon": "🎓",
+      "items": [
+        {"name": "闽南理工学院教务", "url": "http://222.77.99.243:8091/home.aspx", "icon": "闽", "gradient": ["#1e3c72", "#2a5298"]},
+        {"name": "社科网 论文在线", "url": "https://www.sinoss.net/", "icon": "社", "gradient": ["#c31432", "#240b36"]},
+        {"name": "维普学术", "url": "https://vpcs.fanyu.com/personal/mnust", "icon": "维", "gradient": ["#667eea", "#764ba2"]},
+        {"name": "维普毕业论文管理", "url": "https://vgms.fanyu.com/", "icon": "毕", "gradient": ["#667eea", "#764ba2"]},
+        {"name": "标准论文格式模板", "url": "https://www.lunwendata.com/special/geshi.htm", "icon": "格", "gradient": ["#2c3e50", "#3498db"]},
+        {"name": "问卷星", "url": "https://www.wjx.cn/", "icon": "问", "gradient": ["#3498db", "#2980b9"]},
+        {"name": "中国知网(校园账号)", "url": "https://kns.cnki.net/", "icon": "知", "gradient": ["#c31432", "#240b36"]},
+        {"name": "学习通", "url": "https://v8.chaoxing.com/", "icon": "学", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "福建农林大学教务", "url": "https://yjsapp.fafu.edu.cn/", "icon": "农", "gradient": ["#27ae60", "#2ecc71"]},
+        {"name": "全国大学生创业服务网", "url": "https://cy.ncss.cn/", "icon": "创", "gradient": ["#e74c3c", "#c0392b"]}
+      ]
+    },
+    {
+      "id": "exam",
+      "name": "考研考试",
+      "icon": "📝",
+      "items": [
+        {"name": "研招网", "url": "https://yzst.chsi.com.cn/", "icon": "研", "gradient": ["#c31432", "#240b36"]},
+        {"name": "NTCE 中国教育考试网", "url": "https://ntce.neea.edu.cn/", "icon": "N", "gradient": ["#1e3c72", "#2a5298"]},
+        {"name": "学信网", "url": "https://www.chsi.com.cn/", "icon": "学", "gradient": ["#2c3e50", "#3498db"]},
+        {"name": "统计年鉴下载站", "url": "https://www.zgtjnj.org/", "icon": "统", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "GDP数据", "url": "https://gdp.gotohui.com/", "icon": "G", "gradient": ["#f39c12", "#e67e22"], "desc": "聚汇数据"},
+        {"name": "福州市中考中招", "url": "https://fzszzb.fzedu.gov.cn:7243/iexam-fuzhou-web/", "icon": "福", "gradient": ["#1abc9c", "#16a085"]}
+      ]
+    },
+    {
+      "id": "media",
+      "name": "视听娱乐",
+      "icon": "🎬",
+      "items": [
+        {"name": "Movie Station", "url": "https://gaze.run/", "icon": "M", "gradient": ["#2c3e50", "#3498db"]},
+        {"name": "LIBVIO 影视", "url": "https://www.libvio.me/", "icon": "L", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "HDmoli", "url": "https://hdmoli.org/", "icon": "H", "gradient": ["#f39c12", "#e67e22"], "desc": "高清影视"},
+        {"name": "JMNAV", "url": "https://jmnav.top/", "icon": "J", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "歌曲宝", "url": "https://www.gequbao.com/", "icon": "歌", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "歌曲海", "url": "https://www.gequhai.com/", "icon": "海", "gradient": ["#3498db", "#2980b9"], "desc": "MP3免费下载"},
+        {"name": "Z-Library", "url": "https://zh.z-lib.gs/", "icon": "Z", "gradient": ["#2c3e50", "#3498db"], "tag": "⭐ 推荐"}
+      ]
+    },
+    {
+      "id": "cloud",
+      "name": "网盘存储",
+      "icon": "☁️",
+      "items": [
+        {"name": "百度网盘", "url": "https://pan.baidu.com/", "icon": "百", "gradient": ["#0066ff", "#003399"]},
+        {"name": "夸克网盘", "url": "https://pan.quark.cn/", "icon": "夸", "gradient": ["#1a73e8", "#0d47a1"]},
+        {"name": "123云盘", "url": "https://www.123pan.com/login", "icon": "1", "gradient": ["#4CAF50", "#2e7d32"]},
+        {"name": "阿里云盘", "url": "https://www.aliyundrive.com/drive/home", "icon": "阿", "gradient": ["#ff6a00", "#ee0979"]},
+        {"name": "蓝奏云", "url": "https://up.woozooo.com/", "icon": "蓝", "gradient": ["#2196F3", "#1565C0"]},
+        {"name": "小米云服务", "url": "https://i.mi.com/?_locale=zh_CN", "icon": "米", "gradient": ["#ff6b6b", "#c0392b"]},
+        {"name": "PikPak", "url": "https://mypikpak.net/drive/all", "icon": "P", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "UC网盘", "url": "https://drive.uc.cn/", "icon": "U", "gradient": ["#f60", "#ff8c00"]}
+      ]
+    },
+    {
+      "id": "tech",
+      "name": "技术资源",
+      "icon": "🔧",
+      "items": [
+        {"name": "iLovePDF", "url": "https://www.ilovepdf.com/zh-cn", "icon": "P", "gradient": ["#e74c3c", "#c0392b"], "tag": "⭐ 推荐"},
+        {"name": "Convertio 文件转换", "url": "https://convertio.co/zh/", "icon": "C", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "菜鸟教程", "url": "https://www.runoob.com/", "icon": "菜", "gradient": ["#27ae60", "#2ecc71"]},
+        {"name": "图片转文字", "url": "https://web.baimiaoapp.com/", "icon": "图", "gradient": ["#1a73e8", "#0d47a1"]},
+        {"name": "DOC到DOCX转换器", "url": "https://www.freeconvert.com/zh/doc-to-docx", "icon": "D", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "以图搜图", "url": "https://yandex.com/images/", "icon": "搜", "gradient": ["#ffcc00", "#ff6a00"]},
+        {"name": "音频修改", "url": "https://www.aigei.com/tool/audio", "icon": "音", "gradient": ["#4CAF50", "#2e7d32"]},
+        {"name": "Greasy Fork", "url": "https://greasyfork.org/zh-CN", "icon": "油", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "AirPortal", "url": "https://www.airportal.cn/", "icon": "A", "gradient": ["#1a73e8", "#0d47a1"]},
+        {"name": "哲风壁纸", "url": "https://haowallpaper.com/", "icon": "壁", "gradient": ["#f093fb", "#f5576c"], "desc": "4K高清壁纸"},
+        {"name": "Spotify", "url": "https://open.spotify.com/", "icon": "S", "gradient": ["#1DB954", "#191414"], "tag": "⭐ 推荐"},
+        {"name": "短信激活 5sim", "url": "https://5sim.com/zh", "icon": "5", "gradient": ["#1abc9c", "#16a085"]},
+        {"name": "Aibijia AI订阅比价", "url": "https://aibijia.org/", "icon": "A", "gradient": ["#f39c12", "#e67e22"]},
+        {"name": "T-HUB", "url": "https://hub.titanelite.cn/#/connect", "icon": "T", "gradient": ["#1a73e8", "#0d47a1"]},
+        {"name": "creght 模板", "url": "https://www.creght.cn/templates", "icon": "C", "gradient": ["#667eea", "#764ba2"]}
+      ]
+    },
+    {
+      "id": "torrent",
+      "name": "BT 磁力",
+      "icon": "⚡",
+      "items": [
+        {"name": "Pirate Bay", "url": "https://thepiratebay.org/index.html", "icon": "P", "gradient": ["#333", "#000"]},
+        {"name": "BT影视下载", "url": "https://www.yinfans.me/", "icon": "影", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "BT部落天堂", "url": "https://www.btbuluo.net/", "icon": "部", "gradient": ["#8e44ad", "#9b59b6"]}
+      ]
+    },
+    {
+      "id": "games",
+      "name": "游戏",
+      "icon": "🎮",
+      "items": [
+        {"name": "Nexus Mods", "url": "https://www.nexusmods.com/", "icon": "N", "gradient": ["#da8c3a", "#8a5e23"]},
+        {"name": "Switch520", "url": "https://www.gamer520.com/", "icon": "S", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "Gamdie", "url": "https://gamdie.com/", "icon": "G", "gradient": ["#3498db", "#2980b9"], "desc": "免费独立游戏"},
+        {"name": "小妖怪分享", "url": "https://xyg688.com/", "icon": "小", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "咸鱼单机", "url": "https://www.xianyudanji.net/", "icon": "咸", "gradient": ["#1abc9c", "#16a085"]},
+        {"name": "flysheep资源避难所", "url": "https://www.flysheep6.com/", "icon": "飞", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "byrutgame", "url": "https://byrutgame.org/", "icon": "B", "gradient": ["#2c3e50", "#3498db"]},
+        {"name": "上游世界", "url": "https://www.vgter.net/", "icon": "上", "gradient": ["#f39c12", "#e67e22"], "desc": "Switch/PS4游戏"},
+        {"name": "5play 安卓游戏", "url": "https://5play.org/", "icon": "5", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "CheatSlips", "url": "https://www.cheatslips.com/", "icon": "C", "gradient": ["#1a73e8", "#0d47a1"], "desc": "Switch金手指"},
+        {"name": "品技论坛 Switch", "url": "https://www.tekqart.cc/", "icon": "品", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "ns中文网", "url": "https://www.ns211.com/", "icon": "N", "gradient": ["#2196F3", "#1565C0"]},
+        {"name": "蒸汽游戏宝库", "url": "https://www.steambk.com/", "icon": "蒸", "gradient": ["#171a21", "#66c0f4"]},
+        {"name": "SteamGridDB", "url": "https://www.steamgriddb.com/", "icon": "S", "gradient": ["#171a21", "#66c0f4"]},
+        {"name": "Koyso", "url": "https://koyso.com/", "icon": "K", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "FLiNG Trainer", "url": "https://flingtrainer.com/", "icon": "F", "gradient": ["#f39c12", "#e67e22"]}
+      ]
+    },
+    {
+      "id": "network",
+      "name": "网络工具",
+      "icon": "🌐",
+      "items": [
+        {"name": "Speedtest", "url": "https://www.speedtest.net/", "icon": "测", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "ITDOG 在线测速", "url": "https://www.itdog.cn/", "icon": "I", "gradient": ["#2c3e50", "#3498db"]},
+        {"name": "IP查询", "url": "https://ipw.cn/", "icon": "IP", "gradient": ["#1abc9c", "#16a085"]},
+        {"name": "在线订阅转换", "url": "https://sub-zh.vercel.app/", "icon": "订", "gradient": ["#667eea", "#764ba2"]},
+        {"name": "Askahh机场测速", "url": "https://www.askahh.com/", "icon": "A", "gradient": ["#ff6b6b", "#c0392b"]},
+        {"name": "便宜机场汇总", "url": "https://www.askahh.com/archives/26/", "icon": "便", "gradient": ["#f39c12", "#e67e22"]},
+        {"name": "iKuuu VPN", "url": "https://ikuuu.one/auth/login", "icon": "i", "gradient": ["#8e44ad", "#9b59b6"]},
+        {"name": "FSCloud", "url": "https://web.fscloud.cc/", "icon": "F", "gradient": ["#0c3483", "#a2b6df"]},
+        {"name": "良心云", "url": "https://xn--9kqz23b19z.com/", "icon": "良", "gradient": ["#e74c3c", "#c0392b"]},
+        {"name": "魔戒.net", "url": "https://47.112.97.173:5000/", "icon": "魔", "gradient": ["#2c3e50", "#3498db"]},
+        {"name": "Kwrt LuCI", "url": "http://192.168.10.1/cgi-bin/luci/admin/status", "icon": "路", "gradient": ["#2c3e50", "#3498db"]},
+        {"name": "5G Mobile Hotspot", "url": "http://192.168.0.1/index.html#home", "icon": "5G", "gradient": ["#27ae60", "#2ecc71"]},
+        {"name": "UFI-TOOLS", "url": "http://192.168.0.1:2333/", "icon": "U", "gradient": ["#f39c12", "#e67e22"]}
+      ]
+    },
+    {
+      "id": "knowledge",
+      "name": "知识库",
+      "icon": "📚",
+      "items": [
+        {"name": "Clash 知识库", "url": "https://clash.wiki/", "icon": "C", "gradient": ["#e67e22", "#d35400"]},
+        {"name": "GitHub Docs", "url": "https://docs.github.com/zh", "icon": "GH", "gradient": ["#333", "#000"]},
+        {"name": "Easy-Vibe 学习路线图", "url": "https://datawhalechina.github.io/easy-vibe/", "icon": "D", "gradient": ["#4CAF50", "#2e7d32"]},
+        {"name": "VS Code 入门教程", "url": "https://code.visualstudio.com/docs/getstarted/getting-started", "icon": "VS", "gradient": ["#1a73e8", "#0d47a1"]},
+        {"name": "Zotero 百科全书", "url": "https://zotero-chinese.github.io/user-guide/", "icon": "Z", "gradient": ["#c31432", "#240b36"]},
+        {"name": "Claude Code 模拟器", "url": "https://www.xuanyuancode.com/learn-claude-code/simulator", "icon": "CC", "gradient": ["#6c47ff", "#4630b3"]}
+      ]
+    }
+  ]
+}

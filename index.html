@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<!--
+  ================================================================
+  Joke Lin's Portal — 综合门户总站 v3.0
+  严格参照模版网站风格重构（亮白主题）
+  ================================================================
+-->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Joke Lin 的个人综合门户 - 硕士研究生的个人博客、书签导航、简历与AI作品集">
+<meta property="og:title" content="Joke Lin's Portal">
+<meta property="og:description" content="个人综合门户 · 硕士研究生">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jokeslin.github.io/">
+<meta property="og:image" content="https://jokeslin.github.io/assets/JokeLIn.png">
+<meta name="twitter:card" content="summary">
+<title>Joke Lin's Portal</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="assets/global.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="assets/bgm.css">
+<link rel="stylesheet" href="assets/home.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Joke Lin's Portal",
+  "url": "https://jokeslin.github.io/",
+  "description": "个人综合门户 - 硕士研究生的个人博客、书签导航、简历与AI作品集",
+  "author": {
+    "@type": "Person",
+    "name": "Joke Lin",
+    "email": "linyousong386@gmail.com",
+    "url": "https://jokeslin.github.io/",
+    "sameAs": [
+      "https://github.com/JokesLin",
+      "https://t.me/JokesLin",
+      "https://space.bilibili.com/379827770",
+      "https://www.youtube.com/channel/UClunxHYnA1l6nUAMVcS03XA"
+    ]
+  }
+}
+</script>
+</head>
+<body>
+
+<!-- ===== 顶部导航栏 ===== -->
+<nav class="top-nav" id="topNav">
+  <div class="top-nav__logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">Joke Lin</div>
+  <div class="top-nav__links">
+    <a class="top-nav__link" href="#journey">About</a>
+    <a class="top-nav__link" href="#services">Services</a>
+    <a class="top-nav__link" href="#work">Portfolio</a>
+    <a class="top-nav__link" href="#stats">Stats</a>
+  </div>
+  <a class="top-nav__cta" href="#contact">Get In Touch</a>
+  <button class="top-nav__menu-btn" id="menuBtn" aria-label="菜单">☰</button>
+</nav>
+
+<!-- 移动端导航面板 -->
+<div class="mobile-nav" id="mobileNav">
+  <button class="mobile-nav__close" id="menuClose">✕</button>
+  <a href="#journey" onclick="closeMobileNav()">About</a>
+  <a href="#services" onclick="closeMobileNav()">Services</a>
+  <a href="#work" onclick="closeMobileNav()">Portfolio</a>
+  <a href="#stats" onclick="closeMobileNav()">Stats</a>
+  <a href="#contact" onclick="closeMobileNav()">Get In Touch</a>
+</div>
+
+<!-- ===== Hero 区 ===== -->
+<section class="hero" id="hero">
+  <canvas class="hero__bg" id="heroBgCanvas"></canvas>
+  <canvas class="hero__particles" id="heroParticles"></canvas>
+  <div class="hero__glow" id="heroGlow"></div>
+  <div class="hero__scanlines"></div>
+  <canvas class="hero__grain" id="heroGrain"></canvas>
+  <!-- 浮动几何图形 -->
+  <div class="hero__geo hero__geo--circle" style="width:120px;height:120px;top:15%;left:10%;animation-delay:0s"></div>
+  <div class="hero__geo hero__geo--diamond" style="width:60px;height:60px;top:60%;left:85%;animation-delay:2s"></div>
+  <div class="hero__geo hero__geo--circle" style="width:80px;height:80px;top:70%;left:20%;animation-delay:4s"></div>
+  <div class="hero__geo hero__geo--line" style="top:20%;left:75%;animation-delay:1s;transform:rotate(30deg)"></div>
+  <div class="hero__geo hero__geo--diamond" style="width:40px;height:40px;top:25%;left:60%;animation-delay:3s"></div>
+  <div class="hero__geo hero__geo--circle" style="width:50px;height:50px;top:80%;left:70%;animation-delay:5s"></div>
+  <div class="hero__geo hero__geo--line" style="top:45%;left:5%;animation-delay:6s;transform:rotate(-20deg)"></div>
+  <div class="hero__geo hero__geo--diamond" style="width:90px;height:90px;top:10%;left:45%;animation-delay:1.5s"></div>
+  <div class="hero__content">
+    <img class="hero__avatar" src="assets/JokeLIn.webp" alt="Joke Lin" onerror="this.src='assets/JokeLIn.png'">
+    <h1 class="hero__h1 hero__h1--glitch" data-text="Imagine the moment between concept & reality.">
+      Imagine the moment<br>
+      between <span>concept</span> & <span>reality.</span>
+    </h1>
+    <p class="hero__subtitle">
+      <span class="typing-text" id="typingText"></span><span class="typing-cursor"></span>
+    </p>
+    <div class="hero__shortcuts" id="heroShortcuts">
+      <a href="https://chat.deepseek.com/" target="_blank" class="hero__shortcut" title="DeepSeek">
+        <span class="hero__shortcut-icon" style="background:linear-gradient(135deg,#4f6bff,#2d4a8a)">🤖</span>
+        <span class="hero__shortcut-name">DeepSeek</span>
+      </a>
+      <a href="https://claude.ai/new" target="_blank" class="hero__shortcut" title="Claude">
+        <span class="hero__shortcut-icon" style="background:linear-gradient(135deg,#6c47ff,#4630b3)">🧠</span>
+        <span class="hero__shortcut-name">Claude</span>
+      </a>
+      <a href="https://github.com/JokesLin" target="_blank" class="hero__shortcut" title="GitHub">
+        <span class="hero__shortcut-icon" style="background:linear-gradient(135deg,#333,#000)">💻</span>
+        <span class="hero__shortcut-name">GitHub</span>
+      </a>
+      <a href="https://www.google.com.hk/?hl=zh-CN" target="_blank" class="hero__shortcut" title="Google">
+        <span class="hero__shortcut-icon" style="background:linear-gradient(135deg,#4285f4,#34a853)">🔍</span>
+        <span class="hero__shortcut-name">Google</span>
+      </a>
+      <a href="https://chatgpt.com/" target="_blank" class="hero__shortcut" title="ChatGPT">
+        <span class="hero__shortcut-icon" style="background:linear-gradient(135deg,#10a37f,#0d8c6f)">✨</span>
+        <span class="hero__shortcut-name">ChatGPT</span>
+      </a>
+    </div>
+  </div>
+  <div class="hero__footer">
+    <span class="hero__footer-item" id="heroTime">--:-- PM</span>
+    <div class="hero__footer-center">
+      <span>Scroll to Explore</span>
+      <div class="hero__scroll-line"></div>
+    </div>
+    <span class="hero__footer-item">FUZHOU</span>
+  </div>
+</section>
+
+<!-- ===== 滚动文字条 ===== -->
+<section class="marquee-section">
+  <div class="marquee-track" id="marqueeTrack">
+    <!-- JS 动态填充 -->
+  </div>
+</section>
+
+<!-- ===== 旅程翻转卡 ===== -->
+<section class="journey-section" id="journey">
+  <div class="journey-section__inner">
+    <div class="section-title">
+      <span class="section-title__label">About Me</span>
+      <span class="section-title__heading">Where are you in your journey?</span>
+    </div>
+
+    <div class="flip-grid">
+      <div class="flip-card fade-in-left">
+        <div class="flip-card__inner">
+          <div class="flip-card__face flip-card__front">
+            <div class="flip-card__front-icon">📚</div>
+            <div class="flip-card__front-title">持续学习</div>
+            <div class="flip-card__front-sub">阅读 · 思考 · 输出</div>
+          </div>
+          <div class="flip-card__face flip-card__back">
+            <p class="flip-card__back-text">不追热点，只做有意义的事。用数据和案例说话，把复杂的议题拆解成能理解的语言。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card scale-in">
+        <div class="flip-card__inner">
+          <div class="flip-card__face flip-card__front">
+            <div class="flip-card__front-icon">🤖</div>
+            <div class="flip-card__front-title">AI 协作指挥</div>
+            <div class="flip-card__front-sub">需求拆解 · 工具选型 · 交付验收</div>
+          </div>
+          <div class="flip-card__face flip-card__back">
+            <p class="flip-card__back-text">不写代码的"程序员"——用自然语言描述需求，调度 AI 工具完成从论文到网站的全流程。</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card fade-in-right">
+        <div class="flip-card__inner">
+          <div class="flip-card__face flip-card__front">
+            <div class="flip-card__front-icon">💻</div>
+            <div class="flip-card__front-title">全栈探索</div>
+            <div class="flip-card__front-sub">前端 · Python · Git · 独立部署</div>
+          </div>
+          <div class="flip-card__face flip-card__back">
+            <p class="flip-card__back-text">从数据处理到 Web 开发，从 GitHub Pages 到 API 对接，享受从零到一的创造过程。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Resource Hub ===== -->
+<section class="resource-section" id="resources">
+  <div class="resource-section__inner">
+    <div class="section-title">
+      <span class="section-title__label">Resource Hub</span>
+      <span class="section-title__heading">精选资源，一键直达</span>
+    </div>
+    <div class="resource-grid" id="resourceGrid">
+      <!-- JS 动态填充 -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== 服务区 (手风琴) ===== -->
+<section class="services-section" id="services">
+  <div class="services-section__inner">
+    <div class="section-title">
+      <span class="section-title__label">My Portal</span>
+      <span class="section-title__heading">What I've built with passion</span>
+    </div>
+
+    <div class="accordion-item fade-in-left">
+      <div class="accordion-header">
+        <a href="content/bookmarks/" class="accordion-header__left">
+          <span class="accordion-header__num">(01)</span>
+          <span class="accordion-header__title">📑 Bookmarks</span>
+        </a>
+        <span class="accordion-header__icon" onclick="event.stopPropagation();toggleAccordion(this.parentElement)">+</span>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-body__inner">
+          <div class="accordion-body__list">
+            <a href="content/bookmarks/#ai" class="accordion-body__tag">AI 工具</a>
+            <a href="content/bookmarks/#paper" class="accordion-body__tag">学术论文</a>
+            <a href="content/bookmarks/#campus" class="accordion-body__tag">校园资源</a>
+            <a href="content/bookmarks/#cloud" class="accordion-body__tag">云存储</a>
+            <a href="content/bookmarks/#tech" class="accordion-body__tag">开发工具</a>
+            <a href="content/bookmarks/#common" class="accordion-body__tag">常用工具</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item scale-in">
+      <div class="accordion-header">
+        <a href="content/blog/" class="accordion-header__left">
+          <span class="accordion-header__num">(02)</span>
+          <span class="accordion-header__title">📝 Personal Blog</span>
+        </a>
+        <span class="accordion-header__icon" onclick="event.stopPropagation();toggleAccordion(this.parentElement)">+</span>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-body__inner">
+          <div class="accordion-body__list">
+            <a href="content/blog/" class="accordion-body__tag">全部文章</a>
+            <a href="content/blog/" class="accordion-body__tag">个人随笔</a>
+            <a href="content/blog/" class="accordion-body__tag">技术笔记</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item flip-in">
+      <div class="accordion-header">
+        <a href="content/resume/" class="accordion-header__left">
+          <span class="accordion-header__num">(03)</span>
+          <span class="accordion-header__title">📋 Digital Resume</span>
+        </a>
+        <span class="accordion-header__icon" onclick="event.stopPropagation();toggleAccordion(this.parentElement)">+</span>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-body__inner">
+          <div class="accordion-body__list">
+            <a href="content/resume/" class="accordion-body__tag">教育背景</a>
+            <a href="content/resume/" class="accordion-body__tag">技能展示</a>
+            <a href="content/resume/" class="accordion-body__tag">获奖荣誉</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item blur-in">
+      <div class="accordion-header">
+        <a href="content/music/" class="accordion-header__left">
+          <span class="accordion-header__num">(04)</span>
+          <span class="accordion-header__title">🎵 AI Music</span>
+        </a>
+        <span class="accordion-header__icon" onclick="event.stopPropagation();toggleAccordion(this.parentElement)">+</span>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-body__inner">
+          <div class="accordion-body__list">
+            <a href="content/music/" class="accordion-body__tag">播放列表</a>
+            <a href="content/music/" class="accordion-body__tag">在线试听</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item fade-in-right">
+      <div class="accordion-header">
+        <a href="content/novel/" class="accordion-header__left">
+          <span class="accordion-header__num">(05)</span>
+          <span class="accordion-header__title">📖 AI Novel</span>
+        </a>
+        <span class="accordion-header__icon" onclick="event.stopPropagation();toggleAccordion(this.parentElement)">+</span>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-body__inner">
+          <div class="accordion-body__list">
+            <a href="content/novel/" class="accordion-body__tag">AI 小说</a>
+            <a href="content/novel/" class="accordion-body__tag">章节阅读</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="accordion-item rotate-in">
+      <div class="accordion-header">
+        <a href="content/ai-software/" class="accordion-header__left">
+          <span class="accordion-header__num">(06)</span>
+          <span class="accordion-header__title">📦 AI Software</span>
+        </a>
+        <span class="accordion-header__icon" onclick="event.stopPropagation();toggleAccordion(this.parentElement)">+</span>
+      </div>
+      <div class="accordion-body">
+        <div class="accordion-body__inner">
+          <div class="accordion-body__list">
+            <a href="content/ai-software/" class="accordion-body__tag">AI 工具</a>
+            <a href="content/ai-software/" class="accordion-body__tag">APK 下载</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 联系区 (CTA) ===== -->
+<section class="cta-section" id="contact">
+  <div class="cta-section__inner">
+    <div class="section-title">
+      <span class="section-title__label">Contact</span>
+      <span class="section-title__heading">Get in touch with me</span>
+    </div>
+    <p class="cta-desc">学术合作、技术交流、创意碰撞——都欢迎。不一定秒回，但一定会回。</p>
+    <div class="cta-links">
+      <a class="cta-link cta-link--primary" href="https://github.com/JokesLin" target="_blank">💻 GitHub</a>
+      <a class="cta-link" href="https://t.me/JokesLin" target="_blank">✈️ Telegram</a>
+      <a class="cta-link" href="https://www.youtube.com/channel/UClunxHYnA1l6nUAMVcS03XA" target="_blank">▶️ YouTube</a>
+      <a class="cta-link" href="https://space.bilibili.com/379827770" target="_blank">📺 Bilibili</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===== 页脚 ===== -->
+<footer class="site-footer">
+  <div class="site-footer__curve"></div>
+  <div class="site-footer__inner">
+    <div class="site-footer__brand">
+      <div class="site-footer__logo">Joke Lin</div>
+      <div class="site-footer__email">linyousong386@gmail.com</div>
+      <div class="site-footer__copy">&copy; 2026 Joke Lin's Portal. All Rights Reserved.</div>
+    </div>
+    <div class="site-footer__nav">
+      <div class="site-footer__col">
+        <h4>Navigation</h4>
+        <a href="content/bookmarks/">Bookmarks</a>
+        <a href="content/blog/">Blog</a>
+        <a href="content/resume/">Resume</a>
+      </div>
+      <div class="site-footer__col">
+        <h4>AI Works</h4>
+        <a href="content/music/">AI Music</a>
+        <a href="content/novel/">AI Novel</a>
+        <a href="content/ai-software/">AI Software</a>
+      </div>
+      <div class="site-footer__col">
+        <h4>Connect</h4>
+        <a href="https://github.com/JokesLin" target="_blank">GitHub</a>
+        <a href="https://t.me/JokesLin" target="_blank">Telegram</a>
+        <a href="mailto:linyousong386@gmail.com">Email</a>
+      </div>
+    </div>
+  </div>
+  <div class="site-footer__quote" id="footerQuote"></div>
+  <div class="site-footer__runtime">This site has been running for <span id="runtimeDays">—</span> days</div>
+</footer>
+
+<button class="scroll-top" id="scrollTopBtn" title="返回顶部">↑</button>
+
+<script src="assets/bgm.js"></script>
+<script src="assets/scroll-anim.js"></script>
+<script src="assets/home.js"></script>
+</body>
+</html>

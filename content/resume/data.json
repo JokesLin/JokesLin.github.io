@@ -1,0 +1,89 @@
+{
+  "profile": {
+    "name": "Joke Lin",
+    "avatar": "J",
+    "title": "AI 协作指挥官 · 野生全栈开发者",
+    "university": "福建农林大学",
+    "college": "经济与管理学院",
+    "email": "jokeslin@outlook.com",
+    "github": "https://github.com/JokesLin",
+    "telegram": "https://t.me/JokesLin",
+    "bio": "INFP 偏理性型 — 戴着理性面具的理想主义者。不写代码的程序员，用自然语言调度 AI 完成从论文到网站的全流程。信奉「代码是工具，作品才是目的」。现实社恐话少，数字世界活跃，用文字、代码、作品间接表达一切。",
+    "reportId": "JOKE-LIN-DP-2026",
+    "generatedAt": "2026-06-18",
+    "dataSource": "本机文件扫描 · 学术经历 · 技能评估 · 娱乐活动全量追踪"
+  },
+  "workHabits": {
+    "coreTools": ["Trae AI", "Claude Code", "Git", "Python 3.14", "WPS 教育版", "ZCode"],
+    "activeRhythm": "研一下无课模式 · 日均起床 9:00-11:00 · 活跃时段不可预测",
+    "typicalScene": "Trae AI 写代码 → WPS 交作业 → data.json 管理内容 → 深夜泡面复盘"
+  },
+  "education": [
+    {
+      "degree": "硕士",
+      "major": "农村发展",
+      "school": "福建农林大学",
+      "college": "经济与管理学院",
+      "period": "2025 - 至今",
+      "status": "在读",
+      "focus": "数字农业 × 产业规划 × 乡村振兴 — 用数据讲乡村故事"
+    }
+  ],
+  "skills": [
+    {"name": "AI 协作指挥", "level": 90, "category": "🔥 核心能力"},
+    {"name": "需求拆解与工具选型", "level": 88, "category": "🔥 核心能力"},
+    {"name": "前端开发 (HTML/CSS/JS)", "level": 65, "category": "💻 技术栈"},
+    {"name": "Python 数据处理", "level": 40, "category": "💻 技术栈"},
+    {"name": "Git / GitHub Pages", "level": 65, "category": "💻 技术栈"},
+    {"name": "文献综述与研究方法", "level": 70, "category": "📚 学术能力"},
+    {"name": "论文写作与排版", "level": 65, "category": "📚 学术能力"},
+    {"name": "问卷设计与实地调研", "level": 60, "category": "📚 学术能力"},
+    {"name": "团队协调与项目管理", "level": 70, "category": "🤝 综合素质"}
+  ],
+  "personalityTags": [
+    {"label": "INFP 理想主义者", "icon": "🦋", "evidence": "内心敏感丰富 · 对外温和谦逊 · 独处充电型"},
+    {"label": "AI 协作指挥官", "icon": "🤖", "evidence": "向 AI 描述需求 → 调度工具 → 验收结果 · 同龄人前 30%"},
+    {"label": "Deadline 爆发型选手", "icon": "⚡", "evidence": "周日文件活跃量 130 个(37.5%)，周五仅 15 个"},
+    {"label": "被动兜底型选手", "icon": "🛡️", "evidence": "不主动揽事，但接了就一定做好 · 嘴上抱怨行动不掉链"},
+    {"label": "高智商摆烂家", "icon": "🧘", "evidence": "反感形式主义 · 用最少精力达成合格结果 · 过程摆烂结果过关"},
+    {"label": "温和反规则者", "icon": "🔓", "evidence": "不激烈反抗 · 在规则内钻空子 · 用规则反制规则"},
+    {"label": "数字世界原住民", "icon": "🌐", "evidence": "现实社恐话少 · 数字世界活跃 · 用代码和作品说话"},
+    {"label": "佛系享乐派", "icon": "🍜", "evidence": "对热爱的事追求极致 · 对输赢成就毫不在意"},
+    {"label": "冷静悲观者", "icon": "🧊", "evidence": "提前做最坏打算 · 遇坏事情绪无波动 · 用「反正会搞砸」消解压力"},
+    {"label": "吉他练习生", "icon": "🎸", "evidence": "研一开学至今每天半小时+ · 已形成肌肉记忆"},
+    {"label": "B站 Lv6 鉴赏家", "icon": "📺", "evidence": "收藏夹吃灰率 98.7% · 但每一个收藏都是真心的"},
+    {"label": "Spotify 终身聆听者", "icon": "🎧", "evidence": "年度报告：你的品味很独特，我们看不懂"},
+    {"label": "大众点评 V7 美食家", "icon": "🍜", "evidence": "福州鱼丸鉴赏十级学者 · 吃遍八县 · 泡面料包特级获得者"},
+    {"label": "CSGO 佛系玩家", "icon": "🎮", "evidence": "不追求段位 · 只享受开枪的快感 · 赢了开心输了也开心"},
+    {"label": "深夜 Emo 文学创作者", "icon": "🌙", "evidence": "80% 的人生重大决定在马桶上诞生 · 其余在深夜"},
+    {"label": "显卡专职收集者", "icon": "💻", "evidence": "云评测懂王 · Steam 库存比显卡多 · 但打开的永远是同一个游戏"}
+  ],
+  "research": [
+    {
+      "title": "数字技术赋能乡村产业振兴的路径研究",
+      "role": "课题负责人",
+      "period": "2025.03 - 至今",
+      "description": "以福建省典型数字乡村为案例，运用扎根理论与案例分析方法，探讨数字技术如何赋能乡村一二三产业融合，提出可复制的产业升级路径。"
+    },
+    {
+      "title": "农村集体经济组织治理结构优化研究",
+      "role": "核心成员",
+      "period": "2024.09 - 2025.06",
+      "description": "参与省级社科基金项目，负责文献梳理、问卷设计与实地调研，对福建省 30 个行政村的集体经济组织治理模式进行比较分析。"
+    }
+  ],
+  "awards": [
+    {"name": "校级一等奖学金", "year": "2023"},
+    {"name": "省级大学生创新创业大赛 铜奖", "year": "2023"},
+    {"name": "校优秀毕业论文", "year": "2024"},
+    {"name": "校学业奖学金", "year": "2025"},
+    {"name": "诺贝尔文学奖忠实读者", "year": "2026"},
+    {"name": "泡面料包速食锦标赛 特等奖", "year": "2025"},
+    {"name": "福州鱼丸鉴赏大赛 荣誉评委", "year": "2024"},
+    {"name": "深夜 Emo 文学创作奖 年度得主", "year": "2026"},
+    {"name": "「下次一定」三连成就达成者", "year": "永久"},
+    {"name": "AI 赛博许愿池高级会员", "year": "2026"},
+    {"name": "Steam 库存管理大师", "year": "永久"},
+    {"name": "B站收藏夹吃灰率世界纪录保持者", "year": "永久"}
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "title": "AI Novel Workshop",
+  "subtitle": "AI assisted literary works",
+  "stories": [
+    {
+      "id": "story-001",
+      "title": "达娜的贴身高手",
+      "author": "Joke Lin",
+      "date": "2026-05-25",
+      "tags": ["Novel", "Action"],
+      "summary": "达娜的贴身高手",
+      "file": "files/dana.txt"
+    },
+    {
+      "id": "story-002",
+      "title": "斗破农大",
+      "author": "Joke Lin",
+      "date": "2026-05-26",
+      "tags": ["Novel", "Parody"],
+      "summary": "斗破苍穹农大版——林致远的陨落与崛起",
+      "file": "files/斗破农大.txt"
+    },
+    {
+      "id": "story-003",
+      "title": "重生之林致远的抽象人生",
+      "author": "Joke Lin",
+      "date": "2026-05-27",
+      "tags": ["Novel", "Rebirth"],
+      "summary": "林致远在车祸后重生回研究生时期，带着前世记忆开启全新的抽象人生",
+      "file": "files/重生之林致远的抽象人生.txt"
+    },
+    {
+      "id": "story-004",
+      "title": "致远一笑很倾城",
+      "author": "Joke Lin",
+      "date": "2026-05-28",
+      "tags": ["Novel", "Romance"],
+      "summary": "林致远通过拼饭APP意外开启一段校园爱情故事",
+      "file": "files/致远一笑很倾城.txt"
+    },
+    {
+      "id": "story-005",
+      "title": "农族",
+      "author": "Joke Lin",
+      "date": "2026-05-29",
+      "tags": ["Novel", "Campus"],
+      "summary": "研究生林致远的校园日常——宿舍、食堂与实验室之间的欢乐生活",
+      "file": "files/《农族》.txt"
+    }
+  ]
+}

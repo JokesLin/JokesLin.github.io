@@ -1,0 +1,29 @@
+{
+  "title": "AI 音乐创作 & 歌单",
+  "subtitle": "AI 驱动的音乐灵感与歌单收藏",
+  "playlists": [
+    {
+      "id": "ai-creates",
+      "name": "AI 创作作品",
+      "icon": "🤖",
+      "description": "使用 AI 工具辅助创作的音乐作品",
+      "songs": [
+        {
+          "title": "远离林致远",
+          "artist": "AI 作曲",
+          "cover": "🎹",
+          "coverBg": [
+            "#6c63ff",
+            "#4facfe"
+          ],
+          "note": "AI辅助创作的原创音乐",
+          "tags": [
+            "原创",
+            "AI"
+          ],
+          "file": "files/yuanlinlinzhiyuan.mp3"
+        }
+      ]
+    }
+  ]
+}
