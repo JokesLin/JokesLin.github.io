@@ -1,0 +1,61 @@
+{
+  "title": "AI 软件",
+  "subtitle": "精选 AI 工具与实用软件资源",
+  "categories": [
+    {"id": "ai-reader", "name": "AI 阅读", "icon": "📖"},
+    {"id": "ai-chat", "name": "AI 对话", "icon": "💬"},
+    {"id": "ai-image", "name": "AI 图像", "icon": "🎨"},
+    {"id": "ai-productivity", "name": "AI 效率", "icon": "⚡"}
+  ],
+  "software": [
+    {
+      "id": "ai-novel-reader",
+      "name": "致远阅读",
+      "icon": "📖",
+      "gradient": ["#6c63ff", "#4facfe"],
+      "category": "ai-reader",
+      "version": "1.0.0",
+      "size": "17.5 MB",
+      "requirements": "Android 6.0 及以上",
+      "description": "致远阅读是一款基于人工智能技术的移动端小说阅读应用，融合智能推荐、AI 朗读、智能排版等功能，为用户提供沉浸式的阅读体验。应用内置海量小说资源，支持离线下载、自定义主题、阅读进度同步等特性。",
+      "features": [
+        "AI 智能推荐：根据阅读偏好推荐个性化书单",
+        "AI 语音朗读：多种AI声优选择，支持语速调节",
+        "智能排版：自适应字体、行距、背景色",
+        "离线缓存：一键下载，随时随地阅读",
+        "阅读统计：记录阅读时长、速度与习惯",
+        "多端同步：登录账号即可同步阅读进度"
+      ],
+      "screenshots": [
+        {"url": "images/screenshot1.png", "alt": "书架页面"},
+        {"url": "images/screenshot2.png", "alt": "阅读页面"},
+        {"url": "images/screenshot3.png", "alt": "AI推荐页面"}
+      ],
+      "downloadUrl": "files/ZhiYuanReader_v1.0.0.apk",
+      "updateDate": "2026-05-25",
+      "note": "请将真实 APK 文件放入 ai-software/files/ 目录替换占位文件。如仍无法下载，请尝试右键→另存为，或使用外部浏览器打开。"
+    },
+    {
+      "id": "ai-writing-assistant",
+      "name": "AI 写作助手",
+      "icon": "✍️",
+      "gradient": ["#2ecc71", "#27ae60"],
+      "category": "ai-productivity",
+      "version": "1.0.0",
+      "size": "8.2 MB",
+      "requirements": "Android 7.0 及以上",
+      "description": "AI 写作助手是一款面向学术写作和创意写作的智能工具，提供论文大纲生成、段落润色、文献摘要、AI续写等功能，帮助用户高效完成各类写作任务。",
+      "features": [
+        "智能大纲生成：输入主题自动生成文章结构",
+        "AI 续写：基于上下文智能续写下文",
+        "段落润色：优化语法、表达与逻辑",
+        "文献摘要：快速提取论文核心观点",
+        "多语言支持：中英文双语写作辅助"
+      ],
+      "screenshots": [],
+      "downloadUrl": "",
+      "updateDate": "2026-05-20",
+      "note": "即将上线，敬请期待"
+    }
+  ]
+}

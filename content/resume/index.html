@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Joke Lin 的数字画像报告 - 学术背景、技能雷达、研究经历">
+<meta property="og:title" content="Joke Lin · 数字画像报告">
+<meta property="og:description" content="硕士研究生 · 福建农林大学 · 数字身份全景档案">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jokeslin.github.io/content/resume/">
+<meta property="og:image" content="https://jokeslin.github.io/assets/JokeLIn.png">
+<title>Joke Lin · 数字画像报告</title>
+<link rel="icon" href="../../favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../../assets/global.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/bgm.css">
+<style>
+.page-container { max-width: 900px; }
+
+/* ===== 报告头部 ===== */
+.report-header {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg); padding: 32px;
+  margin-bottom: 24px; position: relative; overflow: hidden;
+}
+.report-header::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2), var(--accent-3));
+}
+.report-header .top-row {
+  display: flex; align-items: flex-start; gap: 24px;
+}
+.report-avatar {
+  width: 72px; height: 72px; border-radius: 18px; flex-shrink: 0;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 30px; font-weight: 700; color: #fff;
+}
+.report-title-group { flex: 1; }
+.report-title-group .report-label {
+  display: inline-block; font-size: 11px; letter-spacing: 1px;
+  color: var(--text-muted); text-transform: uppercase;
+  background: rgba(51,112,255,0.08); padding: 2px 10px; border-radius: 4px;
+  margin-bottom: 6px;
+}
+.report-title-group h1 {
+  font-size: 28px; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.report-title-group .subtitle {
+  font-size: 14px; color: var(--text-secondary); margin-top: 2px;
+}
+.report-meta {
+  display: flex; flex-wrap: wrap; gap: 16px;
+  margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--border-card);
+  font-size: 12px; color: var(--text-muted);
+}
+.report-meta span { display: flex; align-items: center; gap: 4px; }
+
+/* ===== 个性标签 ===== */
+.personality-bar {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+}
+.personality-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 14px; border-radius: 10px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  font-size: 13px; cursor: default;
+  transition: all 0.2s;
+}
+.personality-tag:hover {
+  border-color: rgba(51,112,255,0.3); background: rgba(51,112,255,0.08);
+  transform: translateY(-1px);
+}
+.personality-tag .icon { font-size: 16px; }
+.personality-tag .evidence {
+  font-size: 11px; color: var(--text-muted); margin-left: 4px;
+}
+
+/* ===== 通用区块 ===== */
+.section-block {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 24px 28px;
+  margin-bottom: 20px;
+}
+.section-block h2 {
+  font-size: 17px; font-weight: 600; margin-bottom: 16px;
+  display: flex; align-items: center; gap: 10px;
+  padding-bottom: 10px; border-bottom: 1px solid var(--border-card);
+}
+.section-block h2 .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+}
+
+/* ===== 工作习惯 ===== */
+.habits-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.habit-card {
+  padding: 14px 16px; border-radius: 10px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+}
+.habit-card .h-label { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+.habit-card .h-value { font-size: 13px; color: var(--text-primary); line-height: 1.6; }
+.habit-card .tools-list {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;
+}
+.habit-card .tool-badge {
+  font-size: 11px; padding: 2px 8px; border-radius: 6px;
+  background: rgba(51,112,255,0.08); color: var(--accent-1);
+}
+
+/* ===== 教育经历 ===== */
+.edu-item {
+  display: flex; gap: 16px; margin-bottom: 16px;
+  padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.edu-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.edu-badge {
+  flex-shrink: 0; width: 48px; height: 48px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; color: #fff;
+}
+.edu-body { flex: 1; }
+.edu-body .edu-header { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.edu-body .edu-header h3 { font-size: 15px; font-weight: 600; }
+.edu-body .status-badge {
+  font-size: 10px; padding: 1px 8px; border-radius: 8px;
+  background: rgba(46,204,113,0.15); color: var(--green);
+}
+.edu-body .edu-sub { font-size: 12px; color: var(--text-secondary); }
+.edu-body .edu-focus { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+/* ===== 技能组 ===== */
+.skills-group { margin-bottom: 18px; }
+.skills-group:last-child { margin-bottom: 0; }
+.skills-group h3 { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+.skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.skill-item { }
+.skill-label {
+  display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;
+}
+.skill-label .name { font-weight: 500; }
+.skill-label .pct { color: var(--text-muted); font-size: 11px; }
+.skill-bar {
+  height: 6px; border-radius: 3px; background: rgba(255,255,255,0.06);
+  overflow: hidden;
+}
+.skill-bar .fill {
+  height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  transition: width 0.8s ease;
+}
+
+/* ===== 研究经历 ===== */
+.research-item {
+  margin-bottom: 16px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-card);
+}
+.research-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.research-item .res-header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+.research-item h3 { font-size: 14px; font-weight: 600; }
+.research-item .res-role {
+  font-size: 10px; padding: 1px 8px; border-radius: 6px;
+  background: rgba(51,112,255,0.12); color: var(--accent-1);
+}
+.research-item .res-period { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.research-item .res-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.7; }
+
+/* ===== 荣誉 ===== */
+.awards-list { display: flex; flex-wrap: wrap; gap: 8px; }
+.award-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 14px; border-radius: 8px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  font-size: 12px; color: var(--text-secondary);
+}
+.award-tag .year { font-size: 10px; color: var(--text-muted); }
+
+/* ===== 生物 ===== */
+.bio-section {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.8;
+}
+
+@media (max-width: 768px) {
+  .report-header .top-row { flex-direction: column; align-items: center; text-align: center; }
+  .report-meta { justify-content: center; }
+  .habits-grid { grid-template-columns: 1fr; }
+  .skills-grid { grid-template-columns: 1fr; }
+  .edu-item { flex-direction: column; gap: 8px; }
+  .personality-bar { justify-content: center; }
+}
+</style>
+</head>
+<body>
+<div class="page-container">
+  <a class="back-home" href="../../">← 返回门户首页</a>
+
+  <div id="resumeContent" class="fade-in-up">
+    <div style="text-align:center;padding:60px;color:var(--text-muted)">加载中…</div>
+  </div>
+
+  <footer class="page-footer">
+    <p>&copy; 2026 Joke Lin · data.json 驱动 · 实时生成</p>
+  </footer>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  function render(data) {
+    var el = document.getElementById('resumeContent');
+    var p = data.profile;
+
+    /* --- 报告头部 --- */
+    var linksHtml = '';
+    if (p.email) linksHtml += '<a href="mailto:' + p.email + '">📧 ' + p.email + '</a>';
+    if (p.github) linksHtml += '<a href="' + p.github + '" target="_blank">💻 GitHub</a>';
+    if (p.telegram) linksHtml += '<a href="' + p.telegram + '" target="_blank">✈️ Telegram</a>';
+
+    var html = '<div class="report-header">'
+      + '<div class="top-row">'
+      + '<div class="report-avatar">' + (p.avatar || p.name.charAt(0)) + '</div>'
+      + '<div class="report-title-group">'
+      + '<div class="report-label">DIGITAL PROFILE · 数字画像</div>'
+      + '<h1>' + p.name + '</h1>'
+      + '<div class="subtitle">' + p.title + ' · ' + p.university + ' · ' + p.college + '</div>'
+      + '</div></div>'
+      + '<div class="report-meta">'
+      + '<span>🆔 ' + (p.reportId || '—') + '</span>'
+      + '<span>📅 生成时间 ' + (p.generatedAt || '—') + '</span>'
+      + '<span>📊 ' + (p.dataSource || '') + '</span>'
+      + '<span class="profile-links">' + linksHtml + '</span>'
+      + '</div></div>';
+
+    /* --- 个性标签 --- */
+    if (data.personalityTags && data.personalityTags.length) {
+      html += '<div class="personality-bar">';
+      data.personalityTags.forEach(function(t) {
+        html += '<div class="personality-tag"><span class="icon">' + (t.icon || '🏷️') + '</span>' + t.label + '<span class="evidence">· ' + t.evidence + '</span></div>';
+      });
+      html += '</div>';
+    }
+
+    /* --- 个人简介 --- */
+    html += '<div class="section-block bio-section">' + p.bio + '</div>';
+
+    /* --- 工作习惯 --- */
+    if (data.workHabits) {
+      var wh = data.workHabits;
+      html += '<div class="section-block"><h2><span class="dot"></span>工作习惯画像</h2><div class="habits-grid">';
+      html += '<div class="habit-card"><div class="h-label">🔧 核心工具链</div><div class="tools-list">';
+      (wh.coreTools || []).forEach(function(t) {
+        html += '<span class="tool-badge">' + t + '</span>';
+      });
+      html += '</div></div>';
+      html += '<div class="habit-card"><div class="h-label">⏰ 活跃节律</div><div class="h-value">' + (wh.activeRhythm || '—') + '</div></div>';
+      html += '<div class="habit-card" style="grid-column:1/-1"><div class="h-label">📋 典型场景</div><div class="h-value">' + (wh.typicalScene || '—') + '</div></div>';
+      html += '</div></div>';
+    }
+
+    /* --- 教育经历 --- */
+    html += '<div class="section-block"><h2><span class="dot"></span>教育经历</h2>';
+    data.education.forEach(function(edu) {
+      var bg = edu.status === '在读'
+        ? 'linear-gradient(135deg, var(--accent-1), var(--accent-2))'
+        : 'linear-gradient(135deg, #3498db, #2980b9)';
+      html += '<div class="edu-item">'
+        + '<div class="edu-badge" style="background:' + bg + '">' + edu.degree + '</div>'
+        + '<div class="edu-body">'
+        + '<div class="edu-header"><h3>' + edu.school + '</h3><span class="status-badge">' + edu.status + '</span></div>'
+        + '<div class="edu-sub">' + edu.major + ' · ' + edu.college + ' · ' + edu.period + '</div>'
+        + '<div class="edu-focus">' + edu.focus + '</div>'
+        + '</div></div>';
+    });
+    html += '</div>';
+
+    /* --- 专业技能 --- */
+    var grouped = {};
+    data.skills.forEach(function(s) {
+      if (!grouped[s.category]) grouped[s.category] = [];
+      grouped[s.category].push(s);
+    });
+    html += '<div class="section-block"><h2><span class="dot"></span>技能雷达</h2>';
+    Object.keys(grouped).forEach(function(cat) {
+      html += '<div class="skills-group"><h3>' + cat + '</h3><div class="skills-grid">';
+      grouped[cat].forEach(function(s) {
+        html += '<div class="skill-item">'
+          + '<div class="skill-label"><span class="name">' + s.name + '</span><span class="pct">' + s.level + '%</span></div>'
+          + '<div class="skill-bar"><div class="fill" style="width:' + s.level + '%"></div></div>'
+          + '</div>';
+      });
+      html += '</div></div>';
+    });
+    html += '</div>';
+
+    /* --- 研究经历 --- */
+    html += '<div class="section-block"><h2><span class="dot"></span>研究经历</h2>';
+    data.research.forEach(function(r) {
+      html += '<div class="research-item">'
+        + '<div class="res-header"><h3>' + r.title + '</h3><span class="res-role">' + r.role + '</span></div>'
+        + '<div class="res-period">📅 ' + r.period + '</div>'
+        + '<div class="res-desc">' + r.description + '</div>'
+        + '</div>';
+    });
+    html += '</div>';
+
+    /* --- 荣誉奖项 --- */
+    html += '<div class="section-block"><h2><span class="dot"></span>荣誉档案</h2><div class="awards-list">';
+    data.awards.forEach(function(a) {
+      html += '<span class="award-tag">🏆 ' + a.name + ' <span class="year">' + a.year + '</span></span>';
+    });
+    html += '</div></div>';
+
+    el.innerHTML = html;
+  if (window.initScrollAnims) window.initScrollAnims();
+    /* 技能条动画 */
+    setTimeout(function() {
+      document.querySelectorAll('.skill-bar .fill').forEach(function(bar) {
+        var w = bar.style.width;
+        bar.style.width = '0%';
+        setTimeout(function() { bar.style.width = w; }, 100);
+      });
+    }, 200);
+  }
+
+  fetch('data.json').then(function(r) { return r.json(); }).then(function(d) {
+    if (d && d.profile) { render(d); return; }
+    document.getElementById('resumeContent').innerHTML = '<div style="text-align:center;padding:60px;color:var(--text-muted)">暂无数据</div>';
+  }).catch(function() {
+    document.getElementById('resumeContent').innerHTML = '<div style="text-align:center;padding:60px;color:var(--red)">加载失败，请检查 data.json</div>';
+  });
+})();
+</script>
+<script src="../../assets/shared-nav.js"></script>
+<script src="../../assets/bgm.js"></script>
+<script src="../../assets/scroll-anim.js"></script>
+</body>
+</html>

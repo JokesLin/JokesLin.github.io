@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Joke Lin 的 AI 辅助创作文学作品与短篇故事集">
+<meta property="og:title" content="AI Novel - Joke Lin">
+<meta property="og:description" content="AI 辅助创作的文学作品与短篇故事集">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jokeslin.github.io/content/novel/">
+<meta property="og:image" content="https://jokeslin.github.io/assets/JokeLIn.png">
+<title>AI Novel - Joke Lin</title>
+<link rel="icon" href="../../favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../../assets/global.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/bgm.css">
+<style>
+.page-container { max-width: 1100px; }
+.story-list { display: flex; flex-direction: column; gap: 14px; }
+.story-card {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 22px 26px;
+  transition: all 0.25s; cursor: pointer; position: relative; overflow: hidden;
+}
+.story-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: linear-gradient(180deg, var(--accent-1), var(--accent-2));
+  opacity: 0; transition: opacity 0.3s;
+}
+.story-card:hover { background: var(--bg-card-hover); transform: translateX(4px); border-color: var(--border-card-hover); }
+.story-card:hover::before { opacity: 1; }
+.story-card .story-title { font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+.story-card .story-meta { display: flex; gap: 12px; font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
+.story-card .story-summary { font-size: 14px; color: var(--text-secondary); line-height: 1.7; }
+
+/* Reader */
+.reader { display: none; }
+.reader.show { display: block; }
+.reader-top { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.reader-top .back-link {
+  padding: 8px 18px; border-radius: 50px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary); font-size: 13px; cursor: pointer; transition: var(--transition-fast);
+}
+.reader-top .back-link:hover { color: var(--text-primary); border-color: var(--accent-1); }
+.reader-top .title { font-size: 22px; font-weight: 700; flex: 1; }
+.reader-tools { display: flex; gap: 8px; }
+.reader-tools button {
+  padding: 6px 14px; border-radius: 50px; font-size: 13px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary); cursor: pointer; transition: var(--transition-fast);
+}
+.reader-tools button:hover { color: var(--text-primary); border-color: var(--accent-1); }
+
+/* Chapter TOC */
+.chapter-toc {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 16px 20px; margin-bottom: 20px;
+}
+.chapter-toc h3 { font-size: 15px; margin-bottom: 12px; color: var(--text-secondary); }
+.toc-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 6px;
+}
+.toc-item {
+  padding: 6px 12px; border-radius: 6px; font-size: 13px;
+  color: var(--text-secondary); cursor: pointer;
+  background: rgba(255,255,255,0.02); border: 1px solid transparent;
+  transition: var(--transition-fast); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.toc-item:hover { color: var(--text-primary); background: rgba(51,112,255,0.08); border-color: rgba(51,112,255,0.15); }
+.toc-item.active { color: #fff; background: var(--accent-1); }
+
+/* Chapter content */
+.chapter-content {
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 32px 36px;
+  font-size: 16px; line-height: 2; color: var(--text-secondary);
+}
+.chapter-content h2 {
+  font-size: 22px; margin-bottom: 24px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-card);
+  background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.chapter-content p { margin-bottom: 16px; text-indent: 2em; }
+.chapter-nav {
+  display: flex; justify-content: space-between; margin-top: 24px; gap: 12px;
+}
+.chapter-nav button {
+  flex: 1; padding: 12px 20px; border-radius: var(--radius-sm); font-size: 14px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  color: var(--text-secondary); cursor: pointer; transition: var(--transition-base);
+}
+.chapter-nav button:hover { color: var(--text-primary); border-color: var(--accent-1); background: rgba(51,112,255,0.06); }
+.chapter-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+.progress-bar {
+  position: fixed; top: 0; left: 0; height: 3px; z-index: 9999;
+  background: linear-gradient(90deg, var(--accent-1), var(--accent-2));
+  transition: width 0.2s;
+}
+@media (max-width: 768px) {
+  .chapter-content { padding: 24px 18px; font-size: 14px; }
+  .toc-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+  .reader-top .title { font-size: 18px; }
+}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar" style="width:0"></div>
+<div class="page-container">
+  <a class="back-home" href="../../">Back to Portal</a>
+  <header class="page-header fade-in-up">
+    <h1 id="pageTitle">AI Novel</h1>
+    <p id="pageSubtitle">AI assisted literary works</p>
+  </header>
+
+  <div id="viewList">
+    <div class="story-list" id="storyList"></div>
+  </div>
+
+  <div class="reader" id="viewReader">
+    <div class="reader-top">
+      <span class="back-link" id="backToList">Back</span>
+      <span class="title" id="readerTitle"></span>
+      <div class="reader-tools">
+        <button id="fontDec">A-</button>
+        <button id="fontInc">A+</button>
+      </div>
+    </div>
+    <div class="chapter-toc" id="chapterToc">
+      <h3>Chapters</h3>
+      <div class="toc-grid" id="tocGrid"></div>
+    </div>
+    <div class="chapter-content" id="chapterContent"></div>
+    <div class="chapter-nav">
+      <button id="prevChapter">Prev</button>
+      <button id="nextChapter">Next</button>
+    </div>
+  </div>
+
+  <footer class="page-footer"><p>&copy; 2026 Joke Lin's Novel | Edit data.json to manage</p></footer>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  var stories = [];
+  var chapters = [];
+  var currentChapter = 0;
+  var fontSize = 16;
+
+  function renderList() {
+    var list = document.getElementById('storyList');
+    var html = '';
+    stories.forEach(function(s) {
+      html += '<div class="story-card fade-in-up" data-id="' + s.id + '">'
+        + '<div class="story-title">' + s.title + '</div>'
+        + '<div class="story-meta"><span>' + (s.author||'') + '</span><span>' + (s.date||'') + '</span></div>'
+        + '<div class="story-summary">' + (s.summary||'') + '</div></div>';
+    });
+    if (!stories.length) html = '<div style="text-align:center;padding:60px;color:var(--text-secondary)">No stories</div>';
+    list.innerHTML = html;
+    list.querySelectorAll('.story-card').forEach(function(card) {
+      card.onclick = function() { loadStory(card.getAttribute('data-id')); };
+    });
+    if (window.initScrollAnims) window.initScrollAnims();
+  }
+
+  function parseChapters(text) {
+    var lines = text.split('\n');
+    var result = [];
+    var current = null;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (/^第.{1,5}章/.test(line)) {
+        if (current) result.push(current);
+        current = { title: line, content: '' };
+      } else if (current) {
+        if (line) current.content += '<p>' + line + '</p>';
+      } else {
+        // Before first chapter - treat as prologue
+        if (line) {
+          if (!current) current = { title: 'Prologue', content: '' };
+          current.content += '<p>' + line + '</p>';
+        }
+      }
+    }
+    if (current) result.push(current);
+    return result;
+  }
+
+  function loadStory(id) {
+    var s = stories.find(function(x) { return x.id === id; });
+    if (!s || !s.file) return;
+
+    document.getElementById('readerTitle').textContent = s.title;
+    document.getElementById('viewList').style.display = 'none';
+    document.getElementById('viewReader').classList.add('show');
+
+    fetch(s.file).then(function(r) {
+      if (!r.ok) throw new Error('fail');
+      return r.text();
+    }).then(function(text) {
+      chapters = parseChapters(text);
+      renderToc();
+      showChapter(0);
+    }).catch(function() {
+      document.getElementById('chapterContent').innerHTML = '<p style="color:var(--red)">Failed to load file</p>';
+    });
+  }
+
+  function renderToc() {
+    var grid = document.getElementById('tocGrid');
+    var html = '';
+    chapters.forEach(function(ch, i) {
+      html += '<div class="toc-item" data-idx="' + i + '">' + ch.title + '</div>';
+    });
+    grid.innerHTML = html;
+    grid.querySelectorAll('.toc-item').forEach(function(item) {
+      item.onclick = function() { showChapter(parseInt(item.getAttribute('data-idx'))); };
+    });
+  }
+
+  function showChapter(idx) {
+    if (idx < 0 || idx >= chapters.length) return;
+    currentChapter = idx;
+    var ch = chapters[idx];
+
+    var html = '<h2>' + ch.title + '</h2>' + ch.content;
+    document.getElementById('chapterContent').innerHTML = html;
+    document.getElementById('chapterContent').style.fontSize = fontSize + 'px';
+
+    // Update TOC active state
+    document.querySelectorAll('.toc-item').forEach(function(el, i) {
+      el.classList.toggle('active', i === idx);
+    });
+
+    // Update nav buttons
+    document.getElementById('prevChapter').disabled = (idx === 0);
+    document.getElementById('nextChapter').disabled = (idx === chapters.length - 1);
+
+    // Scroll to content
+    document.getElementById('chapterContent').scrollIntoView({ behavior: 'smooth' });
+    updateProgress();
+  }
+
+  function updateProgress() {
+    var pct = chapters.length > 0 ? Math.round((currentChapter + 1) / chapters.length * 100) : 0;
+    document.getElementById('progressBar').style.width = pct + '%';
+  }
+
+  document.getElementById('prevChapter').onclick = function() { showChapter(currentChapter - 1); };
+  document.getElementById('nextChapter').onclick = function() { showChapter(currentChapter + 1); };
+  document.getElementById('backToList').onclick = function() {
+    document.getElementById('viewReader').classList.remove('show');
+    document.getElementById('viewList').style.display = '';
+    document.getElementById('progressBar').style.width = '0';
+  };
+
+  document.getElementById('fontDec').onclick = function() {
+    fontSize = Math.max(12, fontSize - 2);
+    document.getElementById('chapterContent').style.fontSize = fontSize + 'px';
+  };
+  document.getElementById('fontInc').onclick = function() {
+    fontSize = Math.min(28, fontSize + 2);
+    document.getElementById('chapterContent').style.fontSize = fontSize + 'px';
+  };
+
+  fetch('data.json')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.title) document.getElementById('pageTitle').textContent = data.title;
+      if (data.subtitle) document.getElementById('pageSubtitle').textContent = data.subtitle;
+      stories = data.stories || [];
+      renderList();
+    })
+    .catch(function() {
+      document.getElementById('storyList').innerHTML = '<p style="color:var(--red);text-align:center;padding:60px">Failed to load data</p>';
+    });
+})();
+</script>
+<script src="../../assets/shared-nav.js"></script>
+<script src="../../assets/bgm.js"></script>
+<script src="../../assets/scroll-anim.js"></script>
+</body>
+</html>

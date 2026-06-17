@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Joke Lin 的 AI 音乐创作与歌单收藏展示">
+<meta property="og:title" content="AI Music - Joke Lin">
+<meta property="og:description" content="AI 驱动的音乐创作与歌单收藏展示">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://jokeslin.github.io/content/music/">
+<meta property="og:image" content="https://jokeslin.github.io/assets/JokeLIn.png">
+<title>AI Music - Joke Lin</title>
+<link rel="icon" href="../../favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="../../assets/global.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap">
+<link rel="stylesheet" href="../../assets/bgm.css">
+<style>
+.page-container { max-width: 960px; }
+.playlist-section { margin-bottom: 36px; }
+.playlist-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px; padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-card);
+}
+.playlist-header .pl-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; background: linear-gradient(135deg, var(--accent-1), var(--accent-2));
+}
+.playlist-header h2 { font-size: 20px; font-weight: 600; }
+.playlist-header .pl-desc { font-size: 13px; color: var(--text-secondary); margin-left: auto; }
+.song-list { display: flex; flex-direction: column; gap: 8px; }
+.song-card {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--bg-card); border: 1px solid var(--border-card);
+  border-radius: var(--radius-md); padding: 14px 18px; transition: all 0.25s;
+}
+.song-card:hover {
+  background: var(--bg-card-hover); transform: translateX(4px);
+  border-color: var(--border-card-hover);
+}
+.song-cover {
+  width: 56px; height: 56px; border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 26px;
+}
+.song-body { flex: 1; min-width: 0; }
+.song-body .song-title { font-size: 15px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.song-body .song-artist { font-size: 13px; color: var(--text-secondary); margin-top: 2px; }
+.song-body .song-note { font-size: 12px; color: var(--text-muted); margin-top: 6px; line-height: 1.5; }
+.song-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+.song-tags span { padding: 2px 8px; border-radius: 10px; font-size: 11px; background: rgba(51,112,255,0.1); color: var(--accent-1); }
+.song-index { width: 28px; text-align: center; font-size: 14px; color: var(--text-muted); font-weight: 600; flex-shrink: 0; }
+.song-player { margin-top: 10px; }
+.song-player audio { width: 100%; height: 36px; border-radius: 8px; }
+@media (max-width: 768px) {
+  .playlist-header { flex-wrap: wrap; }
+  .playlist-header .pl-desc { margin-left: 0; width: 100%; margin-top: 4px; }
+  .song-card { padding: 12px 14px; gap: 12px; }
+  .song-cover { width: 48px; height: 48px; font-size: 22px; }
+}
+</style>
+</head>
+<body>
+<div class="page-container">
+  <a class="back-home" href="../../">Back to Portal</a>
+  <header class="page-header fade-in-up">
+    <h1 id="pageTitle">AI Music</h1>
+    <p id="pageSubtitle">AI driven music and playlists</p>
+  </header>
+  <div id="musicContent"></div>
+  <footer class="page-footer"><p>&copy; 2026 Joke Lin's Music | Edit data.json to manage</p></footer>
+</div>
+<script>
+(function() {
+  'use strict';
+  function renderMusic(data) {
+    if (data.title) document.getElementById('pageTitle').textContent = data.title;
+    if (data.subtitle) document.getElementById('pageSubtitle').textContent = data.subtitle;
+    var container = document.getElementById('musicContent');
+    var html = '';
+    (data.playlists || []).forEach(function(pl) {
+      html += '<div class="playlist-section"><div class="playlist-header">'
+        + '<div class="pl-icon">' + (pl.icon || 'M') + '</div>'
+        + '<h2>' + pl.name + '</h2>'
+        + '<span class="pl-desc">' + (pl.description || '') + '</span></div>'
+        + '<div class="song-list">';
+      (pl.songs || []).forEach(function(song, idx) {
+        var g = song.coverBg || ['#6c63ff', '#4630b3'];
+        var tags = (song.tags || []).map(function(t) { return '<span>' + t + '</span>'; }).join('');
+        var playerHtml = song.file ? '<div class="song-player"><audio controls preload="none" src="' + song.file + '"></audio></div>' : '';
+        html += '<div class="song-card fade-in-up">'
+          + '<span class="song-index">' + String(idx + 1).padStart(2, '0') + '</span>'
+          + '<div class="song-cover" style="background:linear-gradient(135deg,' + g[0] + ',' + g[1] + ')">' + (song.cover || 'M') + '</div>'
+          + '<div class="song-body"><div class="song-title">' + song.title + '</div>'
+          + '<div class="song-artist">' + (song.artist || '') + '</div>'
+          + (song.note ? '<div class="song-note">' + song.note + '</div>' : '')
+          + (tags ? '<div class="song-tags">' + tags + '</div>' : '')
+          + playerHtml + '</div></div>';
+      });
+      html += '</div></div>';
+    });
+    container.innerHTML = html;
+    if (window.initScrollAnims) window.initScrollAnims();
+  }
+  fetch('data.json').then(function(r) { return r.json(); }).then(renderMusic)
+    .catch(function() { document.getElementById('musicContent').innerHTML = '<p style="color:var(--red);text-align:center;padding:60px">Failed to load</p>'; });
+})();
+</script>
+<script src="../../assets/shared-nav.js"></script>
+<script src="../../assets/bgm.js"></script>
+<script src="../../assets/scroll-anim.js"></script>
+</body>
+</html>

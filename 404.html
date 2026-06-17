@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 - 页面走丢了 | Joke Lin's Portal</title>
+<link rel="icon" href="favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="assets/global.css">
+<style>
+  body {
+    margin: 0; min-height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--bg-primary); color: var(--text-primary);
+    font-family: var(--font-body);
+  }
+  .not-found {
+    text-align: center; padding: 40px;
+  }
+  .not-found__code {
+    font-family: var(--font-heading);
+    font-size: clamp(6rem, 15vw, 10rem);
+    font-weight: 700;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+    margin-bottom: 16px;
+  }
+  .not-found__emoji {
+    font-size: 3rem; margin-bottom: 24px;
+    animation: float 3s ease-in-out infinite;
+  }
+  .not-found__text {
+    font-size: 18px; color: var(--text-secondary);
+    margin-bottom: 8px;
+  }
+  .not-found__sub {
+    font-size: 14px; color: var(--text-muted);
+    margin-bottom: 32px;
+  }
+  .not-found__btn {
+    display: inline-block;
+    padding: 12px 32px; border-radius: 50px;
+    background: var(--accent-1); color: #fff;
+    font-size: 14px; font-weight: 500;
+    text-decoration: none;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .not-found__btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(51,112,255,0.4);
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+</style>
+</head>
+<body>
+  <div class="not-found">
+    <div class="not-found__emoji">🫠</div>
+    <div class="not-found__code">404</div>
+    <div class="not-found__text">页面走丢了</div>
+    <div class="not-found__sub">这个页面可能已被移除，或者从未存在过。</div>
+    <a href="/" class="not-found__btn">返回首页</a>
+  </div>
+</body>
+</html>

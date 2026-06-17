@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://jokeslin.github.io/</loc>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://jokeslin.github.io/content/bookmarks/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://jokeslin.github.io/content/blog/</loc>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://jokeslin.github.io/content/resume/</loc>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://jokeslin.github.io/content/music/</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://jokeslin.github.io/content/novel/</loc>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://jokeslin.github.io/content/ai-software/</loc>
+    <priority>0.6</priority>
+  </url>
+</urlset>
