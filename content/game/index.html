@@ -378,16 +378,16 @@ var diff='easy',CFG=DIFF_CONFIG[diff];
 
 // 敌人类型
 var ENEMY_TYPES=[
-  {emoji:'📱',name:'抖音',hp:30,speed:2.8,damage:5,radius:7,color:'#ff4757',xp:3,gold:1},
-  {emoji:'😤',name:'导师催促',hp:60,speed:2.2,damage:10,radius:10,color:'#eb4d4b',xp:6,gold:2},
-  {emoji:'📋',name:'组会通知',hp:40,speed:3.2,damage:6,radius:8,color:'#e17055',xp:4,gold:1},
-  {emoji:'💀',name:'DDL',hp:80,speed:1.8,damage:15,radius:12,color:'#c0392b',xp:10,gold:4},
-  {emoji:'📝',name:'改稿要求',hp:50,speed:2.6,damage:8,radius:9,color:'#fd9644',xp:5,gold:2},
-  {emoji:'😰',name:'社恐发作',hp:24,speed:4.0,damage:4,radius:6,color:'#a55eea',xp:2,gold:1},
-  {emoji:'👥',name:'同辈压力',hp:70,speed:2.4,damage:12,radius:11,color:'#6c5ce7',xp:8,gold:3},
-  {emoji:'🌙',name:'熬夜秃头',hp:100,speed:1.6,damage:18,radius:15,color:'#2d3436',xp:12,gold:5,boss:true},
-  {emoji:'🔥',name:'退学警告',hp:160,speed:1.3,damage:25,radius:18,color:'#d63031',xp:25,gold:12,boss:true},
-  {emoji:'🎓',name:'盲审不通过',hp:240,speed:1.0,damage:35,radius:22,color:'#111',xp:50,gold:25,boss:true}
+  {emoji:'📱',name:'抖音',hp:30,speed:2.8,damage:8,radius:7,color:'#ff4757',xp:3,gold:0},
+  {emoji:'😤',name:'导师催促',hp:60,speed:2.2,damage:15,radius:10,color:'#eb4d4b',xp:6,gold:1},
+  {emoji:'📋',name:'组会通知',hp:40,speed:3.2,damage:10,radius:8,color:'#e17055',xp:4,gold:0},
+  {emoji:'💀',name:'DDL',hp:80,speed:1.8,damage:22,radius:12,color:'#c0392b',xp:10,gold:2},
+  {emoji:'📝',name:'改稿要求',hp:50,speed:2.6,damage:12,radius:9,color:'#fd9644',xp:5,gold:1},
+  {emoji:'😰',name:'社恐发作',hp:24,speed:4.0,damage:7,radius:6,color:'#a55eea',xp:2,gold:0},
+  {emoji:'👥',name:'同辈压力',hp:70,speed:2.4,damage:18,radius:11,color:'#6c5ce7',xp:8,gold:2},
+  {emoji:'🌙',name:'熬夜秃头',hp:100,speed:1.6,damage:28,radius:15,color:'#2d3436',xp:12,gold:3,boss:true},
+  {emoji:'🔥',name:'退学警告',hp:160,speed:1.3,damage:38,radius:18,color:'#d63031',xp:25,gold:6,boss:true},
+  {emoji:'🎓',name:'盲审不通过',hp:240,speed:1.0,damage:50,radius:22,color:'#111',xp:50,gold:12,boss:true}
 ];
 
 // 武器定义（带升级倍率）
@@ -408,7 +408,7 @@ var WEAPON_DEFS={
 };
 
 // 武器升级属性倍率
-var WEAPON_UPGRADE_MULT=[1,1.3,1.65,2.1,2.65,3.3,4.1,5.0,6.0];
+var WEAPON_UPGRADE_MULT=[1,1.2,1.45,1.75,2.1,2.5,3.0,3.6,4.2];
 var WEAPON_UPGRADE_NAMES=['+0','+1','+2','+3','+4','+5','+6','+7','MAX'];
 
 var QUALITY_MULT={common:1,uncommon:1.25,rare:1.6,epic:2,legendary:2.5};
@@ -418,13 +418,13 @@ var QUALITY_COLOR={common:'#aaa',uncommon:'#2ed573',rare:'#0984e3',epic:'#6c5ce7
 // 遗物系统
 var RELIC_POOL=[
   {id:'relic_clock',name:'拖延者的怀表',emoji:'⏰',desc:'每波开始获得3秒无敌',quality:'uncommon',apply:function(s){s.waveStartInvincible=180}},
-  {id:'relic_coffee',name:'续命咖啡杯',emoji:'☕',desc:'每波结束回复20%HP',quality:'common',apply:function(s){s.waveEndHeal=0.2}},
+  {id:'relic_coffee',name:'续命咖啡杯',emoji:'☕',desc:'每波结束回复10%HP',quality:'common',apply:function(s){s.waveEndHeal=0.1}},
   {id:'relic_book',name:'幸运论文',emoji:'📄',desc:'金币获取+30%',quality:'uncommon',apply:function(s){s.goldMult=(s.goldMult||1)+0.3}},
   {id:'relic_glasses',name:'导师的眼镜',emoji:'👓',desc:'射程+25%',quality:'rare',apply:function(s){s.rangeMult+=0.25}},
   {id:'relic_shield',name:'摆烂盾牌',emoji:'🛡️',desc:'护甲+5',quality:'uncommon',apply:function(s){s.armor+=5}},
   {id:'relic_magnet',name:'经验磁铁',emoji:'🧲',desc:'经验获取+50%',quality:'rare',apply:function(s){s.xpMult=(s.xpMult||1)+0.5}},
-  {id:'relic_ring',name:'吸血戒指',emoji:'💍',desc:'造成伤害回复5%生命',quality:'epic',apply:function(s){s.lifesteal+=0.05}},
-  {id:'relic_crown',name:'学霸光环',emoji:'👑',desc:'全属性+10%',quality:'legendary',apply:function(s){s.dmgMult+=0.1;s.atkSpdMult+=0.1;s.maxHp=Math.floor(s.maxHp*1.1);s.hp=Math.floor(s.hp*1.1);s.speed+=0.3}}
+  {id:'relic_ring',name:'吸血戒指',emoji:'💍',desc:'造成伤害回复2%生命',quality:'epic',apply:function(s){s.lifesteal+=0.02}},
+  {id:'relic_crown',name:'学霸光环',emoji:'👑',desc:'全属性+5%',quality:'legendary',apply:function(s){s.dmgMult+=0.05;s.atkSpdMult+=0.05;s.maxHp=Math.floor(s.maxHp*1.05);s.hp=Math.floor(s.hp*1.05);s.speed+=0.15}}
 ];
 
 // 道具池
@@ -433,33 +433,33 @@ var ITEM_POOL=[
   {id:'item_book',name:'学术期刊',emoji:'📖',price:14,quality:'common',desc:'武器射程 +15%',apply:function(s){s.rangeMult+=0.15}},
   {id:'item_shoes',name:'运动鞋',emoji:'👟',price:10,quality:'common',desc:'移动速度 +0.5',apply:function(s){s.speed+=0.5}},
   {id:'item_vitamins',name:'维生素',emoji:'💊',price:12,quality:'common',desc:'最大生命 +15',apply:function(s){s.maxHp+=15;s.hp+=15}},
-  {id:'item_gloves',name:'拳击手套',emoji:'🥊',price:20,quality:'uncommon',desc:'全伤害 +20%',apply:function(s){s.dmgMult+=0.2}},
-  {id:'item_magnet',name:'经验磁铁',emoji:'🧲',price:20,quality:'uncommon',desc:'经验获取 +25%',apply:function(s){s.xpMult=(s.xpMult||1)+0.25}},
-  {id:'itemArmor',name:'学术护甲',emoji:'🛡️',price:20,quality:'uncommon',desc:'护甲 +4',apply:function(s){s.armor+=4}},
+  {id:'item_gloves',name:'拳击手套',emoji:'🥊',price:28,quality:'uncommon',desc:'全伤害 +15%',apply:function(s){s.dmgMult+=0.15}},
+  {id:'item_magnet',name:'经验磁铁',emoji:'🧲',price:20,quality:'uncommon',desc:'经验获取 +15%',apply:function(s){s.xpMult=(s.xpMult||1)+0.15}},
+  {id:'itemArmor',name:'学术护甲',emoji:'🛡️',price:25,quality:'uncommon',desc:'护甲 +3',apply:function(s){s.armor+=3}},
   {id:'item_crit',name:'暴击眼镜',emoji:'👓',price:24,quality:'uncommon',desc:'暴击率 +8%',apply:function(s){s.critChance+=0.08}},
-  {id:'item_lifesteal',name:'吸血戒指',emoji:'💍',price:30,quality:'rare',desc:'造成伤害回复 4% 生命',apply:function(s){s.lifesteal+=0.04}},
-  {id:'item_regen',name:'养生茶',emoji:'🍵',price:28,quality:'rare',desc:'每秒回复 1.5 生命',apply:function(s){s.regen+=1.5}},
+  {id:'item_lifesteal',name:'吸血戒指',emoji:'💍',price:30,quality:'rare',desc:'造成伤害回复 2% 生命',apply:function(s){s.lifesteal+=0.02}},
+  {id:'item_regen',name:'养生茶',emoji:'🍵',price:28,quality:'rare',desc:'每秒回复 0.8 生命',apply:function(s){s.regen+=0.8}},
   {id:'item_pierce',name:'穿甲弹',emoji:'🔩',price:28,quality:'rare',desc:'子弹穿透 +1',apply:function(s){s.pierceBonus+=1}},
-  {id:'item_mega',name:'学霸光环',emoji:'🌟',price:44,quality:'epic',desc:'伤害 +40% 且攻速 +20%',apply:function(s){s.dmgMult+=0.4;s.atkSpdMult+=0.2}},
-  {id:'item_god',name:'天选之人',emoji:'👑',price:60,quality:'legendary',desc:'最大生命 +100 且护甲 +8',apply:function(s){s.maxHp+=100;s.hp+=100;s.armor+=8}}
+  {id:'item_mega',name:'学霸光环',emoji:'🌟',price:44,quality:'epic',desc:'伤害 +20% 且攻速 +10%',apply:function(s){s.dmgMult+=0.2;s.atkSpdMult+=0.1}},
+  {id:'item_god',name:'天选之人',emoji:'👑',price:60,quality:'legendary',desc:'最大生命 +50 且护甲 +4',apply:function(s){s.maxHp+=50;s.hp+=50;s.armor+=4}}
 ];
 
 // 升级属性池
 var STAT_UPGRADES=[
-  {id:'hp',name:'生命强化',emoji:'❤️',desc:'+12 最大生命',quality:'common',apply:function(s){s.maxHp+=12;s.hp+=12}},
-  {id:'dmg',name:'伤害强化',emoji:'⚔️',desc:'+10% 伤害',quality:'common',apply:function(s){s.dmgMult+=0.1}},
-  {id:'spd',name:'移速强化',emoji:'💨',desc:'+0.3 移速',quality:'common',apply:function(s){s.speed+=0.3}},
-  {id:'atk',name:'攻速强化',emoji:'⚡',desc:'+8% 攻速',quality:'common',apply:function(s){s.atkSpdMult+=0.08}},
-  {id:'armor',name:'护甲强化',emoji:'🛡️',desc:'+2 护甲',quality:'common',apply:function(s){s.armor+=2}},
-  {id:'crit',name:'暴击强化',emoji:'💥',desc:'+5% 暴击',quality:'common',apply:function(s){s.critChance+=0.05}},
-  {id:'regen',name:'恢复强化',emoji:'💚',desc:'+1 生命/秒',quality:'common',apply:function(s){s.regen+=1}},
+  {id:'hp',name:'生命强化',emoji:'❤️',desc:'+6 最大生命',quality:'common',apply:function(s){s.maxHp+=6;s.hp+=6}},
+  {id:'dmg',name:'伤害强化',emoji:'⚔️',desc:'+5% 伤害',quality:'common',apply:function(s){s.dmgMult+=0.05}},
+  {id:'spd',name:'移速强化',emoji:'💨',desc:'+0.15 移速',quality:'common',apply:function(s){s.speed+=0.15}},
+  {id:'atk',name:'攻速强化',emoji:'⚡',desc:'+4% 攻速',quality:'common',apply:function(s){s.atkSpdMult+=0.04}},
+  {id:'armor',name:'护甲强化',emoji:'🛡️',desc:'+1 护甲',quality:'common',apply:function(s){s.armor+=1}},
+  {id:'crit',name:'暴击强化',emoji:'💥',desc:'+3% 暴击',quality:'common',apply:function(s){s.critChance+=0.03}},
+  {id:'regen',name:'恢复强化',emoji:'💚',desc:'+0.5 生命/秒',quality:'common',apply:function(s){s.regen+=0.5}},
   {id:'pierce',name:'穿透强化',emoji:'📍',desc:'+1 穿透',quality:'uncommon',apply:function(s){s.pierceBonus+=1}},
-  {id:'range',name:'射程强化',emoji:'👁️',desc:'+12% 射程',quality:'uncommon',apply:function(s){s.rangeMult+=0.12}},
-  {id:'steal',name:'窃取强化',emoji:'🩸',desc:'+3% 生命窃取',quality:'uncommon',apply:function(s){s.lifesteal+=0.03}},
+  {id:'range',name:'射程强化',emoji:'👁️',desc:'+7% 射程',quality:'uncommon',apply:function(s){s.rangeMult+=0.07}},
+  {id:'steal',name:'窃取强化',emoji:'🩸',desc:'+1.5% 生命窃取',quality:'uncommon',apply:function(s){s.lifesteal+=0.015}},
   {id:'multi',name:'多重射击',emoji:'🎯',desc:'+1 发弹幕',quality:'rare',apply:function(s){s.multiShot+=1}},
-  {id:'kb',name:'击退强化',emoji:'💫',desc:'+30% 击退',quality:'rare',apply:function(s){s.knockbackBonus+=0.3}},
-  {id:'thorns',name:'荆棘反伤',emoji:'🌹',desc:'+5% 反伤',quality:'rare',apply:function(s){s.thorns+=0.05}},
-  {id:'magnet',name:'经验磁铁',emoji:'🧲',desc:'+60 吸取范围',quality:'rare',apply:function(s){s.magnetRange+=60}}
+  {id:'kb',name:'击退强化',emoji:'💫',desc:'+15% 击退',quality:'rare',apply:function(s){s.knockbackBonus+=0.15}},
+  {id:'thorns',name:'荆棘反伤',emoji:'🌹',desc:'+2.5% 反伤',quality:'rare',apply:function(s){s.thorns+=0.025}},
+  {id:'magnet',name:'经验磁铁',emoji:'🧲',desc:'+30 吸取范围',quality:'rare',apply:function(s){s.magnetRange+=30}}
 ];
 
 // 多步骤随机事件池 - 基于角色设定的校园故事
@@ -997,7 +997,7 @@ var player={x:0,y:0,hp:0,maxHp:0,speed:4.5,radius:8,
   // 郑志辉：铁壁
   stillTimer:0,ironWall:false,ironWallFade:0,
   // 黄斌：利息
-  interestRate:0.15,
+  interestRate:0.08,
   // 阿依达娜：受伤计数+治疗脉冲
   hurtCount:0,healPulseCD:0,warmGlow:false,warmGlowTimer:0,
   // 陈雪：斩杀
@@ -1534,7 +1534,8 @@ function updateEnemies(){
 
     if(dist(e,player)<e.radius+player.radius){
       if(player.invincibleTimer<=0&&player.waveStartInvincible<=0&&player.damageCooldown<=0){
-        var dmg=Math.max(1,e.damage-player.armor);
+        var armorReduce=Math.min(0.6,player.armor*0.02);
+        var dmg=Math.max(1,Math.floor(e.damage*(1-armorReduce)));
         // 郑志辉被动：铁壁状态减伤50%+反弹30%伤害
         if(selectedChar&&selectedChar.id==='zhihui'){
           if(player.ironWall){
@@ -2029,7 +2030,7 @@ function fireWeapons(){
 
 function killEnemy(idx){
   var e=enemies[idx];
-  var goldGain=Math.floor(e.gold*player.goldMult);
+  var goldGain=e.gold;
 
   // 吴禹被动：击杀概率双倍金币
   if(selectedChar&&selectedChar.id==='zhiyuan'&&Math.random()<0.15){
@@ -2043,14 +2044,14 @@ function killEnemy(idx){
     spawnFloatText(e.x,e.y+20,'+'+heal+' HP','#2ed573');
   }
 
-  // 连杀金币加成
-  if(player.combo>=5){
-    var comboBonus=Math.floor(player.combo*1.5);
-    goldGain+=comboBonus;
-  }
-
   // 金币获取减少
   goldGain=Math.floor(goldGain*0.5);
+
+  // 连杀金币加成（削减后单独加，不参与50%削减）
+  if(player.combo>=5){
+    var comboBonus=Math.floor(player.combo*0.8);
+    goldGain+=comboBonus;
+  }
 
   player.xp+=Math.floor(e.xp*player.xpMult);player.gold+=goldGain;player.kills++;
   spawnParticles(e.x,e.y,e.color,10);spawnFloatText(e.x,e.y,'+'+e.xp+' XP','#7b2ff7');
@@ -2088,8 +2089,8 @@ function killEnemy(idx){
   }
 
   // 掉落物系统 - 10%概率掉落金币，4%概率掉落经验球，1%概率掉落道具
-  if(Math.random()<0.1){
-    spawnDrop(e.x,e.y,'gold',Math.floor(1+Math.random()*2));
+  if(Math.random()<0.05){
+    spawnDrop(e.x,e.y,'gold',Math.floor(1+Math.random()));
   }
   if(Math.random()<0.04){
     spawnDrop(e.x,e.y,'xp',Math.floor(8+Math.random()*10));
@@ -2273,8 +2274,8 @@ function onWaveEnd(){
   }
   // 黄斌被动：波次结束额外金币
   if(selectedChar&&selectedChar.id==='bin'){
-    player.gold+=5;
-    spawnFloatText(player.x,player.y,'+5 💰','#ffd700');
+    player.gold+=3;
+    spawnFloatText(player.x,player.y,'+3 💰','#ffd700');
   }
 
   setTimeout(openShop,600);
@@ -2488,7 +2489,7 @@ function openLevelUp(){
   for(var i=0;i<2;i++){
     // 75% common, 20% uncommon, 5% rare
     var roll=Math.random();
-    var targetQ=roll<0.75?'common':roll<0.95?'uncommon':'rare';
+    var targetQ=roll<0.82?'common':roll<0.96?'uncommon':'rare';
     var filtered=pool.filter(function(u){return u.quality===targetQ;});
     if(filtered.length===0)filtered=pool;
     var idx=Math.floor(Math.random()*filtered.length);
@@ -2542,9 +2543,9 @@ function generateShopSlots(){
       desc:'伤害:'+Math.floor(wd.baseDmg*(priceMult[q]||1))});
     availWeapons=availWeapons.filter(function(k){return k!==wk;});
   }
-  // 增益区 - 4个
+  // 增益区 - 3个
   var availItems=ITEM_POOL.slice();
-  for(var i=0;i<4&&availItems.length>0;i++){
+  for(var i=0;i<3&&availItems.length>0;i++){
     var idx=Math.floor(Math.random()*availItems.length),it=availItems[idx];
     shopItems.push({type:'item',ref:it,name:it.name,emoji:it.emoji,
       quality:it.quality,price:it.price,desc:it.desc});
@@ -2728,7 +2729,7 @@ function drawDynamicDecorations(){
 
   // 食堂 - 蒸汽效果
   ctx.fillStyle='rgba(200,200,200,0.08)';
-  for(var i=0;i<3;i++){
+  for(var i=0;i<2;i++){
     var sx=2850+i*40-camX+Math.sin(t+i)*10,sy=300-camY-Math.abs(Math.sin(t*2+i))*20;
     if(sx>-50&&sx<canvas.width+50&&sy>-50&&sy<canvas.height+50){
       ctx.beginPath();ctx.arc(sx,sy,15+Math.sin(t+i)*5,0,Math.PI*2);ctx.fill();
