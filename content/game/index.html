@@ -151,7 +151,7 @@ canvas{border-radius:8px;border:1px solid rgba(100,150,255,0.15)}
   <div id="timerDisplay">--</div>
 </div>
 
-<div id="relicBar" style="position:absolute;bottom:130px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;max-width:400px">
+<div id="relicBar" style="position:absolute;bottom:170px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;max-width:400px">
   <div id="buffList" style="display:flex;flex-wrap:wrap;justify-content:center;gap:3px"></div>
   <div id="relicList" style="display:flex;flex-wrap:wrap;justify-content:center;gap:3px"></div>
 </div>
@@ -161,8 +161,8 @@ canvas{border-radius:8px;border:1px solid rgba(100,150,255,0.15)}
 </div>
 
 <div id="weaponBar" style="display:none"></div>
-<div id="weaponInfo" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:5;color:#aab;font-size:0.8em;text-align:center;background:rgba(10,15,30,0.8);padding:4px 12px;border-radius:8px;border:1px solid rgba(100,150,255,0.15);display:none;white-space:nowrap">
-  <span id="weaponName">-</span> <span id="weaponUpgrade"></span> · <kbd style="background:rgba(100,150,255,0.15);padding:1px 5px;border-radius:3px">1-6</kbd> 切换 · <kbd style="background:rgba(255,71,87,0.2);padding:1px 5px;border-radius:3px;color:#ff6b81">Q</kbd> 卖 <span id="sellPrice">-</span>💰 · <kbd style="background:rgba(255,215,0,0.2);padding:1px 5px;border-radius:3px;color:#ffd700">E</kbd> 合并
+<div id="weaponInfo" style="position:absolute;bottom:70px;left:50%;transform:translateX(-50%);z-index:5;color:#aab;font-size:0.8em;text-align:center;background:rgba(10,15,30,0.8);padding:4px 12px;border-radius:8px;border:1px solid rgba(100,150,255,0.15);display:none;white-space:nowrap">
+  <span id="weaponName">-</span> <span id="weaponUpgrade"></span> · <kbd style="background:rgba(100,150,255,0.15);padding:1px 5px;border-radius:3px">1-6</kbd> 切换 · <kbd style="background:rgba(255,71,87,0.2);padding:1px 5px;border-radius:3px;color:#ff6b81">Q</kbd> 卖 <span id="sellPrice">-</span>💰 · <kbd style="background:rgba(255,215,0,0.2);padding:1px 5px;border-radius:3px;color:#ffd700">E</kbd> 升级
 </div>
 
 <!-- 开始界面 -->
@@ -392,7 +392,7 @@ var ENEMY_TYPES=[
 
 // 武器定义（带升级倍率）
 var WEAPON_DEFS={
-  ai_pen:{name:'AI代笔',emoji:'🤖',type:'projectile',baseDmg:12,speed:12,rate:16,range:380,pierce:1,color:'#00d4ff',maxLv:8},
+  ai_pen:{name:'AI代笔',emoji:'🤖',type:'projectile',baseDmg:12,speed:12,rate:16,range:380,pierce:1,color:'#00d4ff',maxLv:20},
   coffee_gun:{name:'咖啡机枪',emoji:'☕',type:'projectile',baseDmg:4,speed:16,rate:4,range:300,pierce:0,color:'#d4a574',maxLv:8},
   shield_bash:{name:'摆烂冲撞',emoji:'🛡️',type:'melee',baseDmg:35,rate:35,range:130,color:'#2ed573',maxLv:8},
   procrastination:{name:'拖延力场',emoji:'⏰',type:'aoe',baseDmg:6,rate:28,range:110,color:'#ffa502',maxLv:8},
@@ -408,8 +408,8 @@ var WEAPON_DEFS={
 };
 
 // 武器升级属性倍率
-var WEAPON_UPGRADE_MULT=[1,1.2,1.45,1.75,2.1,2.5,3.0,3.6,4.2];
-var WEAPON_UPGRADE_NAMES=['+0','+1','+2','+3','+4','+5','+6','+7','MAX'];
+var WEAPON_UPGRADE_MULT=[1,1.1,1.22,1.35,1.5,1.66,1.84,2.04,2.26,2.5,2.78,3.1,3.45,3.85,4.3,4.8,5.35,5.95,6.6,7.3,8.0];
+var WEAPON_UPGRADE_NAMES=['+0','+1','+2','+3','+4','+5','+6','+7','+8','+9','+10','+11','+12','+13','+14','+15','+16','+17','+18','+19','MAX'];
 
 var QUALITY_MULT={common:1,uncommon:1.25,rare:1.6,epic:2,legendary:2.5};
 var QUALITY_NAME={common:'普通',uncommon:'优良',rare:'稀有',epic:'史诗',legendary:'传说'};
@@ -1753,7 +1753,7 @@ function upgradeWeaponWithGold(){
   var wd=WEAPON_DEFS[w.key];
   if(w.level>=wd.maxLv){showMsg('武器已满级！','bad');return false;}
 
-  var cost=15+w.level*12;
+  var cost=12+w.level*8;
   if(player.gold<cost){showMsg('金币不足！需要'+cost+'💰','bad');return false;}
 
   player.gold-=cost;
@@ -1848,7 +1848,7 @@ function fireWeapons(){
     player.atkSpdMult=1+player.rhythmStacks*0.05;
     player.speed=4.5*(selectedChar.spd||1)+player.rhythmStacks*0.15;
   }
-  var bonusPierce=Math.floor(w.level/2);
+  var bonusPierce=Math.min(5,Math.floor(w.level/4));
 
   if(w.key==='ai_pen'){
     var target=null,minD=Infinity;
@@ -2589,9 +2589,10 @@ function renderShop(){
   function renderSlot(slot,idx,parentIdx){
     var el=document.createElement('div');el.className='shop-item';
     var qColor=QUALITY_COLOR[slot.quality]||'#aaa';
-    var isOwned=slot.type==='weapon'&&player.weapons.some(function(w){return w.key===slot.key});
+    var ownedWeapon=slot.type==='weapon'?player.weapons.find(function(w){return w.key===slot.key}):null;
+    var isOwned=!!ownedWeapon;
     var cantAfford=player.gold<slot.price;
-    if(isOwned)el.classList.add('sold-out');
+    if(isOwned&&!ownedWeapon)el.classList.add('sold-out');
     else if(cantAfford){el.style.opacity='0.55';el.style.borderColor='rgba(255,71,87,0.3)';}
     el.innerHTML='<div style="position:absolute;top:4px;left:6px;font-size:0.7em;color:rgba(255,255,255,0.3)">'+(parentIdx+1)+'</div>'+
       '<div class="item-icon">'+slot.emoji+'</div>'+
@@ -2626,8 +2627,35 @@ function renderShop(){
           document.getElementById('shopGold').textContent=player.gold;
           renderShop();
         });
+      }else if(isOwned&&ownedWeapon){
+      // 已拥有的武器：显示升级选项
+      var wd2=WEAPON_DEFS[slot.key];
+      var upgCost=12+ownedWeapon.level*8;
+      var isMaxLv=ownedWeapon.level>=wd2.maxLv;
+      var cantUpg=player.gold<upgCost;
+      el.className='shop-item'+(cantUpg&&!isMaxLv?' cannot-buy':'');
+      el.innerHTML='<div style="position:absolute;top:4px;left:6px;font-size:0.7em;color:rgba(255,255,255,0.3)">'+(parentIdx+1)+'</div>'+
+        '<div class="item-icon">'+slot.emoji+'</div>'+
+        '<div class="item-name" style="color:#ffd700">'+slot.name+'</div>'+
+        '<div class="item-desc">当前 <span style="color:#ffd700">'+WEAPON_UPGRADE_NAMES[ownedWeapon.level]+'</span>'+(isMaxLv?' ★ 满级':' → <span style="color:#2ed573">'+WEAPON_UPGRADE_NAMES[Math.min(ownedWeapon.level+1,wd2.maxLv)]+'</span>')+'</div>'+
+        '<div class="item-price" style="'+(cantUpg||isMaxLv?'color:#ff4757':'')+'">'+(isMaxLv?'满级':'💰 '+upgCost+(cantUpg?' (差'+(upgCost-player.gold)+')':''))+'</div>'+
+        '<div style="font-size:0.7em;color:#ffd700;margin-top:2px">升级</div>';
+      if(!isMaxLv){
+        el.addEventListener('click',function(){
+          if(player.gold<upgCost){
+            el.classList.add('cannot-buy');
+            setTimeout(function(){el.classList.remove('cannot-buy');},500);
+            showMsg('❌ 金币不足！需要 '+upgCost+'💰','bad');return;}
+          player.gold-=upgCost;
+          ownedWeapon.level++;
+          weaponSlotsBuilt=false;
+          showMsg('⬆️ '+slot.name+' 升级为 '+WEAPON_UPGRADE_NAMES[ownedWeapon.level]+'uff01花费'+upgCost+'💰','good');
+          document.getElementById('shopGold').textContent=player.gold;
+          renderShop();
+        });
       }
       return el;
+    }
     }
     var wg=document.getElementById('shopWeaponGrid');wg.innerHTML='';
     for(var i=0;i<shopWeapons.length;i++){var el=renderSlot(shopWeapons[i],i,i);if(el)wg.appendChild(el);}
@@ -2856,40 +2884,53 @@ function generateObstacles(){
   OBSTACLES.push({x:1800,y:1600,w:150,h:100,color:'#9a8a5a',type:'building',label:'诚智楼'});
   OBSTACLES.push({x:2200,y:1600,w:150,h:100,color:'#7a7aaa',type:'building',label:'研究生工作室'});
 
-  // ====== 装饰物 - 分散在地图各处 ======
+  // ====== 装饰物 - 分散在地图各处（密集版） ======
 
-  // 树木
+  // 树木 - 大幅增加
   var treePositions=[
     {x:500,y:500},{x:1000,y:300},{x:3000,y:600},{x:3600,y:400},
-    {x:500,y:2400},{x:1000,y:2600},{x:3000,y:2400},{x:3600,y:2600}
+    {x:500,y:2400},{x:1000,y:2600},{x:3000,y:2400},{x:3600,y:2600},
+    {x:1500,y:200},{x:2000,y:150},{x:2500,y:250},{x:1800,y:500},
+    {x:1500,y:2800},{x:2000,y:2700},{x:2500,y:2850},{x:1800,y:2500},
+    {x:200,y:1500},{x:300,y:1700},{x:150,y:1900},
+    {x:3800,y:1500},{x:3700,y:1700},{x:3850,y:1900},
+    {x:1200,y:1200},{x:2800,y:1200},{x:1200,y:1800},{x:2800,y:1800},
+    {x:1600,y:800},{x:2400,y:800},{x:1600,y:2200},{x:2400,y:2200},
+    {x:900,y:900},{x:3100,y:900},{x:900,y:2100},{x:3100,y:2100}
   ];
   for(var i=0;i<treePositions.length;i++){
     OBSTACLES.push({x:treePositions[i].x,y:treePositions[i].y,w:30+Math.random()*20,h:30+Math.random()*20,
       color:'#4a9a4a',type:'tree'});
   }
 
-  // 长椅
+  // 长椅 - 增加
   var benchPositions=[
-    {x:500,y:400},{x:3100,y:500},{x:500,y:2300},{x:3100,y:2300}
+    {x:500,y:400},{x:3100,y:500},{x:500,y:2300},{x:3100,y:2300},
+    {x:1500,y:400},{x:2500,y:400},{x:1500,y:2600},{x:2500,y:2600},
+    {x:400,y:1400},{x:3600,y:1400},{x:400,y:1600},{x:3600,y:1600}
   ];
   for(var i=0;i<benchPositions.length;i++){
     OBSTACLES.push({x:benchPositions[i].x,y:benchPositions[i].y,w:40,h:15,
       color:'#baa87a',type:'bench'});
   }
 
-  // 路灯
+  // 路灯 - 增加
   var lampPositions=[
     {x:400,y:600},{x:1200,y:600},{x:2800,y:600},{x:3600,y:600},
-    {x:400,y:2200},{x:3600,y:2200}
+    {x:400,y:2200},{x:3600,y:2200},
+    {x:1000,y:1000},{x:3000,y:1000},{x:1000,y:2000},{x:3000,y:2000},
+    {x:2000,y:600},{x:2000,y:2400},{x:600,y:1500},{x:3400,y:1500}
   ];
   for(var i=0;i<lampPositions.length;i++){
     OBSTACLES.push({x:lampPositions[i].x,y:lampPositions[i].y,w:12,h:12,
       color:'#ffdd88',type:'lamp'});
   }
 
-  // 花坛
+  // 花坛 - 增加
   var flowerPositions=[
-    {x:800,y:400},{x:3200,y:400},{x:800,y:2400},{x:3200,y:2400}
+    {x:800,y:400},{x:3200,y:400},{x:800,y:2400},{x:3200,y:2400},
+    {x:1400,y:300},{x:2600,y:300},{x:1400,y:2700},{x:2600,y:2700},
+    {x:300,y:1200},{x:3700,y:1200},{x:300,y:1800},{x:3700,y:1800}
   ];
   for(var i=0;i<flowerPositions.length;i++){
     OBSTACLES.push({x:flowerPositions[i].x,y:flowerPositions[i].y,w:50,h:50,
@@ -3156,8 +3197,7 @@ function updateHUD(){
         // 更新武器图标和等级显示
         var content=wd.emoji;
         if(w.level>0){
-          var stars=w.level<=4?'⭐'.repeat(w.level):'⭐'.repeat(4)+'🔮';
-          content+='<div class="upgrade-stars">'+stars+'</div>';
+          content+='<div class="upgrade-stars">Lv'+w.level+'</div>';
         }
         if(slot.innerHTML!==content)slot.innerHTML=content;
 
@@ -3333,11 +3373,9 @@ document.addEventListener('keydown',function(e){
   // Q键卖武器
   if(e.code==='KeyQ'&&gameState==='playing')sellCurrentWeapon();
 
-  // E键合并/升级武器
+  // E键升级当前武器（消耗金币）
   if(e.code==='KeyE'&&gameState==='playing'){
-    if(!mergeWeapons()){
-      upgradeWeaponWithGold();
-    }
+    upgradeWeaponWithGold();
   }
 
   // R键刷新商店
