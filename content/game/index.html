@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Deadline幸存者 · 土豆兄弟版</title>
+<link rel="stylesheet" href="../../assets/bgm.css">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 
@@ -1745,6 +1746,7 @@ function updateEventTriggers(){
     // 拾取判定（扩大范围）
     if(dist(player,{x:t.x,y:t.y})<player.radius+45){
       EVENT_TRIGGERS.splice(i,1);
+      SFX.eventTrigger();
       gameState='event';
       if(Math.random()<0.6) openStoryEvent();
       else openEvent();
@@ -1835,6 +1837,7 @@ function initCharacterSelect(){
 
 document.getElementById('confirmCharBtn').addEventListener('click',function(){
   if(!selectedChar)return;
+  SFX.confirm();
   document.getElementById('characterSelect').style.display='none';
   startGame();
 });
@@ -1950,6 +1953,7 @@ function updatePlayer(){
       if(player.stillTimer>=90&&!player.ironWall){
         player.ironWall=true;
         spawnFloatText(player.x,player.y-30,'🛡️ 铁壁!','#2ed573');
+        SFX.ironWall();
       }
     }else{
       player.stillTimer=0;
@@ -1984,6 +1988,7 @@ function updatePlayer(){
       var healAmt=Math.floor(player.maxHp*0.05);
       player.hp=Math.min(player.maxHp,player.hp+healAmt);
       spawnFloatText(player.x,player.y-30,'🌸 治愈脉冲 +'+healAmt,'#2ed573');
+      SFX.healPulse();
       // 脉冲减速周围敌人
       for(var i=0;i<enemies.length;i++){
         if(dist(player,enemies[i])<150){
@@ -2054,6 +2059,7 @@ function spawnSummonUnit(){
   var sx=player.x+Math.cos(angle)*50,sy=player.y+Math.sin(angle)*50;
   player.summons.push({x:sx,y:sy,life:480,atkTimer:0,radius:10});
   spawnFloatText(player.x,player.y-30,'📚 助教出场！','#fdcb6e');
+  SFX.summon();
 }
 
 function drawSummons(){
@@ -2234,6 +2240,7 @@ function updateEnemies(){
         spawnDamageText(player.x,player.y,'-'+dmg,'#ff4757');
         spawnParticles(player.x,player.y,'#ff4757',8);
         showDamageOverlay();
+        SFX.playerHit();
         // 阿依达娜：受伤计数
         if(selectedChar&&selectedChar.id==='dana'){
           player.hurtCount++;
@@ -2333,6 +2340,7 @@ Projectile.prototype.update=function(){
       e.knockbackX+=(this.vx/kbDir)*kb;e.knockbackY+=(this.vy/kbDir)*kb;
       spawnDamageText(e.x,e.y,(crit?'暴击 ':'')+'-'+dmg,crit?'#ffd700':'#fff');
       spawnParticles(e.x,e.y,this.color,4);
+      if(crit)SFX.crit(); else SFX.hit();
       // 林有崧：AI协同 - 子弹命中后30%概率分裂2枚追踪弹
       if(selectedChar&&selectedChar.id==='yousong'&&Math.random()<0.3&&e.hp>0){
         for(var si=0;si<2;si++){
@@ -2390,6 +2398,7 @@ function sellCurrentWeapon(){
   if(player.activeWeapon>=player.weapons.length)player.activeWeapon=player.weapons.length-1;
   weaponSlotsBuilt=false;
   showMsg('卖掉 '+wd.name+' +'+price+'💰','good');
+  SFX.sell();
 }
 
 function mergeWeapons(){
@@ -2421,6 +2430,7 @@ function mergeWeapons(){
         if(player.activeWeapon>=player.weapons.length)player.activeWeapon=player.weapons.length-1;
         weaponSlotsBuilt=false;
         showMsg('✨ 合并成功！'+wd.name+' 升级为 '+WEAPON_UPGRADE_NAMES[targetLevel],'special');
+        SFX.merge();
         return true;
       }
     }
@@ -2442,6 +2452,7 @@ function upgradeWeaponWithGold(){
   w.level++;
   weaponSlotsBuilt=false;
   showMsg('⬆️ '+wd.name+' 升级为 '+WEAPON_UPGRADE_NAMES[w.level]+'！花费'+cost+'💰','good');
+  SFX.upgrade();
   return true;
 }
 
@@ -2516,6 +2527,12 @@ function fireWeapons(){
   var effectiveRate=Math.ceil(wd.rate/Math.min(player.atkSpdMult,3.0));
   if(w.cd>0)return;
   w.cd=effectiveRate;
+  // 音效：根据武器类型
+  if(wd.type==='melee')SFX.fire_melee();
+  else if(wd.type==='aoe')SFX.fire_aoe();
+  else if(wd.baseDmg>=35)SFX.fire_heavy();
+  else if(wd.pierce>=2)SFX.fire_laser();
+  else SFX.fire_spread();
   // 吴禹：攻击时重置蓄力
   if(selectedChar&&selectedChar.id==='wuyu'){player.chargeTimer=0;player.chargeBonus=0;}
   var qMult=QUALITY_MULT[w.quality]||1;
@@ -2711,6 +2728,7 @@ function fireWeapons(){
 }
 
 function killEnemy(idx){
+  SFX.enemyDie();
   var e=enemies[idx];
   var goldGain=e.gold;
 
@@ -2817,7 +2835,7 @@ function updateDrops(){
 
     // 拾取
     if(dd<player.radius+15){
-      if(d.type==='gold'){player.gold+=d.value;spawnFloatText(d.x,d.y,'+'+d.value+'💰','#ffd700');}
+      if(d.type==='gold'){player.gold+=d.value;spawnFloatText(d.x,d.y,'+'+d.value+'💰','#ffd700');SFX.goldPickup();}
       else if(d.type==='xp'){player.xp+=d.value;spawnFloatText(d.x,d.y,'+'+d.value+' XP','#7b2ff7');checkLevelUp();}
       else if(d.type==='heal'){player.hp=Math.min(player.maxHp,player.hp+d.value);spawnFloatText(d.x,d.y,'+'+d.value+' ❤️','#ff4757');}
       spawnParticles(d.x,d.y,d.type==='gold'?'#ffd700':d.type==='xp'?'#7b2ff7':'#ff4757',6);
@@ -2873,6 +2891,7 @@ function getWaveConfig(wave){
 
 function startWave(){
   waveState='fighting';
+  SFX.waveStart();
   var waveDur=getWaveDuration(currentWave);
   waveTimer=waveDur*60;
   waveSpawnCount=0;waveSpawnTimer=0;waveEventSpawnTimer=0;
@@ -2955,6 +2974,7 @@ function updateWave(){
 }
 
 function onWaveEnd(){
+  SFX.waveClear();
   // 遗物效果：波次结束回血
   var waveHealBonus=player.waveEndHeal+CFG.healOnWave;
   if(waveHealBonus>0){
@@ -3163,7 +3183,8 @@ function closeEventAndShop(){
 function checkLevelUp(){
   while(player.xp>=player.xpToLvl&&player.level<30){
     player.xp-=player.xpToLvl;player.level++;
-    player.xpToLvl=Math.floor(player.xpToLvl*1.35); // 升级曲线更陡
+    player.xpToLvl=Math.floor(player.xpToLvl*1.35);
+    SFX.levelUp();
     openLevelUp();
   }
 }
@@ -3329,6 +3350,7 @@ function renderShop(){
         setTimeout(function(){el.classList.remove('cannot-buy');},500);
         showMsg('❌ 金币不足！需要 '+slot.price+'💰，当前 '+player.gold+'💰','bad');return;}
       player.gold-=slot.price;
+      SFX.purchase();
       if(slot.type==='weapon'){
         if(player.weapons.length<player.maxWeaponSlots){
           player.weapons.push({key:slot.key,cd:0,quality:slot.quality,level:0});
@@ -3364,6 +3386,7 @@ function renderShop(){
 
 document.getElementById('refreshBtn').addEventListener('click',function(){
   if(player.gold<3){showMsg('金币不足！','bad');return;}
+  SFX.sell();
   player.gold-=3;
   document.getElementById('shopGold').textContent=player.gold;
   generateShopSlots();renderShop();
@@ -3371,6 +3394,7 @@ document.getElementById('refreshBtn').addEventListener('click',function(){
 });
 
 document.getElementById('nextWaveBtn').addEventListener('click',function(){
+  SFX.confirm();
   document.getElementById('shopScreen').style.display='none';
   currentWave++;gameState='playing';
   canvas.focus();startWave();
@@ -4014,6 +4038,7 @@ function startGame(){
 
 function endGame(won){
   gameState='over';
+  if(won)SFX.victory(); else SFX.gameOver();
   document.getElementById('hud').style.display='none';
   document.getElementById('waveInfo').style.display='none';
   document.getElementById('killCount').style.display='none';
@@ -4105,6 +4130,7 @@ canvas.addEventListener('click',function(){canvas.focus()});
 
 // ========== 事件绑定 ==========
 document.getElementById('startBtn').addEventListener('click',function(){
+  SFX.confirm();
   document.getElementById('startScreen').style.display='none';
   document.getElementById('characterSelect').style.display='flex';
   gameState='characterSelect';
@@ -4112,6 +4138,7 @@ document.getElementById('startBtn').addEventListener('click',function(){
 });
 
 document.getElementById('restartBtn').addEventListener('click',function(){
+  SFX.confirm();
   document.getElementById('gameOverScreen').style.display='none';
   document.getElementById('startScreen').style.display='flex';
   gameState='start';
@@ -4121,16 +4148,19 @@ document.getElementById('restartBtn').addEventListener('click',function(){
 var prePauseState='playing';
 function pauseGame(){
   if(gameState!=='playing'&&gameState!=='event')return;
+  SFX.pause();
   prePauseState=gameState;
   gameState='paused';
   document.getElementById('pauseScreen').style.display='flex';
 }
 function resumeGame(){
   if(gameState!=='paused')return;
+  SFX.resume();
   gameState=prePauseState;
   document.getElementById('pauseScreen').style.display='none';
 }
 function quitToMenu(){
+  SFX.back();
   gameState='start';
   document.getElementById('pauseScreen').style.display='none';
   document.getElementById('hud').style.display='none';
@@ -4164,5 +4194,85 @@ for(var bi=0;bi<dbtns.length;bi++){
 
 gameLoop();
 </script>
+
+<!-- ========== 音效系统 ========== -->
+<script>
+var SFX=(function(){
+  var ctx=null;
+  function getCtx(){if(!ctx)ctx=new(window.AudioContext||window.webkitAudioContext)();return ctx;}
+  function resumeCtx(){var c=getCtx();if(c.state==='suspended')c.resume();}
+
+  // 合成音效：频率、时长、波形、包络
+  function tone(freq,dur,type,vol,attack,decay,slide){
+    var c=getCtx(),t=c.currentTime;
+    var o=c.createOscillator(),g=c.createGain();
+    o.type=type||'sine';
+    o.frequency.setValueAtTime(freq,t);
+    if(slide)o.frequency.linearRampToValueAtTime(slide,t+dur);
+    g.gain.setValueAtTime(0,t);
+    g.gain.linearRampToValueAtTime(vol||0.15,t+(attack||0.01));
+    g.gain.linearRampToValueAtTime(0,t+dur-(decay||0.05));
+    o.connect(g);g.connect(c.destination);
+    o.start(t);o.stop(t+dur);
+  }
+
+  // 噪音（用于打击感）
+  function noise(dur,vol){
+    var c=getCtx(),t=c.currentTime;
+    var buf=c.createBuffer(1,c.sampleRate*dur,c.sampleRate);
+    var data=buf.getChannelData(0);
+    for(var i=0;i<data.length;i++)data[i]=(Math.random()*2-1);
+    var src=c.createBufferSource();src.buffer=buf;
+    var g=c.createGain();
+    g.gain.setValueAtTime(vol||0.1,t);
+    g.gain.linearRampToValueAtTime(0,t+dur);
+    var f=c.createBiquadFilter();f.type='highpass';f.frequency.value=800;
+    src.connect(f);f.connect(g);g.connect(c.destination);
+    src.start(t);src.stop(t+dur);
+  }
+
+  return{
+    init:function(){resumeCtx();},
+    // --- UI ---
+    click:function(){resumeCtx();tone(800,0.08,'sine',0.12);tone(1200,0.06,'sine',0.08);},
+    hover:function(){resumeCtx();tone(600,0.04,'sine',0.05);},
+    back:function(){resumeCtx();tone(400,0.1,'sine',0.1);tone(300,0.12,'sine',0.08);},
+    confirm:function(){resumeCtx();tone(523,0.08,'sine',0.12);setTimeout(function(){tone(659,0.08,'sine',0.12);},80);setTimeout(function(){tone(784,0.12,'sine',0.15);},160);},
+    // --- 战斗 ---
+    hit:function(){resumeCtx();noise(0.06,0.08);tone(200,0.08,'square',0.06);},
+    crit:function(){resumeCtx();noise(0.08,0.12);tone(300,0.1,'square',0.1);tone(600,0.06,'sine',0.08);},
+    playerHit:function(){resumeCtx();noise(0.12,0.15);tone(150,0.15,'sawtooth',0.12);tone(100,0.2,'square',0.08);},
+    enemyDie:function(){resumeCtx();tone(400,0.1,'square',0.08);tone(200,0.15,'square',0.06,0.01,0.1,100);noise(0.08,0.06);},
+    // --- 武器 ---
+    fire_laser:function(){resumeCtx();tone(880,0.1,'sine',0.08,0.01,0.03,440);},
+    fire_spread:function(){resumeCtx();tone(440,0.08,'triangle',0.07);tone(550,0.06,'triangle',0.05);},
+    fire_melee:function(){resumeCtx();noise(0.1,0.12);tone(180,0.12,'sawtooth',0.1);},
+    fire_aoe:function(){resumeCtx();tone(220,0.2,'sine',0.1,0.01,0.1);noise(0.15,0.08);},
+    fire_heavy:function(){resumeCtx();tone(120,0.25,'square',0.1);noise(0.15,0.1);tone(80,0.3,'sawtooth',0.06);},
+    // --- 游戏事件 ---
+    waveStart:function(){resumeCtx();tone(330,0.15,'sine',0.1);setTimeout(function(){tone(440,0.15,'sine',0.12);},150);setTimeout(function(){tone(660,0.2,'sine',0.15);},300);},
+    waveClear:function(){resumeCtx();tone(523,0.12,'sine',0.1);setTimeout(function(){tone(659,0.12,'sine',0.1);},100);setTimeout(function(){tone(784,0.12,'sine',0.12);},200);setTimeout(function(){tone(1047,0.25,'sine',0.15);},300);},
+    levelUp:function(){resumeCtx();tone(440,0.1,'sine',0.12);setTimeout(function(){tone(554,0.1,'sine',0.12);},80);setTimeout(function(){tone(659,0.1,'sine',0.12);},160);setTimeout(function(){tone(880,0.2,'sine',0.15);},240);},
+    goldPickup:function(){resumeCtx();tone(1200,0.06,'sine',0.08);tone(1600,0.08,'sine',0.06);},
+    heal:function(){resumeCtx();tone(440,0.15,'sine',0.08);tone(660,0.2,'sine',0.1);tone(880,0.25,'sine',0.08);},
+    shield:function(){resumeCtx();tone(300,0.2,'triangle',0.1);tone(450,0.15,'triangle',0.08);},
+    eventTrigger:function(){resumeCtx();tone(600,0.1,'sine',0.1);tone(800,0.1,'sine',0.08);tone(1000,0.15,'sine',0.12);},
+    purchase:function(){resumeCtx();tone(800,0.06,'sine',0.1);tone(1000,0.08,'sine',0.08);tone(1200,0.1,'sine',0.1);},
+    sell:function(){resumeCtx();tone(600,0.08,'sine',0.08);tone(400,0.1,'sine',0.06);},
+    merge:function(){resumeCtx();tone(440,0.08,'sine',0.1);setTimeout(function(){tone(660,0.08,'sine',0.1);},60);setTimeout(function(){tone(880,0.08,'sine',0.1);},120);setTimeout(function(){tone(1100,0.15,'sine',0.12);},180);},
+    upgrade:function(){resumeCtx();tone(523,0.08,'sine',0.1);setTimeout(function(){tone(784,0.12,'sine',0.12);},100);},
+    pause:function(){resumeCtx();tone(400,0.12,'sine',0.08);tone(300,0.15,'sine',0.06);},
+    resume:function(){resumeCtx();tone(300,0.1,'sine',0.06);tone(500,0.12,'sine',0.08);},
+    gameOver:function(){resumeCtx();tone(440,0.3,'sawtooth',0.1);setTimeout(function(){tone(370,0.3,'sawtooth',0.1);},300);setTimeout(function(){tone(330,0.3,'sawtooth',0.1);},600);setTimeout(function(){tone(220,0.5,'sawtooth',0.12);},900);},
+    victory:function(){resumeCtx();[523,659,784,1047,784,1047].forEach(function(f,i){setTimeout(function(){tone(f,0.15,'sine',0.12);},i*120);});},
+    // --- 角色专属 ---
+    healPulse:function(){resumeCtx();tone(660,0.15,'sine',0.1);tone(880,0.2,'sine',0.08);},
+    ironWall:function(){resumeCtx();tone(200,0.2,'square',0.1);noise(0.1,0.08);tone(300,0.15,'triangle',0.08);},
+    summon:function(){resumeCtx();tone(330,0.1,'sine',0.08);tone(440,0.1,'sine',0.1);tone(660,0.15,'sine',0.08);},
+    charge:function(){resumeCtx();tone(400,0.3,'sine',0.06,0.01,0.1,800);}
+  };
+})();
+</script>
+<script src="../../assets/bgm.js"></script>
 </body>
 </html>
