@@ -1,0 +1,278 @@
+/* ================================================================
+   Game Banner — 暗黑赛博朋克风游戏入口横幅
+   ================================================================ */
+
+.game-banner {
+  position: relative;
+  width: 100%;
+  min-height: 420px;
+  background: #050510;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 107, 53, 0.2);
+  border-bottom: 1px solid rgba(123, 47, 247, 0.2);
+}
+
+/* 背景动效层 */
+.game-banner__bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 50%, rgba(255, 107, 53, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 60% at 80% 50%, rgba(123, 47, 247, 0.08) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 50% 80%, rgba(0, 212, 255, 0.05) 0%, transparent 60%);
+  animation: gameBgPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes gameBgPulse {
+  0% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+/* 网格线背景 */
+.game-banner__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  animation: gridScroll 20s linear infinite;
+}
+
+@keyframes gridScroll {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(60px); }
+}
+
+/* 扫描线效果 */
+.game-banner__scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.05) 2px,
+    rgba(0, 0, 0, 0.05) 4px
+  );
+  pointer-events: none;
+}
+
+/* 浮动光点粒子 */
+.game-banner__particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.game-banner__particle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  animation: particleFloat linear infinite;
+  opacity: 0;
+}
+
+.game-banner__particle:nth-child(1) { left: 10%; background: #ff6b35; animation-duration: 6s; animation-delay: 0s; }
+.game-banner__particle:nth-child(2) { left: 25%; background: #7b2ff7; animation-duration: 8s; animation-delay: 1s; }
+.game-banner__particle:nth-child(3) { left: 40%; background: #00d4ff; animation-duration: 7s; animation-delay: 2s; }
+.game-banner__particle:nth-child(4) { left: 55%; background: #ffd700; animation-duration: 9s; animation-delay: 0.5s; }
+.game-banner__particle:nth-child(5) { left: 70%; background: #ff6b35; animation-duration: 6.5s; animation-delay: 1.5s; }
+.game-banner__particle:nth-child(6) { left: 85%; background: #7b2ff7; animation-duration: 7.5s; animation-delay: 3s; }
+.game-banner__particle:nth-child(7) { left: 15%; background: #2ed573; animation-duration: 8.5s; animation-delay: 2.5s; }
+.game-banner__particle:nth-child(8) { left: 60%; background: #ff4757; animation-duration: 5.5s; animation-delay: 0.8s; }
+
+@keyframes particleFloat {
+  0% { bottom: -10px; opacity: 0; transform: translateX(0); }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  100% { bottom: 110%; opacity: 0; transform: translateX(30px); }
+}
+
+/* 内容区 */
+.game-banner__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 60px 24px;
+  max-width: 800px;
+}
+
+/* 土豆 emoji */
+.game-banner__emoji {
+  font-size: 4em;
+  margin-bottom: 16px;
+  filter: drop-shadow(0 0 30px rgba(255, 107, 53, 0.6));
+  animation: gameEmojiPulse 3s ease-in-out infinite;
+  display: inline-block;
+}
+
+@keyframes gameEmojiPulse {
+  0%, 100% { transform: scale(1) translateY(0); }
+  50% { transform: scale(1.1) translateY(-8px); }
+}
+
+/* 标题 */
+.game-banner__title {
+  font-size: 2.8em;
+  font-weight: 800;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #ff6b35, #f7c948, #ff6b35, #f7c948);
+  background-size: 300% 300%;
+  animation: gameGradientShift 4s ease infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 25px rgba(247, 201, 72, 0.4));
+}
+
+@keyframes gameGradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 副标题 */
+.game-banner__subtitle {
+  font-size: 1.1em;
+  color: rgba(170, 187, 204, 0.8);
+  margin-bottom: 28px;
+  letter-spacing: 3px;
+}
+
+/* 特性标签 */
+.game-banner__features {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.game-banner__feature {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 18px;
+  min-width: 100px;
+  backdrop-filter: blur(4px);
+  transition: all 0.3s ease;
+}
+
+.game-banner__feature:hover {
+  border-color: rgba(255, 215, 0, 0.3);
+  background: rgba(255, 215, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+.game-banner__feature-icon {
+  font-size: 1.5em;
+  margin-bottom: 4px;
+}
+
+.game-banner__feature-text {
+  color: #ccc;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.game-banner__feature-sub {
+  color: #666;
+  font-size: 0.75em;
+}
+
+/* CTA 按钮 */
+.game-banner__cta {
+  display: inline-block;
+  padding: 16px 48px;
+  font-size: 1.2em;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #1a1a2e;
+  background: linear-gradient(135deg, #ff6b35, #f7c948);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 40px rgba(247, 201, 72, 0.4);
+  animation: gameCtaGlow 2s ease-in-out infinite alternate;
+}
+
+.game-banner__cta:hover {
+  transform: scale(1.06);
+  box-shadow: 0 12px 50px rgba(247, 201, 72, 0.6);
+  filter: brightness(1.1);
+}
+
+@keyframes gameCtaGlow {
+  0% { box-shadow: 0 8px 40px rgba(247, 201, 72, 0.3); }
+  100% { box-shadow: 0 8px 60px rgba(247, 201, 72, 0.6); }
+}
+
+/* 操作提示 */
+.game-banner__controls {
+  margin-top: 20px;
+  color: rgba(102, 102, 102, 0.7);
+  font-size: 0.85em;
+  letter-spacing: 0.5px;
+}
+
+.game-banner__controls kbd {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: rgba(170, 187, 204, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-family: inherit;
+  font-size: 0.9em;
+}
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .game-banner {
+    min-height: 360px;
+  }
+  .game-banner__emoji {
+    font-size: 3em;
+  }
+  .game-banner__title {
+    font-size: 1.8em;
+  }
+  .game-banner__subtitle {
+    font-size: 0.9em;
+    letter-spacing: 1px;
+  }
+  .game-banner__features {
+    gap: 10px;
+  }
+  .game-banner__feature {
+    padding: 8px 12px;
+    min-width: 80px;
+  }
+  .game-banner__cta {
+    padding: 14px 36px;
+    font-size: 1.05em;
+  }
+}
+
+@media (max-width: 480px) {
+  .game-banner__title {
+    font-size: 1.5em;
+  }
+  .game-banner__features {
+    gap: 8px;
+  }
+  .game-banner__feature {
+    min-width: 70px;
+    padding: 6px 10px;
+  }
+  .game-banner__feature-text {
+    font-size: 0.75em;
+  }
+}

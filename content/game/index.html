@@ -1,0 +1,3384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deadline幸存者 · 土豆兄弟版</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050510;overflow:hidden;font-family:'Segoe UI','Microsoft YaHei',sans-serif;user-select:none}
+#gameContainer{position:relative;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center}
+canvas{border-radius:8px;border:1px solid rgba(100,150,255,0.15)}
+
+/* HUD */
+#hud{position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;gap:24px;z-index:5;align-items:center;background:rgba(10,15,30,0.85);padding:10px 24px;border-radius:12px;border:1px solid rgba(100,150,255,0.2);backdrop-filter:blur(8px)}
+.hud-item{text-align:center;color:#aab;font-size:0.8em}
+.hud-item .value{font-size:1.3em;font-weight:bold;color:#fff;text-shadow:0 0 10px rgba(255,255,255,0.3)}
+#hpBarWrap{width:180px;height:16px;background:rgba(255,255,255,0.08);border-radius:8px;overflow:hidden;position:relative;border:1px solid rgba(255,71,87,0.3)}
+#hpBar{height:100%;background:linear-gradient(90deg,#ff4757,#ff6b81,#ff4757);background-size:200% 100%;animation:hpShine 2s linear infinite;width:100%;transition:width 0.3s;border-radius:8px;box-shadow:0 0 10px rgba(255,71,87,0.5)}
+@keyframes hpShine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+#xpBarWrap{width:140px;height:10px;background:rgba(255,255,255,0.06);border-radius:5px;overflow:hidden;margin-top:4px;border:1px solid rgba(100,150,255,0.2)}
+#xpBar{height:100%;background:linear-gradient(90deg,#7b2ff7,#00d4ff,#7b2ff7);background-size:200% 100%;animation:xpShine 3s linear infinite;width:0%;transition:width 0.3s;border-radius:5px;box-shadow:0 0 8px rgba(100,150,255,0.4)}
+@keyframes xpShine{0%{background-position:200% 0}100%{background-position:-200% 0}}
+#waveInfo{position:absolute;top:12px;left:16px;z-index:5;color:#aab;font-size:0.85em;line-height:1.6;background:rgba(10,15,30,0.85);padding:10px 16px;border-radius:10px;border:1px solid rgba(255,215,0,0.2);backdrop-filter:blur(8px)}
+#waveInfo .wave-num{font-size:1.6em;font-weight:bold;color:#ffd700;text-shadow:0 0 15px rgba(255,215,0,0.5)}
+#weaponBar{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:5;background:rgba(10,15,30,0.85);padding:10px 16px;border-radius:12px;border:1px solid rgba(100,150,255,0.2);backdrop-filter:blur(8px)}
+.weapon-slot{width:52px;height:52px;background:rgba(255,255,255,0.05);border:2px solid rgba(255,255,255,0.15);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;position:relative;transition:all 0.2s}
+.weapon-slot.active{background:rgba(255,255,255,0.15);transform:scale(1.1)}
+.weapon-slot .cd-overlay{position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,rgba(0,0,0,0.8),rgba(0,0,0,0.4));border-radius:0 0 8px 8px;transition:height 0.05s}
+.weapon-slot .upgrade-stars{position:absolute;top:-4px;right:-4px;font-size:10px;background:rgba(255,215,0,0.9);border-radius:8px;padding:1px 3px;color:#1a1a2e;white-space:nowrap}
+#killCount{position:absolute;top:130px;right:16px;z-index:5;text-align:right;color:#aab;font-size:0.85em;background:rgba(10,15,30,0.85);padding:10px 16px;border-radius:10px;border:1px solid rgba(255,107,129,0.2);backdrop-filter:blur(8px)}
+#killCount .value{color:#ff6b81;font-size:1.3em;font-weight:bold;text-shadow:0 0 10px rgba(255,107,129,0.5)}
+
+/* 遗物栏 */
+#relicBar{position:absolute;top:80px;left:16px;z-index:5;display:flex;gap:6px;flex-wrap:wrap;max-width:200px}
+.relic-slot{width:24px;height:24px;background:rgba(10,15,30,0.85);border:1px solid rgba(123,47,247,0.3);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;cursor:help;transition:all 0.2s}
+.relic-slot:hover{border-color:#7b2ff7;transform:scale(1.1);box-shadow:0 0 10px rgba(123,47,247,0.5)}
+.buff-slot{background:rgba(10,15,30,0.85);border:1px solid rgba(255,215,0,0.3);border-radius:4px;padding:2px 4px;font-size:0.55em;color:#ffd700;display:inline-flex;align-items:center;gap:2px;cursor:help;transition:all 0.2s;white-space:nowrap}
+.buff-slot:hover{border-color:#ffd700;transform:scale(1.05);box-shadow:0 0 8px rgba(255,215,0,0.4)}
+
+/* 界面 */
+#startScreen,#gameOverScreen,#shopScreen,#levelUpScreen,#eventScreen,#characterSelect{position:absolute;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#e0e0e0;width:100%;height:100%;background:radial-gradient(ellipse at center,rgba(20,20,50,0.98),rgba(5,5,16,0.99))}
+#startScreen h1{font-size:3em;background:linear-gradient(135deg,#ff6b35,#f7c948,#ff6b35);background-size:200% 200%;animation:gradientShift 3s ease infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;filter:drop-shadow(0 0 20px rgba(247,201,72,0.4))}
+@keyframes gradientShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-30px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,20px)}}
+@keyframes float3{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,40px)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+@keyframes glow{from{box-shadow:0 8px 40px rgba(247,201,72,0.5)}to{box-shadow:0 8px 60px rgba(247,201,72,0.8)}}
+#startScreen .subtitle{font-size:1.1em;color:#889;margin-bottom:28px;letter-spacing:1px}
+.btn{padding:14px 40px;font-size:1.15em;border:none;border-radius:50px;cursor:pointer;transition:all 0.3s;margin:6px;font-weight:bold;letter-spacing:0.5px}
+.btn-primary{background:linear-gradient(135deg,#ff6b35,#f7c948);color:#1a1a2e;box-shadow:0 4px 20px rgba(247,201,72,0.4)}
+.btn-primary:hover{transform:scale(1.08);box-shadow:0 6px 30px rgba(247,201,72,0.6);filter:brightness(1.1)}
+.btn-primary:active{transform:scale(0.98)}
+.controls-hint{margin-top:22px;color:#667;font-size:0.85em;letter-spacing:0.5px}
+.controls-hint kbd{background:rgba(100,150,255,0.15);padding:3px 10px;border-radius:5px;color:#aab;border:1px solid rgba(100,150,255,0.2)}
+
+/* 角色选择 */
+#characterSelect{display:none}
+#characterSelect h2{font-size:2.2em;color:#ffd700;margin-bottom:20px}
+.char-grid{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:900px;margin-bottom:24px}
+.char-card{background:rgba(100,150,255,0.06);border:2px solid rgba(255,255,255,0.15);border-radius:14px;padding:16px 14px;cursor:pointer;transition:all 0.25s;width:140px;text-align:center}
+.char-card:hover{border-color:#ffd700;transform:translateY(-5px) scale(1.03);box-shadow:0 12px 30px rgba(255,215,0,0.3);background:rgba(255,215,0,0.08)}
+.char-card.selected{border-color:#ffd700;background:rgba(255,215,0,0.15);box-shadow:0 0 20px rgba(255,215,0,0.4)}
+.char-card .char-emoji{font-size:2.8em;margin-bottom:6px}
+.char-card .char-name{font-weight:bold;color:#fff;font-size:1em;margin-bottom:4px}
+.char-card .char-class{font-size:0.75em;color:#7b2ff7;margin-bottom:6px}
+.char-card .char-desc{font-size:0.7em;color:#aab;line-height:1.4}
+.char-card .char-stats{font-size:0.68em;color:#ffd700;margin-top:6px;line-height:1.5}
+#selectedCharInfo{background:rgba(100,150,255,0.1);border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:14px 20px;margin-bottom:20px;text-align:left;max-width:500px;font-size:0.88em;line-height:1.8}
+
+/* 难度选择 */
+.difficulty-select{display:flex;gap:12px;margin-bottom:22px}
+.diff-btn{padding:10px 22px;font-size:0.92em;border:1px solid rgba(100,150,255,0.25);border-radius:25px;background:transparent;color:#aab;cursor:pointer;transition:all 0.3s;letter-spacing:0.5px}
+.diff-btn.active,.diff-btn:hover{border-color:#f7c948;color:#f7c948;background:rgba(247,201,72,0.1);box-shadow:0 0 15px rgba(247,201,72,0.3)}
+
+/* 游戏结束 */
+#gameOverScreen,#shopScreen,#levelUpScreen,#eventScreen{display:none}
+#gameOverScreen h1{font-size:2.6em;margin-bottom:10px;filter:drop-shadow(0 0 15px currentColor)}
+#gameOverScreen.win h1{color:#2ed573}
+#gameOverScreen.lose h1{color:#ff4757}
+#finalStats{font-size:0.98em;color:#aab;line-height:2.2;margin:22px 0;background:rgba(100,150,255,0.08);padding:16px 32px;border-radius:12px;border:1px solid rgba(100,150,255,0.15)}
+#finalStats b{color:#fff;text-shadow:0 0 8px rgba(255,255,255,0.3)}
+
+/* 商店 */
+#shopScreen h2{font-size:2em;color:#ffd700;margin-bottom:10px;filter:drop-shadow(0 0 15px rgba(255,215,0,0.4))}
+#shopScreen .wave-info{color:#aab;margin-bottom:18px;font-size:0.98em}
+.shop-grid{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;max-width:750px;margin-bottom:24px}
+.shop-item{background:rgba(100,150,255,0.06);border:1px solid rgba(100,150,255,0.15);border-radius:12px;padding:14px 18px;cursor:pointer;transition:all 0.25s;width:170px;text-align:left}
+.shop-item:hover:not(.sold-out){border-color:#ffd700;background:rgba(255,215,0,0.08);transform:translateY(-3px);box-shadow:0 8px 25px rgba(255,215,0,0.2)}
+.shop-item.sold-out{opacity:0.3;cursor:not-allowed;filter:grayscale(0.8)}
+.shop-item.cannot-buy{animation:shake 0.4s ease-in-out;border-color:#ff4757!important;background:rgba(255,71,87,0.15)!important}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
+.shop-item .item-icon{font-size:1.8em;text-align:center;margin-bottom:6px}
+.shop-item .item-name{font-weight:bold;color:#fff;font-size:0.92em}
+.shop-item .item-desc{font-size:0.78em;color:#aab;margin-top:3px}
+.shop-item .item-price{color:#ffd700;font-size:0.88em;margin-top:6px;font-weight:bold}
+#goldDisplay{font-size:1.3em;color:#ffd700;margin-bottom:14px;transition:all 0.3s}
+#goldDisplay.gold-low{color:#ff4757;text-shadow:0 0 15px rgba(255,71,87,0.5);animation:pulseGold 1s infinite}
+@keyframes pulseGold{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+#goldDisplay b{font-size:1.5em;text-shadow:0 0 12px rgba(255,215,0,0.5)}
+.shop-key-hint{font-size:0.75em;color:#889;margin-top:10px}
+#shopSections{display:flex;flex-direction:column;gap:14px;max-width:780px;width:100%}
+.shop-section{background:rgba(100,150,255,0.04);border:1px solid rgba(100,150,255,0.12);border-radius:14px;padding:12px 14px}
+.shop-section-header{font-size:1.05em;font-weight:bold;margin-bottom:10px;text-shadow:0 0 10px currentColor;letter-spacing:1px}
+
+/* 升级选择 */
+#levelUpScreen h2{font-size:2em;color:#7b2ff7;margin-bottom:18px;filter:drop-shadow(0 0 15px rgba(123,47,247,0.4))}
+.choice-grid{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;max-width:700px}
+.choice-card{background:rgba(100,150,255,0.06);border:2px solid rgba(123,47,247,0.3);border-radius:14px;padding:18px 22px;cursor:pointer;transition:all 0.25s;width:190px;text-align:center;position:relative}
+.choice-card:hover{border-color:#7b2ff7;transform:translateY(-5px) scale(1.02);box-shadow:0 12px 30px rgba(123,47,247,0.4);background:rgba(123,47,247,0.1)}
+.choice-card .choice-key{position:absolute;top:8px;right:10px;font-size:0.8em;color:rgba(255,255,255,0.4);font-weight:bold}
+.choice-card .choice-icon{font-size:2.5em;margin-bottom:8px;filter:drop-shadow(0 0 8px rgba(255,255,255,0.3))}
+.choice-card .choice-name{font-weight:bold;color:#fff;font-size:1.05em}
+.choice-card .choice-desc{font-size:0.8em;color:#aab;margin-top:5px;line-height:1.5}
+.choice-card .choice-rarity{font-size:0.75em;margin-top:8px;font-weight:bold;padding:3px 10px;border-radius:12px;display:inline-block;letter-spacing:0.5px}
+
+/* 事件界面 */
+#eventScreen h2{font-size:2em;color:#ff6b35;margin-bottom:10px}
+#eventScreen .event-desc{color:#aab;margin-bottom:20px;max-width:500px;line-height:1.8}
+.event-choices{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.event-choice{background:rgba(100,150,255,0.06);border:2px solid rgba(255,107,53,0.3);border-radius:12px;padding:16px 20px;cursor:pointer;transition:all 0.25s;width:200px;text-align:center;position:relative}
+.event-choice:hover{border-color:#ff6b35;transform:translateY(-4px);box-shadow:0 8px 25px rgba(255,107,53,0.3);background:rgba(255,107,53,0.1)}
+.event-choice .event-key{position:absolute;top:6px;right:8px;font-size:0.75em;color:rgba(255,255,255,0.4);font-weight:bold}
+.event-choice .event-icon{font-size:2em;margin-bottom:6px}
+.event-choice .event-text{font-weight:bold;color:#fff;font-size:0.95em}
+.event-choice .event-result{font-size:0.78em;color:#aab;margin-top:4px}
+
+/* 合并提示 */
+.merge-hint{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(20,20,50,0.95);border:2px solid #ffd700;border-radius:16px;padding:24px 32px;z-index:30;text-align:center;color:#fff;display:none}
+.merge-hint h3{color:#ffd700;margin-bottom:10px}
+.merge-hint .merge-emoji{font-size:3em;margin:10px 0}
+</style>
+</head>
+<body>
+<div id="gameContainer">
+<canvas id="game" tabindex="0"></canvas>
+
+<div id="hud" style="display:none">
+  <div class="hud-item">
+    <div id="hpBarWrap"><div id="hpBar"></div></div>
+    <div id="xpBarWrap"><div id="xpBar"></div></div>
+    <div>HP / EXP</div>
+  </div>
+  <div class="hud-item"><div class="value" id="goldVal">0</div><div>金币</div></div>
+  <div class="hud-item"><div class="value" id="lvlVal">1</div><div>等级</div></div>
+</div>
+
+<div id="waveInfo" style="display:none">
+  <div class="wave-num">第 <span id="waveNum">1</span> 波</div>
+  <div id="enemyCount">剩余: 0</div>
+  <div id="timerDisplay">--</div>
+</div>
+
+<div id="relicBar" style="position:absolute;bottom:130px;left:50%;transform:translateX(-50%);z-index:5;display:flex;flex-direction:column;align-items:center;gap:4px;max-width:400px">
+  <div id="buffList" style="display:flex;flex-wrap:wrap;justify-content:center;gap:3px"></div>
+  <div id="relicList" style="display:flex;flex-wrap:wrap;justify-content:center;gap:3px"></div>
+</div>
+
+<div id="killCount" style="display:none">
+  <div class="value" id="killVal">0</div><div>击杀数</div>
+</div>
+
+<div id="weaponBar" style="display:none"></div>
+<div id="weaponInfo" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);z-index:5;color:#aab;font-size:0.8em;text-align:center;background:rgba(10,15,30,0.8);padding:4px 12px;border-radius:8px;border:1px solid rgba(100,150,255,0.15);display:none;white-space:nowrap">
+  <span id="weaponName">-</span> <span id="weaponUpgrade"></span> · <kbd style="background:rgba(100,150,255,0.15);padding:1px 5px;border-radius:3px">1-6</kbd> 切换 · <kbd style="background:rgba(255,71,87,0.2);padding:1px 5px;border-radius:3px;color:#ff6b81">Q</kbd> 卖 <span id="sellPrice">-</span>💰 · <kbd style="background:rgba(255,215,0,0.2);padding:1px 5px;border-radius:3px;color:#ffd700">E</kbd> 合并
+</div>
+
+<!-- 开始界面 -->
+<div id="startScreen" style="overflow:hidden">
+  <div style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none">
+    <div style="position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(255,107,53,0.15),transparent);border-radius:50%;top:10%;left:10%;animation:float1 8s ease-in-out infinite"></div>
+    <div style="position:absolute;width:400px;height:400px;background:radial-gradient(circle,rgba(123,47,247,0.12),transparent);border-radius:50%;top:60%;right:5%;animation:float2 10s ease-in-out infinite"></div>
+    <div style="position:absolute;width:250px;height:250px;background:radial-gradient(circle,rgba(0,212,255,0.1),transparent);border-radius:50%;bottom:20%;left:30%;animation:float3 7s ease-in-out infinite"></div>
+  </div>
+  <div style="position:relative;z-index:2;text-align:center">
+    <div style="font-size:4.5em;margin-bottom:10px;filter:drop-shadow(0 0 30px rgba(255,107,53,0.6));animation:pulse 2s ease-in-out infinite">🥔</div>
+    <h1 style="font-size:3.5em;background:linear-gradient(135deg,#ff6b35,#f7c948,#ff6b35,#f7c948);background-size:300% 300%;animation:gradientShift 4s ease infinite;-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px;filter:drop-shadow(0 0 25px rgba(247,201,72,0.5))">Deadline幸存者</h1>
+    <p style="font-size:1.3em;color:#aab;margin-bottom:30px;letter-spacing:3px;text-shadow:0 0 15px rgba(100,150,255,0.3)">🎮 肉鸽生存 × 学术地狱 × 无尽挑战</p>
+
+    <div style="display:flex;gap:20px;justify-content:center;margin-bottom:35px;flex-wrap:wrap">
+      <div style="background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.3);border-radius:12px;padding:14px 20px;min-width:120px;backdrop-filter:blur(5px)">
+        <div style="font-size:1.8em;margin-bottom:5px">⚔️</div>
+        <div style="color:#ff6b35;font-weight:bold;font-size:0.9em">13种武器</div>
+        <div style="color:#888;font-size:0.75em">自由组合</div>
+      </div>
+      <div style="background:rgba(123,47,247,0.1);border:1px solid rgba(123,47,247,0.3);border-radius:12px;padding:14px 20px;min-width:120px;backdrop-filter:blur(5px)">
+        <div style="font-size:1.8em;margin-bottom:5px">👥</div>
+        <div style="color:#7b2ff7;font-weight:bold;font-size:0.9em">10位角色</div>
+        <div style="color:#888;font-size:0.75em">独特技能</div>
+      </div>
+      <div style="background:rgba(0,212,255,0.1);border:1px solid rgba(0,212,255,0.3);border-radius:12px;padding:14px 20px;min-width:120px;backdrop-filter:blur(5px)">
+        <div style="font-size:1.8em;margin-bottom:5px">🌊</div>
+        <div style="color:#00d4ff;font-weight:bold;font-size:0.9em">12波挑战</div>
+        <div style="color:#888;font-size:0.75em">越来越难</div>
+      </div>
+    </div>
+
+    <div style="background:rgba(255,215,0,0.08);border:1px solid rgba(255,215,0,0.2);border-radius:16px;padding:20px 30px;margin-bottom:30px;max-width:420px;margin-left:auto;margin-right:auto;backdrop-filter:blur(8px)">
+      <div style="color:#ffd700;font-weight:bold;font-size:1.1em;margin-bottom:12px">🎯 核心玩法</div>
+      <div style="color:#ccc;font-size:0.9em;line-height:2;text-align:left">
+        <span style="color:#ff6b35">▸</span> 自动攻击，专注走位与策略<br>
+        <span style="color:#ff6b35">▸</span> 击杀敌人获取金币与经验<br>
+        <span style="color:#ff6b35">▸</span> 波间商店购买武器与道具<br>
+        <span style="color:#ff6b35">▸</span> 同种武器合并升级，威力暴增<br>
+        <span style="color:#ff6b35">▸</span> 随机事件与隐藏遗物等你发现
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="startBtn" style="font-size:1.4em;padding:18px 60px;box-shadow:0 8px 40px rgba(247,201,72,0.5);animation:glow 2s ease-in-out infinite alternate">🚀 开始游戏</button>
+
+    <div style="margin-top:25px;display:flex;gap:30px;justify-content:center;color:#666;font-size:0.85em">
+      <span>⌨️ WASD移动</span>
+      <span>🔢 1-6切换武器</span>
+      <span>❓ Q卖出 E合并</span>
+    </div>
+  </div>
+</div>
+
+<!-- 角色选择界面 -->
+<div id="characterSelect">
+  <h2>🎭 选择你的角色</h2>
+  <div id="selectedCharInfo">点击角色卡片查看详情</div>
+  <div class="char-grid" id="charGrid"></div>
+  <div class="difficulty-select">
+    <button class="diff-btn active" data-diff="easy">摸鱼难度</button>
+    <button class="diff-btn" data-diff="normal">正常难度</button>
+    <button class="diff-btn" data-diff="hard">卷王难度</button>
+  </div>
+  <button class="btn btn-primary" id="confirmCharBtn" disabled>确认选择</button>
+  <p class="controls-hint">每个角色有独特技能和初始武器，选择最适合你的风格</p>
+</div>
+
+<!-- 商店界面 -->
+<div id="shopScreen">
+  <h2>🛒 波间整备</h2>
+  <div class="wave-info" id="shopWaveInfo">第 1 波完成！准备迎接下一波...</div>
+  <div id="goldDisplay">💰 <b id="shopGold">0</b></div>
+  <div id="shopSections">
+    <div class="shop-section">
+      <div class="shop-section-header" style="color:#ff6b35">⚔️ 武器区</div>
+      <div class="shop-grid" id="shopWeaponGrid"></div>
+    </div>
+    <div class="shop-section">
+      <div class="shop-section-header" style="color:#2ed573">💊 增益区</div>
+      <div class="shop-grid" id="shopItemGrid"></div>
+    </div>
+    <div class="shop-section">
+      <div class="shop-section-header" style="color:#a55eea">🎁 遗物区</div>
+      <div class="shop-grid" id="shopRelicGrid"></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:12px;margin-top:8px">
+    <button class="btn btn-primary" id="refreshBtn" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);font-size:0.9em;padding:10px 24px">🔄 刷新 (3💰)</button>
+    <button class="btn btn-primary" id="nextWaveBtn" style="display:none">进入下一波 ▶</button>
+  </div>
+  <div class="shop-key-hint">按 <kbd style="background:rgba(255,215,0,0.2);padding:2px 6px;border-radius:3px;color:#ffd700">1-9</kbd> 购买对应物品 · <kbd style="background:rgba(100,150,255,0.15);padding:2px 6px;border-radius:3px">R</kbd> 刷新</div>
+</div>
+
+<!-- 升级选择界面 -->
+<div id="levelUpScreen">
+  <h2>⬆️ 升级！选择一项</h2>
+  <div class="choice-grid" id="choiceGrid"></div>
+  <p style="color:#889;margin-top:16px;font-size:0.85em">按 <kbd style="background:rgba(123,47,247,0.2);padding:2px 8px;border-radius:4px;color:#a29bfe">1/2/3</kbd> 快速选择</p>
+</div>
+
+<!-- 事件界面 -->
+<div id="eventScreen">
+  <h2 id="eventTitle">🎲 随机事件</h2>
+  <div class="event-desc" id="eventDesc"></div>
+  <div class="event-choices" id="eventChoices"></div>
+</div>
+
+<!-- 结束界面 -->
+<div id="gameOverScreen">
+  <h1 id="endTitle">游戏结束</h1>
+  <div id="finalStats"></div>
+  <button class="btn btn-primary" id="restartBtn">再来一局</button>
+</div>
+
+<!-- 合并提示 -->
+<div class="merge-hint" id="mergeHint">
+  <h3>✨ 武器合并！</h3>
+  <div class="merge-emoji" id="mergeEmoji"></div>
+  <div id="mergeResult"></div>
+</div>
+</div>
+
+<script>
+var canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+var MAP_W=4000,MAP_H=3000,camX=0,camY=0;
+
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+
+// ========== 角色定义 ==========
+var CHARACTERS=[
+  {id:'yousong',name:'林有崧',emoji:'🥔',class:'AI协同',
+   desc:'子弹命中后30%概率分裂追踪弹，堆攻速穿透覆盖全屏',
+   lore:'2025级硕士，精通摸鱼与赶DDL的平衡艺术',
+   stats:'HP+5% · 分裂追踪弹 · 初始武器：AI代笔+咖啡机枪',
+   hp:1.05,dmg:1,spd:1,def:1,crit:0.05,
+   startWeapons:['ai_pen','coffee_gun'],
+   passive:'AI协同：子弹命中30%分裂2枚追踪弹'},
+  {id:'zhiyuan',name:'林致远',emoji:'🔥',class:'连杀节奏',
+   desc:'每次击杀叠加攻速移速，断连3秒清空，保持连击越打越快',
+   lore:'安溪铁观音传人，嘴硬心软的宿舍团宠',
+   stats:'移速+15% · 连杀叠攻速 · 初始武器：摆烂冲撞+键盘敲击',
+   hp:0.9,dmg:0.95,spd:1.15,def:0.9,crit:0.08,
+   startWeapons:['shield_bash','keyboard'],
+   passive:'连杀节奏：击杀叠1层(最多10)，每层+5%攻速+3%移速'},
+  {id:'weijie',name:'黄玮杰',emoji:'🤝',class:'领域控制',
+   desc:'每5秒生成减速区域，敌人在区域内减速40%+持续受伤',
+   lore:'莆田籍话痨，乒乓球搭档，"有崧"是他最高频的词',
+   stats:'AOE伤害+20% · 领域减速区 · 初始武器：拖延力场+老师批注',
+   hp:0.95,dmg:1.1,spd:0.95,def:1.05,crit:0.06,
+   startWeapons:['procrastination','teacher_note'],
+   passive:'领域控制：每5秒生成120范围减速区域，持续3秒'},
+  {id:'wuyu',name:'吴禹',emoji:'🎯',class:'蓄力暴击',
+   desc:'不攻击时积攒蓄力，蓄满后下一次攻击暴击伤害+100%',
+   lore:'福州美食活地图，"不赖"是他的人生信条',
+   stats:'暴击+10% · 蓄力暴击 · 初始武器：参考文献+导师来电',
+   hp:0.85,dmg:1.15,spd:1,def:0.85,crit:0.15,
+   startWeapons:['reference','advisor_call'],
+   passive:'赌命一击：停止攻击2秒后蓄力，暴击伤害最高+200%'},
+  {id:'zhihui',name:'郑志辉',emoji:'🛡️',class:'站桩反击',
+   desc:'静止1.5秒获得铁壁：减伤50%+反弹30%伤害，移动后保留2秒',
+   lore:'沉稳的福安人，506宿舍的定海神针',
+   stats:'HP+15% · 铁壁站桩 · 初始武器：摆烂冲撞+佛系波动',
+   hp:1.15,dmg:0.9,spd:0.9,def:1.3,crit:0.04,
+   startWeapons:['shield_bash','chill_wave'],
+   passive:'不动如山：静止1.5秒获铁壁，减伤50%+反弹30%伤害'},
+  {id:'bin',name:'黄斌',emoji:'💰',class:'资本运作',
+   desc:'每波结束金币的15%变利息，商店折扣20%+每波免费刷新',
+   lore:'仙游农村出身，当兵两年的币圈信仰者',
+   stats:'金币+25% · 15%利息 · 初始武器：论文初稿+开题报告',
+   hp:1,dmg:1,spd:1,def:1,crit:0.05,
+   startWeapons:['thesis_draft','opening_report'],
+   passive:'资本运作：每波结束获得当前金币15%利息'},
+  {id:'dana',name:'阿依达娜',emoji:'🌸',class:'受伤治疗',
+   desc:'受伤5次释放治愈脉冲，累计15次触发好滴好滴：伤害转治疗',
+   lore:'新疆伊犁的可爱师妹，"好滴好滴"是她的口头禅',
+   stats:'回复+100% · 治疗脉冲 · 初始武器：咖啡机枪+老师批注',
+   hp:1.1,dmg:0.95,spd:1,def:1,crit:0.05,
+   startWeapons:['coffee_gun','teacher_note'],
+   passive:'温暖治愈：受伤5次脉冲回5%HP，15次触发伤害转治疗'},
+  {id:'xue',name:'陈雪',emoji:'⚡',class:'斩杀收割',
+   desc:'血量低于30%的敌人受到双倍伤害，击杀后重置所有武器CD',
+   lore:'读研前上过班的老练女生，"赶紧打车别逼逼"',
+   stats:'伤害+15% · 斩杀双倍 · 初始武器：文献轰炸+答辩PPT',
+   hp:0.9,dmg:1.2,spd:0.95,def:0.9,crit:0.07,
+   startWeapons:['literature_bomb','defense_ppt'],
+   passive:'斩杀时刻：敌人血量<30%时双倍伤害，击杀重置武器CD'},
+  {id:'yuhui',name:'黄钰',emoji:'💫',class:'弹幕风暴',
+   desc:'击杀敌人后从尸体发射6枚扩散弹，武器槽上限提升到8',
+   lore:'漳州温柔师姐，团队里的组织协调担当',
+   stats:'弹幕+2 · 击杀扩散 · 初始武器：开题报告+论文初稿',
+   hp:1,dmg:1,spd:1,def:1,crit:0.05,
+   startWeapons:['opening_report','thesis_draft'],
+   passive:'弹幕风暴：击杀后发射6枚扩散弹，武器槽上限+2'},
+  {id:'linlaoshi',name:'林伟明',emoji:'👔',class:'助教军团',
+   desc:'15秒召唤助教，最多3个，助教死亡爆炸造成范围伤害',
+   lore:'导师，"辛苦啦"是他最爱说的话',
+   stats:'助教15秒CD · 最多3个 · 初始武器：导师来电+老师批注',
+   hp:1,dmg:0.9,spd:0.95,def:1.1,crit:0.04,
+   startWeapons:['advisor_call','teacher_note'],
+   passive:'助教军团：15秒召唤助教，助教死亡爆炸AOE伤害'}
+];
+
+var selectedChar=null;
+
+// ========== 配置 ==========
+var DIFF_CONFIG={
+  easy:{playerHP:1.15,dmgMult:1.2,enemyHP:0.8,enemySpd:0.8,goldMult:0.8,xpMult:1.2},
+  normal:{playerHP:1,dmgMult:1,enemyHP:1,enemySpd:1,goldMult:0.6,xpMult:1},
+  hard:{playerHP:0.85,dmgMult:0.8,enemyHP:1.3,enemySpd:1.2,goldMult:0.5,xpMult:0.8}
+};
+var diff='easy',CFG=DIFF_CONFIG[diff];
+
+// 敌人类型
+var ENEMY_TYPES=[
+  {emoji:'📱',name:'抖音',hp:30,speed:2.8,damage:5,radius:7,color:'#ff4757',xp:3,gold:1},
+  {emoji:'😤',name:'导师催促',hp:60,speed:2.2,damage:10,radius:10,color:'#eb4d4b',xp:6,gold:2},
+  {emoji:'📋',name:'组会通知',hp:40,speed:3.2,damage:6,radius:8,color:'#e17055',xp:4,gold:1},
+  {emoji:'💀',name:'DDL',hp:80,speed:1.8,damage:15,radius:12,color:'#c0392b',xp:10,gold:4},
+  {emoji:'📝',name:'改稿要求',hp:50,speed:2.6,damage:8,radius:9,color:'#fd9644',xp:5,gold:2},
+  {emoji:'😰',name:'社恐发作',hp:24,speed:4.0,damage:4,radius:6,color:'#a55eea',xp:2,gold:1},
+  {emoji:'👥',name:'同辈压力',hp:70,speed:2.4,damage:12,radius:11,color:'#6c5ce7',xp:8,gold:3},
+  {emoji:'🌙',name:'熬夜秃头',hp:100,speed:1.6,damage:18,radius:15,color:'#2d3436',xp:12,gold:5,boss:true},
+  {emoji:'🔥',name:'退学警告',hp:160,speed:1.3,damage:25,radius:18,color:'#d63031',xp:25,gold:12,boss:true},
+  {emoji:'🎓',name:'盲审不通过',hp:240,speed:1.0,damage:35,radius:22,color:'#111',xp:50,gold:25,boss:true}
+];
+
+// 武器定义（带升级倍率）
+var WEAPON_DEFS={
+  ai_pen:{name:'AI代笔',emoji:'🤖',type:'projectile',baseDmg:12,speed:12,rate:16,range:380,pierce:1,color:'#00d4ff',maxLv:8},
+  coffee_gun:{name:'咖啡机枪',emoji:'☕',type:'projectile',baseDmg:4,speed:16,rate:4,range:300,pierce:0,color:'#d4a574',maxLv:8},
+  shield_bash:{name:'摆烂冲撞',emoji:'🛡️',type:'melee',baseDmg:35,rate:35,range:130,color:'#2ed573',maxLv:8},
+  procrastination:{name:'拖延力场',emoji:'⏰',type:'aoe',baseDmg:6,rate:28,range:110,color:'#ffa502',maxLv:8},
+  literature_bomb:{name:'文献轰炸',emoji:'📚',type:'projectile',baseDmg:22,speed:6,rate:50,range:380,pierce:1,explode:true,color:'#7b2ff7',maxLv:8},
+  chill_wave:{name:'佛系波动',emoji:'🧘',type:'aoe',baseDmg:8,rate:45,range:150,color:'#74b9ff',maxLv:8},
+  thesis_draft:{name:'论文初稿',emoji:'📄',type:'projectile',baseDmg:4,speed:18,rate:4,range:320,pierce:0,color:'#e0e0e0',maxLv:8},
+  defense_ppt:{name:'答辩PPT',emoji:'📊',type:'projectile',baseDmg:6,speed:12,rate:18,range:320,pierce:0,color:'#ff9f43',maxLv:8},
+  opening_report:{name:'开题报告',emoji:'📋',type:'projectile',baseDmg:10,speed:8,rate:35,range:340,pierce:0,ring:true,color:'#a55eea',maxLv:8},
+  teacher_note:{name:'老师批注',emoji:'✏️',type:'aoe',baseDmg:5,rate:22,range:130,color:'#ffeaa7',maxLv:8},
+  reference:{name:'参考文献',emoji:'📑',type:'projectile',baseDmg:25,speed:5,rate:48,range:420,pierce:3,color:'#00cec9',maxLv:8},
+  keyboard:{name:'键盘敲击',emoji:'⌨️',type:'projectile',baseDmg:4,speed:15,rate:5,range:300,pierce:0,color:'#dfe6e9',maxLv:8},
+  advisor_call:{name:'导师来电',emoji:'📞',type:'projectile',baseDmg:18,speed:10,rate:30,range:380,pierce:1,color:'#fdcb6e',maxLv:8}
+};
+
+// 武器升级属性倍率
+var WEAPON_UPGRADE_MULT=[1,1.3,1.65,2.1,2.65,3.3,4.1,5.0,6.0];
+var WEAPON_UPGRADE_NAMES=['+0','+1','+2','+3','+4','+5','+6','+7','MAX'];
+
+var QUALITY_MULT={common:1,uncommon:1.25,rare:1.6,epic:2,legendary:2.5};
+var QUALITY_NAME={common:'普通',uncommon:'优良',rare:'稀有',epic:'史诗',legendary:'传说'};
+var QUALITY_COLOR={common:'#aaa',uncommon:'#2ed573',rare:'#0984e3',epic:'#6c5ce7',legendary:'#ffd700'};
+
+// 遗物系统
+var RELIC_POOL=[
+  {id:'relic_clock',name:'拖延者的怀表',emoji:'⏰',desc:'每波开始获得3秒无敌',quality:'uncommon',apply:function(s){s.waveStartInvincible=180}},
+  {id:'relic_coffee',name:'续命咖啡杯',emoji:'☕',desc:'每波结束回复20%HP',quality:'common',apply:function(s){s.waveEndHeal=0.2}},
+  {id:'relic_book',name:'幸运论文',emoji:'📄',desc:'金币获取+30%',quality:'uncommon',apply:function(s){s.goldMult=(s.goldMult||1)+0.3}},
+  {id:'relic_glasses',name:'导师的眼镜',emoji:'👓',desc:'射程+25%',quality:'rare',apply:function(s){s.rangeMult+=0.25}},
+  {id:'relic_shield',name:'摆烂盾牌',emoji:'🛡️',desc:'护甲+5',quality:'uncommon',apply:function(s){s.armor+=5}},
+  {id:'relic_magnet',name:'经验磁铁',emoji:'🧲',desc:'经验获取+50%',quality:'rare',apply:function(s){s.xpMult=(s.xpMult||1)+0.5}},
+  {id:'relic_ring',name:'吸血戒指',emoji:'💍',desc:'造成伤害回复5%生命',quality:'epic',apply:function(s){s.lifesteal+=0.05}},
+  {id:'relic_crown',name:'学霸光环',emoji:'👑',desc:'全属性+10%',quality:'legendary',apply:function(s){s.dmgMult+=0.1;s.atkSpdMult+=0.1;s.maxHp=Math.floor(s.maxHp*1.1);s.hp=Math.floor(s.hp*1.1);s.speed+=0.3}}
+];
+
+// 道具池
+var ITEM_POOL=[
+  {id:'item_coffee',name:'速溶咖啡',emoji:'☕',price:12,quality:'common',desc:'攻击速度 +10%',apply:function(s){s.atkSpdMult+=0.1}},
+  {id:'item_book',name:'学术期刊',emoji:'📖',price:14,quality:'common',desc:'武器射程 +15%',apply:function(s){s.rangeMult+=0.15}},
+  {id:'item_shoes',name:'运动鞋',emoji:'👟',price:10,quality:'common',desc:'移动速度 +0.5',apply:function(s){s.speed+=0.5}},
+  {id:'item_vitamins',name:'维生素',emoji:'💊',price:12,quality:'common',desc:'最大生命 +15',apply:function(s){s.maxHp+=15;s.hp+=15}},
+  {id:'item_gloves',name:'拳击手套',emoji:'🥊',price:20,quality:'uncommon',desc:'全伤害 +20%',apply:function(s){s.dmgMult+=0.2}},
+  {id:'item_magnet',name:'经验磁铁',emoji:'🧲',price:20,quality:'uncommon',desc:'经验获取 +25%',apply:function(s){s.xpMult=(s.xpMult||1)+0.25}},
+  {id:'itemArmor',name:'学术护甲',emoji:'🛡️',price:20,quality:'uncommon',desc:'护甲 +4',apply:function(s){s.armor+=4}},
+  {id:'item_crit',name:'暴击眼镜',emoji:'👓',price:24,quality:'uncommon',desc:'暴击率 +8%',apply:function(s){s.critChance+=0.08}},
+  {id:'item_lifesteal',name:'吸血戒指',emoji:'💍',price:30,quality:'rare',desc:'造成伤害回复 4% 生命',apply:function(s){s.lifesteal+=0.04}},
+  {id:'item_regen',name:'养生茶',emoji:'🍵',price:28,quality:'rare',desc:'每秒回复 1.5 生命',apply:function(s){s.regen+=1.5}},
+  {id:'item_pierce',name:'穿甲弹',emoji:'🔩',price:28,quality:'rare',desc:'子弹穿透 +1',apply:function(s){s.pierceBonus+=1}},
+  {id:'item_mega',name:'学霸光环',emoji:'🌟',price:44,quality:'epic',desc:'伤害 +40% 且攻速 +20%',apply:function(s){s.dmgMult+=0.4;s.atkSpdMult+=0.2}},
+  {id:'item_god',name:'天选之人',emoji:'👑',price:60,quality:'legendary',desc:'最大生命 +100 且护甲 +8',apply:function(s){s.maxHp+=100;s.hp+=100;s.armor+=8}}
+];
+
+// 升级属性池
+var STAT_UPGRADES=[
+  {id:'hp',name:'生命强化',emoji:'❤️',desc:'+12 最大生命',quality:'common',apply:function(s){s.maxHp+=12;s.hp+=12}},
+  {id:'dmg',name:'伤害强化',emoji:'⚔️',desc:'+10% 伤害',quality:'common',apply:function(s){s.dmgMult+=0.1}},
+  {id:'spd',name:'移速强化',emoji:'💨',desc:'+0.3 移速',quality:'common',apply:function(s){s.speed+=0.3}},
+  {id:'atk',name:'攻速强化',emoji:'⚡',desc:'+8% 攻速',quality:'common',apply:function(s){s.atkSpdMult+=0.08}},
+  {id:'armor',name:'护甲强化',emoji:'🛡️',desc:'+2 护甲',quality:'common',apply:function(s){s.armor+=2}},
+  {id:'crit',name:'暴击强化',emoji:'💥',desc:'+5% 暴击',quality:'common',apply:function(s){s.critChance+=0.05}},
+  {id:'regen',name:'恢复强化',emoji:'💚',desc:'+1 生命/秒',quality:'common',apply:function(s){s.regen+=1}},
+  {id:'pierce',name:'穿透强化',emoji:'📍',desc:'+1 穿透',quality:'uncommon',apply:function(s){s.pierceBonus+=1}},
+  {id:'range',name:'射程强化',emoji:'👁️',desc:'+12% 射程',quality:'uncommon',apply:function(s){s.rangeMult+=0.12}},
+  {id:'steal',name:'窃取强化',emoji:'🩸',desc:'+3% 生命窃取',quality:'uncommon',apply:function(s){s.lifesteal+=0.03}},
+  {id:'multi',name:'多重射击',emoji:'🎯',desc:'+1 发弹幕',quality:'rare',apply:function(s){s.multiShot+=1}},
+  {id:'kb',name:'击退强化',emoji:'💫',desc:'+30% 击退',quality:'rare',apply:function(s){s.knockbackBonus+=0.3}},
+  {id:'thorns',name:'荆棘反伤',emoji:'🌹',desc:'+5% 反伤',quality:'rare',apply:function(s){s.thorns+=0.05}},
+  {id:'magnet',name:'经验磁铁',emoji:'🧲',desc:'+60 吸取范围',quality:'rare',apply:function(s){s.magnetRange+=60}}
+];
+
+// 多步骤随机事件池 - 基于角色设定的校园故事
+function getStoryEvents(){
+  var charId=selectedChar?selectedChar.id:'yousong';
+  var events=[];
+
+  // ===== 通用事件 =====
+  events.push({id:'story_group_meeting',title:'📋 组会风云',stages:[
+      {desc:'导师林伟明突然在群里发："明天上午组会，每人汇报10分钟"。现在是晚上11点...',choices:[
+        {text:'通宵赶PPT',icon:'💻'},
+        {text:'随便做做',icon:'📄'},
+        {text:'找黄钰帮忙',icon:'👩‍🎓'}
+      ]},
+      {desc:'组会当天，黄钰师姐先汇报了，条理清晰...',choices:[
+        {text:'认真学习',icon:'📝'},
+        {text:'临时抱佛脚',icon:'😰'},
+        {text:'装网络卡了',icon:'📶'}
+      ]},
+      {desc:'轮到你了...',choices:[
+        {text:'硬着头皮讲',icon:'🎤'},
+        {text:'甩锅给技术问题',icon:'💻'},
+        {text:'承认还在研究',icon:'🙏'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'卷王之王',desc:'导师："辛苦啦，做得不错！"',effect:function(){player.dmgMult+=0.12;player.atkSpdMult+=0.08;}},
+      {pattern:'0,0,2',name:'真诚无敌',desc:'你的诚恳打动了导师',effect:function(){player.maxHp+=20;player.regen+=1;}},
+      {pattern:'0,1,0',name:'临场发挥',desc:'虽然准备不足但口才不错',effect:function(){player.critChance+=0.1;player.gold+=15;}},
+      {pattern:'1,0,1',name:'借力打力',desc:'你巧妙地转移了话题',effect:function(){player.gold+=20;player.speed+=0.2;}},
+      {pattern:'1,1,2',name:'佛系应对',desc:'导师叹了口气但没说什么',effect:function(){player.armor+=2;player.regen+=1;}},
+      {pattern:'2,0,0',name:'甩锅大师',desc:'技术问题永远是最好的借口',effect:function(){player.critChance+=0.08;player.dmgMult+=0.06;}},
+      {pattern:'2,2,2',name:'社交达人',desc:'虽然没准备但人缘好',effect:function(){player.gold+=18;player.xpMult+=0.08;}}
+    ]}
+  );
+
+  // 深夜食堂
+  events.push({id:'story_night_food',title:'🍜 深夜食堂',stages:[
+    {desc:'凌晨1点，你饿得睡不着。黄玮杰说东门夜市有家烧烤摊...',choices:[
+      {text:'冲！',icon:'🏃'},
+      {text:'太远了算了',icon:'🛏️'},
+      {text:'泡面解决',icon:'🍜'}
+    ]},
+    {desc:'到了夜市，发现吴禹也在，他说"这家绝对绝"...',choices:[
+      {text:'听他推荐',icon:'👂'},
+      {text:'自己选',icon:'🤔'},
+      {text:'都来一份',icon:'💰'}
+    ]},
+    {desc:'烧烤上来了，很香...',choices:[
+      {text:'狼吞虎咽',icon:'😋'},
+      {text:'拍照发群',icon:'📱'},
+      {text:'边吃边聊',icon:'💬'}
+    ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'深夜吃货',desc:'美食治愈了一切！',effect:function(){player.maxHp+=50;player.hp+=30;player.regen+=2;}},
+    {pattern:'0,0,2',name:'社交之夜',desc:'你们聊了很多心里话',effect:function(){player.gold+=30;player.regen+=2.5;}},
+    {pattern:'0,1,0',name:'吴禹推荐',desc:'他说的没错，这家真的绝！',effect:function(){player.dmgMult+=0.2;player.critChance+=0.15;}},
+    {pattern:'1,0,0',name:'省钱达人',desc:'你省下了夜宵钱',effect:function(){player.gold+=25;player.armor+=2;}},
+    {pattern:'1,1,1',name:'泡面哲学',desc:'有时候简单才是最好的',effect:function(){player.regen+=2;player.speed+=0.3;}},
+    {pattern:'2,0,1',name:'土豪吃法',desc:'你们吃撑了',effect:function(){player.maxHp+=40;player.atkSpdMult+=0.1;}}
+  ]});
+
+  // 506宿舍之夜
+  events.push({id:'story_506_night',title:'🌙 506宿舍之夜',stages:[
+    {desc:'晚上10点，506宿舍四人都在。林致远突然说："来打CS！"...',choices:[
+      {text:'加入战斗',icon:'🎮'},
+      {text:'写论文',icon:'💻'},
+      {text:'旁观',icon:'👀'}
+    ]},
+    {desc:'打了两小时，郑志辉突然上线了...',choices:[
+      {text:'拉他组队',icon:'🤝'},
+      {text:'问他怎么来了',icon:'❓'},
+      {text:'继续打',icon:'🎮'}
+    ]},
+    {desc:'最后...',choices:[
+      {text:'通宵到天亮',icon:'🌅'},
+      {text:'各自睡觉',icon:'😴'},
+      {text:'出去吃早餐',icon:'🍳'}
+    ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'游戏之王',desc:'你们五黑连胜！',effect:function(){player.dmgMult+=0.2;player.speed+=0.4;}},
+    {pattern:'0,0,2',name:'早餐时光',desc:'清晨的粥特别暖',effect:function(){player.maxHp+=40;player.regen+=3;}},
+    {pattern:'0,1,0',name:'兄弟情深',desc:'"阿辉又来了！"志辉说"难得回来"',effect:function(){player.gold+=25;player.maxHp+=30;}},
+    {pattern:'1,0,0',name:'学霸模式',desc:'你趁他们打游戏写完了论文',effect:function(){player.xpMult+=0.3;player.gold+=20;}},
+    {pattern:'1,1,1',name:'佛系观战',desc:'看他们打也很有趣',effect:function(){player.regen+=2;player.armor+=2;}},
+    {pattern:'2,0,1',name:'志辉回归',desc:'你们像以前一样默契配合',effect:function(){player.critChance+=0.15;player.atkSpdMult+=0.15;}}
+  ]});
+
+  // 围攻林少请客
+  events.push({id:'story_treat',title:'💰 围攻林少',stages:[
+    {desc:'林致远发了工资（导师发了项目报酬），群里瞬间炸了...',choices:[
+      {text:'带头起哄',icon:'📢'},
+      {text:'默默围观',icon:'👀'},
+      {text:'替他解围',icon:'🤝'}
+    ]},
+    {desc:'林致远开始推脱："要钱没有要命一条"...',choices:[
+      {text:'继续围攻',icon:'😤'},
+      {text:'他说得得得就放过他',icon:'😂'},
+      {text:'建议AA',icon:'💰'}
+    ]},
+    {desc:'最终...',choices:[
+      {text:'他请了海底捞',icon:'🍲'},
+      {text:'大家AA',icon:'💸'},
+      {text:'他请了奶茶',icon:'🧋'}
+    ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'围攻大师',desc:'林致远："得得得，这次就放过你们"',effect:function(){player.gold+=40;player.dmgMult+=0.1;}},
+    {pattern:'0,0,2',name:'AA之魂',desc:'公平公正，皆大欢喜',effect:function(){player.gold+=30;player.xpMult+=0.15;}},
+    {pattern:'0,1,0',name:'适可而止',desc:'你知道他其实很大方',effect:function(){player.gold+=25;player.regen+=2;}},
+    {pattern:'1,0,0',name:'围观群众',desc:'你看戏看得很开心',effect:function(){player.critChance+=0.15;player.speed+=0.3;}},
+    {pattern:'1,1,1',name:'和谐宿舍',desc:'最后他还是请了',effect:function(){player.gold+=35;player.maxHp+=20;}},
+    {pattern:'2,0,1',name:'暖心调解',desc:'你提议AA，他很感激',effect:function(){player.gold+=20;player.regen+=2.5;}}
+  ]});
+
+  // ===== 角色专属事件 =====
+
+  // 林有崧专属：AI代笔
+  if(charId==='yousong'){
+    events.push({id:'story_yousong_ai',title:'🤖 林有崧的AI魔法',stages:[
+      {desc:'你用Claude Code半小时写完了小组作业，黄玮杰看到后目瞪口呆...',choices:[
+        {text:'教他用AI',icon:'📖'},
+        {text:'保密',icon:'🤫'},
+        {text:'说是自己写的',icon:'😏'}
+      ]},
+      {desc:'结果作业被老师表扬了，黄玮杰在群里说"有崧效率就是高"...',choices:[
+        {text:'谦虚回应',icon:'🙏'},
+        {text:'顺势装逼',icon:'😎'},
+        {text:'转移话题',icon:'🔄'}
+      ]},
+      {desc:'陈雪找你帮忙研究买电脑型号...',choices:[
+        {text:'认真帮她选',icon:'💻'},
+        {text:'推荐最贵的',icon:'💰'},
+        {text:'让她自己选',icon:'🤷'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'技术大佬',desc:'你的AI技能震惊全场！',effect:function(){player.dmgMult+=0.3;player.xpMult+=0.2;}},
+      {pattern:'0,0,2',name:'贴心暖男',desc:'你帮她选了性价比最高的',effect:function(){player.gold+=25;player.regen+=2.5;}},
+      {pattern:'0,1,0',name:'低调学霸',desc:'你保持了神秘感',effect:function(){player.critChance+=0.2;player.armor+=2;}},
+      {pattern:'1,0,0',name:'分享精神',desc:'你教会了黄玮杰用AI',effect:function(){player.gold+=30;player.atkSpdMult+=0.15;}},
+      {pattern:'1,1,1',name:'隐形大佬',desc:'朋友们都很佩服你',effect:function(){player.dmgMult+=0.2;player.speed+=0.3;player.maxHp+=20;}},
+      {pattern:'2,0,1',name:'佛系技术',desc:'技术只是工具，重要的是人',effect:function(){player.regen+=2;player.gold+=20;}}
+    ]});
+  }
+
+  // 林致远专属：铁观音+口头禅
+  if(charId==='zhiyuan'){
+    events.push({id:'story_zhiyuan_tea',title:'🍵 致远的安溪铁观音',stages:[
+      {desc:'你从安溪老家带来了正宗铁观音，准备泡给室友们喝...',choices:[
+        {text:'认真泡茶',icon:'🍵'},
+        {text:'随便泡泡',icon:'🚰'},
+        {text:'先自己喝',icon:'😋'}
+      ]},
+      {desc:'黄玮杰闻到茶香跑过来了...',choices:[
+        {text:'分他一杯',icon:'🍵'},
+        {text:'让他等着',icon:'⏳'},
+        {text:'说没了',icon:'🚫'}
+      ]},
+      {desc:'喝茶时，他开始疯狂说话...',choices:[
+        {text:'耐心听',icon:'👂'},
+        {text:'戴上耳机',icon:'🎧'},
+        {text:'转移话题',icon:'🔄'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'茶道高手',desc:'你的泡茶技术让所有人惊叹！',effect:function(){player.dmgMult+=0.3;player.speed+=0.3;}},
+      {pattern:'0,0,2',name:'话题终结者',desc:'你成功让他闭嘴了',effect:function(){player.critChance+=0.25;player.gold+=25;}},
+      {pattern:'0,1,0',name:'社交达人',desc:'你们聊得很开心',effect:function(){player.gold+=30;player.regen+=2;}},
+      {pattern:'1,0,0',name:'随性洒脱',desc:'你不在乎这些细节',effect:function(){player.speed+=0.5;player.armor+=2;}},
+      {pattern:'1,1,1',name:'佛系生活',desc:'一切随缘',effect:function(){player.regen+=2.5;player.maxHp+=30;}},
+      {pattern:'2,0,1',name:'独享时光',desc:'安静喝茶也很美好',effect:function(){player.xpMult+=0.2;player.atkSpdMult+=0.1;}}
+    ]});
+  }
+
+  // 黄玮杰专属：乒乓球+洛克王国
+  if(charId==='weijie'){
+    events.push({id:'story_weijie_ping',title:'🏓 玮杰的乒乓日常',stages:[
+      {desc:'你约林有崧去打乒乓球，他说在赶论文...',choices:[
+        {text:'拉他去',icon:'🤝'},
+        {text:'自己去',icon:'🏃'},
+        {text:'等他写完',icon:'⏳'}
+      ]},
+      {desc:'球馆里遇到了其他同学...',choices:[
+        {text:'组队双打',icon:'🤝'},
+        {text:'单挑',icon:'⚔️'},
+        {text:'教新手',icon:'📖'}
+      ]},
+      {desc:'打完球后...',choices:[
+        {text:'请喝水',icon:'💧'},
+        {text:'回宿舍打洛克王国',icon:'🎮'},
+        {text:'去吃饭',icon:'🍜'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'乒乓外交',desc:'你成功拉到了有崧！',effect:function(){player.dmgMult+=0.15;player.speed+=0.5;}},
+      {pattern:'0,0,2',name:'洛克同好',desc:'你们一起玩洛克王国',effect:function(){player.gold+=25;player.regen+=2;}},
+      {pattern:'0,1,0',name:'单挑之王',desc:'你赢了所有对手！',effect:function(){player.critChance+=0.2;player.dmgMult+=0.15;}},
+      {pattern:'1,0,0',name:'独行侠',desc:'一个人打球也很爽',effect:function(){player.speed+=0.4;player.armor+=2;}},
+      {pattern:'1,1,1',name:'快乐乒乓',desc:'运动就是快乐',effect:function(){player.speed+=0.3;player.maxHp+=30;player.regen+=1.5;}},
+      {pattern:'2,0,1',name:'佛系运动',desc:'输赢不重要',effect:function(){player.regen+=2.5;player.gold+=20;}}
+    ]});
+  }
+
+  // 吴禹专属：R&B+美食地图
+  if(charId==='wuyu'){
+    events.push({id:'story_wuyu_ktv',title:'🎤 吴禹的R&B之夜',stages:[
+      {desc:'陈雪组织大家去贝抖KTV，你是麦霸...',choices:[
+        {text:'先来一首R&B',icon:'🎤'},
+        {text:'让别人先唱',icon:'👂'},
+        {text:'点歌等待',icon:'🎵'}
+      ]},
+      {desc:'你唱完后全场安静了三秒，然后爆发掌声...',choices:[
+        {text:'再来一首',icon:'🔥'},
+        {text:'谦虚坐下',icon:'😊'},
+        {text:'邀请合唱',icon:'🤝'}
+      ]},
+      {desc:'林致远抢麦了，唱得很难听但很卖力...',choices:[
+        {text:'鼓掌鼓励',icon:'👏'},
+        {text:'抢回来',icon:'🎤'},
+        {text:'录下来',icon:'📱'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'KTV之王',desc:'你的R&B让全场惊艳！',effect:function(){player.dmgMult+=0.25;player.critChance+=0.2;}},
+      {pattern:'0,0,2',name:'最佳听众',desc:'你是最棒的捧场王',effect:function(){player.gold+=30;player.regen+=2;}},
+      {pattern:'0,1,0',name:'低调歌神',desc:'你的谦虚让人更佩服',effect:function(){player.armor+=3;player.dmgMult+=0.15;}},
+      {pattern:'1,0,0',name:'再来亿首',desc:'你承包了今晚的歌单',effect:function(){player.atkSpdMult+=0.2;player.speed+=0.3;}},
+      {pattern:'1,1,1',name:'快乐KTV',desc:'音乐让所有人开心',effect:function(){player.gold+=25;player.maxHp+=30;player.regen+=1.5;}},
+      {pattern:'2,0,1',name:'录屏达人',desc:'这段视频会成为经典',effect:function(){player.critChance+=0.15;player.gold+=25;}}
+    ]});
+  }
+
+  // 郑志辉专属：CS联机+难得回来
+  if(charId==='zhihui'){
+    events.push({id:'story_zhihui_cs',title:'🎮 志辉的CS回归',stages:[
+      {desc:'你难得回宿舍，506群里突然说"阿辉回来了！打CS！"...',choices:[
+        {text:'加入战斗',icon:'🎮'},
+        {text:'先去陪女友',icon:'💕'},
+        {text:'先休息一下',icon:'😴'}
+      ]},
+      {desc:'打CS时林致远一直在喊"阿辉你太猛了"...',choices:[
+        {text:'继续carry',icon:'🔥'},
+        {text:'让他别吵',icon:'😤'},
+        {text:'教他玩',icon:'📖'}
+      ]},
+      {desc:'打完后，林有崧说"难得回来，一起吃个饭"...',choices:[
+        {text:'好啊',icon:'🍜'},
+        {text:'下次吧',icon:'📅'},
+        {text:'请你们',icon:'💰'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'CS之神',desc:'你的技术让所有人佩服！',effect:function(){player.dmgMult+=0.25;player.critChance+=0.2;}},
+      {pattern:'0,0,2',name:'兄弟情深',desc:'难得的聚会特别珍贵',effect:function(){player.gold+=30;player.regen+=2;}},
+      {pattern:'0,1,0',name:'带飞全场',desc:'你是队伍的核心',effect:function(){player.dmgMult+=0.2;player.atkSpdMult+=0.15;}},
+      {pattern:'1,0,0',name:'爱情至上',desc:'你选择了陪伴女友',effect:function(){player.maxHp+=40;player.regen+=3;}},
+      {pattern:'1,1,1',name:'平衡大师',desc:'你平衡了爱情和友情',effect:function(){player.gold+=25;player.maxHp+=20;player.speed+=0.3;}},
+      {pattern:'2,0,1',name:'暖男志辉',desc:'你请了大家吃饭',effect:function(){player.gold+=20;player.regen+=2.5;}}
+    ]});
+  }
+
+  // 黄斌专属：川普币+电商
+  if(charId==='bin'){
+    events.push({id:'story_bin_crypto',title:'📈 斌子的川普币惊魂',stages:[
+      {desc:'你和林有崧一起盯盘川普币，突然从1刀涨到5刀...',choices:[
+        {text:'"这么猛！"加仓',icon:'📈'},
+        {text:'先止盈一部分',icon:'💰'},
+        {text:'问有崧意见',icon:'🤝'}
+      ]},
+      {desc:'有崧说"斌子，这里头的水太深，你把握不住啊"...',choices:[
+        {text:'"呦西，继续冲"',icon:'🚀'},
+        {text:'听他的先跑了',icon:'🏃'},
+        {text:'再等等看',icon:'👀'}
+      ]},
+      {desc:'第二天币价...',choices:[
+        {text:'继续涨！赚翻了',icon:'🎉'},
+        {text:'跌了30%',icon:'📉'},
+        {text:'横盘不动',icon:'😐'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'币圈大佬',desc:'你的判断完全正确，赚翻了！',effect:function(){player.gold+=80;player.dmgMult+=0.15;}},
+      {pattern:'0,0,2',name:'稳健投资',desc:'你及时止盈保住了利润',effect:function(){player.gold+=50;player.armor+=3;}},
+      {pattern:'0,1,0',name:'听人劝',desc:'有崧说得对，你避免了损失',effect:function(){player.gold+=40;player.regen+=2;}},
+      {pattern:'1,0,0',name:'信仰玩家',desc:'你坚持到了最后',effect:function(){player.gold+=60;player.critChance+=0.15;}},
+      {pattern:'1,1,1',name:'佛系炒币',desc:'涨跌都是浮云',effect:function(){player.gold+=45;player.regen+=1.5;}},
+      {pattern:'2,0,1',name:'咨询专家',desc:'你问对了人',effect:function(){player.gold+=35;player.xpMult+=0.2;}}
+    ]});
+  }
+
+  // 阿依达娜专属：新疆学姐的温柔
+  if(charId==='dana'){
+    events.push({id:'story_dana_care',title:'🌸 达娜的好滴好滴',stages:[
+      {desc:'你发现林有崧在实验室加班到很晚，带了新疆特产给他...',choices:[
+        {text:'"阿崧阿崧，吃点东西"',icon:'🍬'},
+        {text:'默默放在桌上',icon:'📦'},
+        {text:'叫他一起去吃饭',icon:'🍽️'}
+      ]},
+      {desc:'他感动地说谢谢，你说"回来请你吃饭"...',choices:[
+        {text:'真的请他吃饭',icon:'🍜'},
+        {text:'开玩笑的啦',icon:'😜'},
+        {text:'聊家乡的事',icon:'🏠'}
+      ]},
+      {desc:'聊天中你说起伊犁的薰衣草...',choices:[
+        {text:'给他看照片',icon:'📸'},
+        {text:'约他暑假去',icon:'✈️'},
+        {text:'下次带特产',icon:'🎁'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'温暖师妹',desc:'你的关心让他很感动！',effect:function(){player.dmgMult+=0.2;player.regen+=3;}},
+      {pattern:'0,0,2',name:'伊犁之约',desc:'你们约定了暑假旅行',effect:function(){player.maxHp+=40;player.speed+=0.4;}},
+      {pattern:'0,1,0',name:'美食邀约',desc:"好滴好滴，下次一起吃！",effect:function(){player.gold+=30;player.regen+=2;}},
+      {pattern:'1,0,0',name:'默默关心',desc:'你总是这么贴心',effect:function(){player.regen+=2.5;player.maxHp+=30;}},
+      {pattern:'1,1,1',name:'温馨日常',desc:'简单的关心最暖心',effect:function(){player.gold+=20;player.maxHp+=25;player.regen+=1.5;}},
+      {pattern:'2,0,1',name:'文化使者',desc:'你分享了新疆的美',effect:function(){player.xpMult+=0.2;player.gold+=25;}}
+    ]});
+  }
+
+  // 陈雪专属：果断时刻+怼林致远
+  if(charId==='xue'){
+    events.push({id:'story_xue_bold',title:'⚡ 雪姐的果断时刻',stages:[
+      {desc:'林致远在群里发"今晚聚餐"，但你还在赶论文...',choices:[
+        {text:'"赶紧打车别逼逼"',icon:'🚗'},
+        {text:'先赶完再说',icon:'💻'},
+        {text:'问达娜去不去',icon:'🤝'}
+      ]},
+      {desc:'到了餐厅，发现要排队1小时...',choices:[
+        {text:'换一家',icon:'🔄'},
+        {text:'硬等',icon:'⏳'},
+        {text:'让林致远想办法',icon:'😤'}
+      ]},
+      {desc:'最后你们找到了一家更好的店...',choices:[
+        {text:'你推荐的',icon:'👍'},
+        {text:'吴禹推荐的',icon:'🍜'},
+        {text:'路边摊',icon:'🍢'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'果断女王',desc:'你的果断让所有人佩服！',effect:function(){player.dmgMult+=0.3;player.speed+=0.4;}},
+      {pattern:'0,0,2',name:'美食发现',desc:'你们找到了宝藏小店',effect:function(){player.maxHp+=50;player.hp+=30;}},
+      {pattern:'0,1,0',name:'硬等派',desc:'你等到了最美味的菜',effect:function(){player.maxHp+=40;player.regen+=2;}},
+      {pattern:'1,0,0',name:'工作狂',desc:'你完成了论文，很有成就感',effect:function(){player.xpMult+=0.3;player.dmgMult+=0.15;}},
+      {pattern:'1,1,1',name:'随遇而安',desc:'不管吃什么都很开心',effect:function(){player.regen+=2;player.gold+=25;}},
+      {pattern:'2,0,1',name:'闺蜜力量',desc:'你和达娜一起吐槽林致远',effect:function(){player.gold+=30;player.critChance+=0.15;}}
+    ]});
+  }
+
+  // 黄钰专属：同门组织者
+  if(charId==='yuhui'){
+    events.push({id:'story_yuhui_org',title:'💫 黄钰的组织之力',stages:[
+      {desc:'同门群里，导师说要聚餐，让你组织...',choices:[
+        {text:'你来安排',icon:'👑'},
+        {text:'问大家意见',icon:'🗳️'},
+        {text:'让林有崧帮忙',icon:'🤝'}
+      ]},
+      {desc:'林致远说想吃火锅，黄玮杰想吃烧烤...',choices:[
+        {text:'折中方案',icon:'🔄'},
+        {text:'听致远的',icon:'🫕'},
+        {text:'听玮杰的',icon:'🍖'}
+      ]},
+      {desc:'聚餐很成功，大家很开心...',choices:[
+        {text:'拍合照',icon:'📸'},
+        {text:'默默记账',icon:'📝'},
+        {text:'约下次',icon:'📅'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'组织大师',desc:'你完美地组织了这次聚餐！',effect:function(){player.gold+=40;player.dmgMult+=0.15;player.speed+=0.3;}},
+      {pattern:'0,0,2',name:'贴心管家',desc:'你把账记得清清楚楚',effect:function(){player.gold+=50;player.xpMult+=0.15;}},
+      {pattern:'0,1,0',name:'火锅之王',desc:'火锅果然是最好的选择',effect:function(){player.maxHp+=50;player.regen+=2;}},
+      {pattern:'1,0,0',name:'民主领袖',desc:'你让大家都有发言权',effect:function(){player.gold+=30;player.regen+=2;}},
+      {pattern:'1,1,1',name:'快乐聚餐',desc:'吃什么不重要，在一起最重要',effect:function(){player.gold+=25;player.maxHp+=30;player.regen+=1.5;}},
+      {pattern:'2,0,1',name:'同门情深',desc:'你和林有崧配合默契',effect:function(){player.dmgMult+=0.15;player.gold+=25;}}
+    ]});
+  }
+
+  // 林伟明专属：导师的一天
+  if(charId==='linlaoshi'){
+    events.push({id:'story_linlaoshi_day',title:'👔 林伟明的一天',stages:[
+      {desc:'你作为导师，今天要去开一个会。林有崧发消息说论文初稿写好了...',choices:[
+        {text:'先看论文',icon:'📄'},
+        {text:'开完会再说',icon:'👔'},
+        {text:'让他发群里',icon:'📱'}
+      ]},
+      {desc:'你看了论文，发现写得不错，但有几个问题...',choices:[
+        {text:'"辛苦啦，继续努力"',icon:'🙏'},
+        {text:'详细批注',icon:'📝'},
+        {text:'约面谈',icon:'💬'}
+      ]},
+      {desc:'最后你给他发了2000元红包...',choices:[
+        {text:'"这是项目报酬"',icon:'💰'},
+        {text:'"过年红包"',icon:'🧧'},
+        {text:'什么都不说',icon:'🤫'}
+      ]}
+    ],endings:[
+      {pattern:'0,0,0',name:'人生导师',desc:'"辛苦啦"三个字让他感动哭了',effect:function(){player.dmgMult+=0.25;player.maxHp+=40;}},
+      {pattern:'0,0,2',name:'慷慨导师',desc:'你的慷慨让学生们很感激',effect:function(){player.gold+=60;player.regen+=2;}},
+      {pattern:'0,1,0',name:'严格要求',desc:'你的批注让他进步很大',effect:function(){player.xpMult+=0.3;player.pierceBonus+=1;}},
+      {pattern:'1,0,0',name:'忙碌导师',desc:'你总是很忙但很关心学生',effect:function(){player.gold+=40;player.atkSpdMult+=0.15;}},
+      {pattern:'1,1,1',name:'师生情深',desc:'你们的关系更近了一步',effect:function(){player.gold+=35;player.regen+=2;player.dmgMult+=0.1;}},
+      {pattern:'2,0,1',name:'放手信任',desc:'你相信学生能做好',effect:function(){player.armor+=3;player.speed+=0.4;}}
+    ]});
+  }
+
+  return events;
+}
+
+var STORY_EVENTS=null;
+
+// 当前事件状态
+var currentStory=null;
+var storyChoices=[];
+
+function openStoryEvent(){
+  if(gameState!=='event'&&gameState!=='playing')return;
+  gameState='event';
+  if(!STORY_EVENTS)STORY_EVENTS=getStoryEvents();
+  currentStory=pick(STORY_EVENTS);
+  storyChoices=[];
+  showStoryStage(0);
+}
+
+function showStoryStage(stageIdx){
+  if(stageIdx>=currentStory.stages.length){
+    resolveStoryEnding();
+    return;
+  }
+  var stage=currentStory.stages[stageIdx];
+
+  document.getElementById('eventScreen').style.display='flex';
+  document.getElementById('eventTitle').textContent=currentStory.title;
+  document.getElementById('eventDesc').innerHTML='<span style="color:#aab;font-size:1em;line-height:1.8">'+stage.desc+'</span><br><br><span style="color:#889;font-size:0.85em">第 '+(stageIdx+1)+'/'+currentStory.stages.length+' 章</span>';
+
+  var choicesDiv=document.getElementById('eventChoices');choicesDiv.innerHTML='';
+  for(var i=0;i<stage.choices.length;i++){
+    (function(choice,idx){
+      var btn=document.createElement('div');btn.className='event-choice';
+      btn.innerHTML='<div class="event-key">'+(idx+1)+'</div>'+
+        '<div class="event-icon">'+choice.icon+'</div>'+
+        '<div class="event-text">'+choice.text+'</div>';
+      btn.addEventListener('click',function(){
+        storyChoices.push(idx);
+        showStoryStage(stageIdx+1);
+      });
+      choicesDiv.appendChild(btn);
+    })(stage.choices[i],i);
+  }
+}
+
+function resolveStoryEnding(){
+  var key=storyChoices.join(',');
+  var ending=currentStory.endings[0]; // 默认结局
+
+  // 查找匹配的结局
+  for(var i=0;i<currentStory.endings.length;i++){
+    if(currentStory.endings[i].pattern===key){
+      ending=currentStory.endings[i];
+      break;
+    }
+  }
+
+  // 应用结局效果
+  ending.effect();
+
+  // 显示结局
+  var choicesDiv=document.getElementById('eventChoices');
+  var titleEl=document.getElementById('eventTitle');
+  var descEl=document.getElementById('eventDesc');
+  titleEl.textContent='📖 '+ending.name;
+  descEl.innerHTML='<span style="color:#ffd700;font-size:1.1em;line-height:1.8">'+ending.desc+'</span><br><br><span style="color:#2ed573;font-size:1em;font-weight:bold">✨ 获得增益：'+getEffectDescription(ending)+'</span><br><br><span style="color:#889;font-size:0.85em">按 Enter 或点击继续...</span>';
+  choicesDiv.innerHTML='';
+
+  var continueBtn=document.createElement('button');continueBtn.className='btn btn-primary';
+  continueBtn.textContent='继续 ▶';continueBtn.style.marginTop='10px';
+  continueBtn.addEventListener('click',function(){closeEventAndShop();});
+  choicesDiv.appendChild(continueBtn);
+
+  var eventKeyHandler=function(e){
+    if(e.code==='Enter'||e.code==='Space'){
+      document.removeEventListener('keydown',eventKeyHandler);
+      closeEventAndShop();
+    }
+  };
+  document.addEventListener('keydown',eventKeyHandler);
+}
+
+function getEffectDescription(ending){
+  // 根据结局名称返回具体描述
+  var descMap={
+    '学术精英':'伤害+30%，暴击+15%',
+    '贵人相助':'+40金币，经验获取+20%',
+    '勉强及格':'+30最大生命',
+    '友情力量':'+25金币，攻速+15%',
+    '团队协作':'+20%伤害，移速+0.5，+20生命',
+    '摆烂大师':'+25%暴击，+2护甲',
+    '躺赢人生':'+30金币，每秒回复2生命',
+    '忍辱负重':'+25%伤害，+10%暴击',
+    '各自安好':'+35金币，移速+0.4',
+    '科技改变生活':'+30%经验，攻速+10%',
+    '正面刚':'+4护甲，+15%伤害',
+    '冲突升级':'+20%暴击，+40最大生命',
+    '和解之道':'+25金币，每秒回复2.5生命',
+    '吃货本色':'+50最大生命，每秒回复2生命',
+    '美食博主':'+40金币，经验+15%',
+    '分享快乐':'+30金币，+15%伤害',
+    '省钱达人':'+20%攻速，+10%暴击',
+    '佛系吃花':'+3回复/秒，+3护甲',
+    '社交高手':'+20金币，移速+0.6',
+    '知识传承':'+35%伤害，穿透+2',
+    '神秘座位':'+40%经验，攻速+15%',
+    '空欢喜':'+3护甲，+15%暴击',
+    '谨慎选择':'+60最大生命',
+    '怀疑一切':'+20%伤害，移速+0.5',
+    '顺其自然':'+50金币，每秒回复2生命',
+    '篮球之神':'+0.8移速，+20%伤害',
+    '虽败犹荣':'+40最大生命，+3回复/秒',
+    '绝杀时刻':'+30%暴击，暴击伤害+50%',
+    '快乐运动':'+0.5移速，+15%攻速',
+    '专业选手':'+25%伤害，+3护甲',
+    '气氛组':'+45金币，+20%经验'
+  };
+  return descMap[ending.name]||'未知效果';
+}
+
+// ========== 游戏状态 ==========
+var gameState='start',frameCount=0,keys={},mousePos={x:0,y:0},useMouse=false;
+var player={x:0,y:0,hp:0,maxHp:0,speed:4.5,radius:8,
+  dmgMult:1,atkSpdMult:1,armor:0,critChance:0.05,critDmg:0.5,
+  regen:0,pierceBonus:0,rangeMult:1,lifesteal:0,multiShot:0,knockbackBonus:0,xpMult:1,
+  gold:0,xp:0,xpToLvl:20,level:1,kills:0,
+  weapons:[],items:[],relics:[],activeWeapon:0,trail:[],invincibleTimer:0,damageCooldown:0,
+  summonTimer:0,waveStartInvincible:0,waveEndHeal:0,goldMult:1,
+  combo:0,comboTimer:0,maxCombo:0,totalGoldEarned:0,
+  damageDealt:0,damageTaken:0,itemsCollected:0,eventsTriggered:0,
+  magnetRange:0,autoCollect:false,thorns:0,reflectDmg:0,
+  // 林有崧：分裂弹计数
+  splitTimer:0,
+  // 林致远：连杀节奏
+  rhythmStacks:0,rhythmTimer:0,
+  // 黄玮杰：领域计时
+  zoneTimer:0,activeZone:null,
+  // 吴禹：蓄力
+  chargeTimer:0,chargeBonus:0,
+  // 郑志辉：铁壁
+  stillTimer:0,ironWall:false,ironWallFade:0,
+  // 黄斌：利息
+  interestRate:0.15,
+  // 阿依达娜：受伤计数+治疗脉冲
+  hurtCount:0,healPulseCD:0,warmGlow:false,warmGlowTimer:0,
+  // 陈雪：斩杀
+  executeThreshold:0.3,
+  // 黄钰：武器槽上限
+  maxWeaponSlots:6,
+  // 林伟明：助教
+  summonInterval:900,summonTimer:0,summons:[],maxSummons:3};
+
+var enemies=[],projectiles=[],particles=[],damageTexts=[],floatTexts=[],weaponEffects=[];
+var drops=[];
+var currentWave=1,totalWaves=12,waveTimer=0,waveState='idle';
+var waveSpawnTimer=0,waveSpawnCount=0,waveTotalEnemies=0,waveSpawnInterval=30,waveCfg=null,waveAllSpawned=false;
+function getWaveDuration(wave){
+  if(wave<=1)return 15;
+  if(wave<=3)return 25;
+  if(wave<=6)return 32;
+  if(wave<=9)return 38;
+  return 40;
+}
+
+// ========== 增益物系统 ==========
+var POWERUP_TYPES=[
+  {emoji:'❤️',name:'生命回复',color:'#ff4757',apply:function(p){p.hp=Math.min(p.maxHp,p.hp+20)}},
+  {emoji:'⚡',name:'速度提升',color:'#ffd700',apply:function(p){p.speed+=0.3}},
+  {emoji:'💪',name:'伤害提升',color:'#ff6b35',apply:function(p){p.dmgMult+=0.1}},
+  {emoji:'🛡️',name:'护甲提升',color:'#74b9ff',apply:function(p){p.armor+=2}},
+  {emoji:'💰',name:'金币',color:'#ffd700',apply:function(p){p.gold+=5}},
+  {emoji:'✨',name:'经验',color:'#7b2ff7',apply:function(p){p.xp+=20;checkLevelUp()}}
+];
+var powerups=[];
+
+function spawnPowerup(){
+  var type=pick(POWERUP_TYPES);
+  var x,y,attempts=0;
+  do{
+    x=rand(100,MAP_W-100);y=rand(100,MAP_H-100);
+    attempts++;
+  }while(isCollidingWithObstacle(x,y,15)&&attempts<20);
+  powerups.push({x:x,y:y,type:type,life:900,bobPhase:Math.random()*Math.PI*2});
+}
+
+function updatePowerups(){
+  for(var i=powerups.length-1;i>=0;i--){
+    var p=powerups[i];
+    p.life--;p.bobPhase+=0.05;
+    if(p.life<=0){powerups.splice(i,1);continue;}
+    if(dist(player,{x:p.x,y:p.y})<player.radius+20){
+      p.type.apply(player);
+      spawnFloatText(p.x,p.y-20,p.type.emoji+' '+p.type.name+'!',p.type.color);
+      spawnParticles(p.x,p.y,p.type.color,8);
+      powerups.splice(i,1);
+    }
+  }
+}
+
+function drawPowerups(){
+  for(var i=0;i<powerups.length;i++){
+    var p=powerups[i];
+    var bob=Math.sin(p.bobPhase)*5;
+    var alpha=p.life<120?Math.sin(p.life/120*Math.PI):1;
+    ctx.save();ctx.globalAlpha=alpha;
+    // 光晕
+    ctx.fillStyle=p.type.color+'40';
+    ctx.beginPath();ctx.arc(p.x,p.y+bob,18,0,Math.PI*2);ctx.fill();
+    // 图标
+    ctx.font='20px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(p.type.emoji,p.x,p.y+bob);
+    ctx.restore();
+  }
+}
+
+// ========== 随机事件触发点系统 ==========
+var EVENT_TRIGGERS=[];
+var TRIGGER_TYPES=[
+  {emoji:'❓',name:'神秘事件',color:'#ff6b35'},
+  {emoji:'📖',name:'知识宝箱',color:'#7b2ff7'},
+  {emoji:'🎁',name:'惊喜礼物',color:'#ffd700'},
+  {emoji:'🌟',name:'奇遇',color:'#00d4ff'},
+  {emoji:'💬',name:'有人找你',color:'#2ed573'},
+  {emoji:'📱',name:'消息提示',color:'#ff69b4'}
+];
+
+function spawnEventTrigger(){
+  var type=pick(TRIGGER_TYPES);
+  var x,y,attempts=0;
+  do{
+    x=rand(300,MAP_W-300);y=rand(300,MAP_H-300);
+    attempts++;
+  }while(isCollidingWithObstacle(x,y,20)&&attempts<20);
+  EVENT_TRIGGERS.push({x:x,y:y,type:type,life:900,pulsePhase:Math.random()*Math.PI*2});
+}
+
+function updateEventTriggers(){
+  if(gameState!=='playing')return;
+  for(var i=EVENT_TRIGGERS.length-1;i>=0;i--){
+    var t=EVENT_TRIGGERS[i];
+    t.life--;t.pulsePhase+=0.03;
+    if(t.life<=0){EVENT_TRIGGERS.splice(i,1);continue;}
+    if(dist(player,{x:t.x,y:t.y})<player.radius+25){
+      EVENT_TRIGGERS.splice(i,1);
+      gameState='event';
+      if(Math.random()<0.6) openStoryEvent();
+      else openEvent();
+      return;
+    }
+  }
+}
+
+function drawEventTriggers(){
+  for(var i=0;i<EVENT_TRIGGERS.length;i++){
+    var t=EVENT_TRIGGERS[i];
+    var pulse=1+Math.sin(t.pulsePhase)*0.3;
+    var alpha=t.life<180?Math.sin(t.life/180*Math.PI):1;
+    ctx.save();ctx.globalAlpha=alpha;
+    // 外圈光环
+    ctx.strokeStyle=t.type.color;ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(t.x,t.y,20*pulse,0,Math.PI*2);ctx.stroke();
+    // 内部光晕
+    ctx.fillStyle=t.type.color+'30';
+    ctx.beginPath();ctx.arc(t.x,t.y,15,0,Math.PI*2);ctx.fill();
+    // 图标
+    ctx.font='18px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(t.type.emoji,t.x,t.y);
+    ctx.restore();
+  }
+}
+
+// ========== 工具函数 ==========
+function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
+function rand(min,max){return Math.random()*(max-min)+min}
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v))}
+
+// ========== 角色选择系统 ==========
+function initCharacterSelect(){
+  var grid=document.getElementById('charGrid');grid.innerHTML='';
+  for(var i=0;i<CHARACTERS.length;i++){
+    (function(char,idx){
+      var card=document.createElement('div');card.className='char-card';
+      card.innerHTML='<div class="char-emoji">'+char.emoji+'</div>'+
+        '<div class="char-name">'+char.name+'</div>'+
+        '<div class="char-class">'+char.class+'</div>'+
+        '<div class="char-desc">'+char.desc+'</div>'+
+        '<div class="char-stats">'+char.stats+'</div>';
+      card.addEventListener('click',function(){
+        document.querySelectorAll('.char-card').forEach(function(c){c.classList.remove('selected')});
+        card.classList.add('selected');
+        selectedChar=char;
+        document.getElementById('selectedCharInfo').innerHTML=
+          '<b>'+char.emoji+' '+char.name+'</b> - '+char.class+'<br>'+
+          '<span style="color:#ffd700">'+char.lore+'</span><br>'+
+          char.stats+'<br>'+
+          '<span style="color:#7b2ff7">被动：'+char.passive+'</span>';
+        document.getElementById('confirmCharBtn').disabled=false;
+      });
+      grid.appendChild(card);
+    })(CHARACTERS[i],i);
+  }
+}
+
+document.getElementById('confirmCharBtn').addEventListener('click',function(){
+  if(!selectedChar)return;
+  document.getElementById('characterSelect').style.display='none';
+  startGame();
+});
+
+// ========== 玩家 ==========
+function resetPlayer(){
+  var c=DIFF_CONFIG[diff];
+  var ch=selectedChar||CHARACTERS[0];
+  player.x=MAP_W/2;player.y=MAP_H/2;
+  player.hp=Math.floor(80*c.playerHP*ch.hp);player.maxHp=player.hp;
+  player.speed=4.5*ch.spd;player.radius=8;
+  player.dmgMult=ch.dmg;player.atkSpdMult=1;player.armor=0;
+  player.critChance=ch.crit;player.critDmg=0.5;
+  player.regen=0;player.pierceBonus=0;player.rangeMult=1;player.lifesteal=0;
+  player.multiShot=0;player.knockbackBonus=0;player.xpMult=1;
+  player.gold=0;player.xp=0;player.xpToLvl=20;player.level=1;player.kills=0;
+
+  // 根据角色设置初始武器（带等级）
+  player.weapons=ch.startWeapons.map(function(key){return {key:key,cd:0,quality:'common',level:0}});
+  player.items=[];player.relics=[];
+  player.activeWeapon=0;
+  player.trail=[];player.invincibleTimer=0;player.damageCooldown=0;
+  player.summonTimer=0;player.waveStartInvincible=0;player.waveEndHeal=0;player.goldMult=1;
+  // 重置角色专属字段
+  player.splitTimer=0;player.rhythmStacks=0;player.rhythmTimer=0;
+  player.zoneTimer=0;player.activeZone=null;
+  player.chargeTimer=0;player.chargeBonus=0;
+  player.stillTimer=0;player.ironWall=false;player.ironWallFade=0;
+  player.hurtCount=0;player.healPulseCD=0;player.warmGlow=false;player.warmGlowTimer=0;
+  player.maxWeaponSlots=6;player.summons=[];
+  // 黄钰：武器槽上限+2
+  if(selectedChar&&selectedChar.id==='yuhui')player.maxWeaponSlots=8;
+
+  // 应用角色被动
+  applyCharPassive(ch);
+}
+
+function applyCharPassive(ch){
+  // 角色被动在updatePlayer中处理
+}
+
+function updatePlayer(){
+  // 场景buff检测
+  var playerZone=null;
+  for(var i=0;i<MAP_ZONES.length;i++){
+    var z=MAP_ZONES[i];
+    if(player.x>=z.x&&player.x<=z.x+z.w&&player.y>=z.y&&player.y<=z.y+z.h){
+      playerZone=z;
+      break;
+    }
+  }
+  if(playerZone!==currentZoneBuff){
+    // 移除旧buff
+    if(currentZoneBuff&&currentZoneBuff.remove)currentZoneBuff.remove(player);
+    // 应用新buff
+    if(playerZone&&playerZone.apply){
+      playerZone.apply(player);
+      spawnFloatText(player.x,player.y-40,'✨ '+playerZone.buff+'!','#ffd700');
+      spawnFloatText(player.x,player.y-20,playerZone.buffDesc,'#aab');
+    }
+    currentZoneBuff=playerZone;
+  }
+
+  var dx=0,dy=0,hasKeyInput=false;
+  if(keys['ArrowUp']||keys['KeyW']){dy=-1;hasKeyInput=true;}
+  if(keys['ArrowDown']||keys['KeyS']){if(dy!==0)dy=0;else dy=1;hasKeyInput=true;}
+  if(keys['ArrowLeft']||keys['KeyA']){dx=-1;hasKeyInput=true;}
+  if(keys['ArrowRight']||keys['KeyD']){if(dx!==0)dx=0;else dx=1;hasKeyInput=true;}
+  if(dx||dy){var l=Math.hypot(dx,dy);dx/=l;dy/=l;}
+  // 先尝试移动，如果有碰撞则尝试分轴移动
+  var newX=player.x+dx*player.speed;
+  var newY=player.y+dy*player.speed;
+  if(!isCollidingWithObstacle(newX,newY,player.radius)){
+    player.x=newX;player.y=newY;
+  }else if(!isCollidingWithObstacle(newX,player.y,player.radius)){
+    player.x=newX;
+  }else if(!isCollidingWithObstacle(player.x,newY,player.radius)){
+    player.y=newY;
+  }
+  player.x=clamp(player.x,player.radius,MAP_W-player.radius);
+  player.y=clamp(player.y,player.radius,MAP_H-player.radius);
+  if((dx||dy)&&frameCount%3===0)player.trail.push({x:player.x,y:player.y,alpha:1});
+  if(player.trail.length>10)player.trail.shift();
+  for(var i=0;i<player.trail.length;i++)player.trail[i].alpha-=0.07;
+  player.trail=player.trail.filter(function(t){return t.alpha>0});
+  if(player.regen>0&&frameCount%60===0)player.hp=Math.min(player.maxHp,player.hp+player.regen);
+  if(player.invincibleTimer>0)player.invincibleTimer--;
+  if(player.waveStartInvincible>0)player.waveStartInvincible--;
+
+  // ===== 角色帧级机制 =====
+  var isMoving=(dx||dy);
+
+  // 林致远：连杀节奏 - 断连3秒清空
+  if(selectedChar&&selectedChar.id==='zhiyuan'){
+    if(player.rhythmStacks>0){
+      player.rhythmTimer--;
+      if(player.rhythmTimer<=0){player.rhythmStacks=0;}
+    }
+  }
+
+  // 吴禹：蓄力 - 不攻击时积攒蓄力
+  if(selectedChar&&selectedChar.id==='wuyu'){
+    player.chargeTimer++;
+    if(player.chargeTimer>120){
+      player.chargeBonus=Math.min(2,(player.chargeTimer-120)/180);
+    }
+  }
+
+  // 郑志辉：不动如山 - 静止1.5秒获得铁壁
+  if(selectedChar&&selectedChar.id==='zhihui'){
+    if(!isMoving){
+      player.stillTimer++;
+      if(player.stillTimer>=90&&!player.ironWall){
+        player.ironWall=true;
+        spawnFloatText(player.x,player.y-30,'🛡️ 铁壁!','#2ed573');
+      }
+    }else{
+      player.stillTimer=0;
+      if(player.ironWall){player.ironWallFade=120;}
+    }
+    if(player.ironWallFade>0){
+      player.ironWallFade--;
+      if(player.ironWallFade<=0){player.ironWall=false;}
+    }
+  }
+
+  // 黄玮杰：领域控制 - 每5秒在脚下生成减速区域
+  if(selectedChar&&selectedChar.id==='weijie'){
+    player.zoneTimer++;
+    if(player.zoneTimer>=300){
+      player.zoneTimer=0;
+      player.activeZone={x:player.x,y:player.y,radius:120,life:180};
+      spawnFloatText(player.x,player.y-30,'🤝 领域展开!','#00d4ff');
+    }
+    if(player.activeZone){
+      player.activeZone.life--;
+      if(player.activeZone.life<=0)player.activeZone=null;
+    }
+  }
+
+  // 阿依达娜：受伤治疗脉冲 - 每受伤5次释放脉冲回复5%HP
+  if(selectedChar&&selectedChar.id==='dana'){
+    if(player.healPulseCD>0)player.healPulseCD--;
+    if(player.hurtCount>=5&&player.healPulseCD<=0){
+      player.hurtCount=0;
+      player.healPulseCD=120;
+      var healAmt=Math.floor(player.maxHp*0.05);
+      player.hp=Math.min(player.maxHp,player.hp+healAmt);
+      spawnFloatText(player.x,player.y-30,'🌸 治愈脉冲 +'+healAmt,'#2ed573');
+      // 脉冲减速周围敌人
+      for(var i=0;i<enemies.length;i++){
+        if(dist(player,enemies[i])<150){
+          enemies[i].slowTimer=60;
+        }
+      }
+    }
+    // 好滴好滴：累计受伤15次后3秒内伤害转治疗
+    if(player.hurtCount>=15&&player.healPulseCD<=0){
+      player.warmGlow=true;
+      player.warmGlowTimer=180;
+      player.hurtCount=0;
+      spawnFloatText(player.x,player.y-50,'🌸 好滴好滴!','#ff69b4');
+    }
+    if(player.warmGlowTimer>0){
+      player.warmGlowTimer--;
+      if(player.warmGlowTimer<=0)player.warmGlow=false;
+    }
+  }
+
+  // 林伟明：助教军团 - 15秒召唤，最多3个
+  if(selectedChar&&selectedChar.id==='linlaoshi'&&waveState==='fighting'){
+    player.summonTimer++;
+    if(player.summonTimer>=player.summonInterval&&player.summons.length<player.maxSummons){
+      player.summonTimer=0;
+      spawnSummonUnit();
+    }
+    // 更新助教
+    for(var si=player.summons.length-1;si>=0;si--){
+      var sm=player.summons[si];
+      sm.life--;
+      sm.atkTimer++;
+      if(sm.life<=0){
+        // 助教死亡爆炸
+        for(var ei=0;ei<enemies.length;ei++){
+          if(dist({x:sm.x,y:sm.y},enemies[ei])<80){
+            var exdmg=Math.floor(player.dmgMult*20);
+            enemies[ei].hp-=exdmg;enemies[ei].hitFlash=6;
+            spawnDamageText(enemies[ei].x,enemies[ei].y,'-'+exdmg,'#fdcb6e');
+            spawnParticles(enemies[ei].x,enemies[ei].y,'#fdcb6e',4);
+            if(enemies[ei].hp<=0)killEnemy(ei);
+          }
+        }
+        spawnParticles(sm.x,sm.y,'#fdcb6e',12);
+        player.summons.splice(si,1);
+        continue;
+      }
+      // 助教自动攻击
+      if(sm.atkTimer>=45&&enemies.length>0){
+        sm.atkTimer=0;
+        var target=null,minD=Infinity;
+        for(var ei=0;ei<enemies.length;ei++){var dd=dist(sm,enemies[ei]);if(dd<minD){minD=dd;target=enemies[ei];}}
+        if(target&&minD<300){
+          var a=Math.atan2(target.y-sm.y,target.x-sm.x);
+          projectiles.push(new Projectile(sm.x,sm.y,Math.cos(a)*10,Math.sin(a)*10,
+            {damage:player.dmgMult*12,speed:10,range:280,pierce:0,color:'#fdcb6e',type:'projectile',homing:true,homTarget:target},null));
+        }
+      }
+      // 助教跟随玩家
+      var sdx=player.x-sm.x,sdy=player.y-sm.y,sd=Math.hypot(sdx,sdy);
+      if(sd>100){sm.x+=sdx/sd*3;sm.y+=sdy/sd*3;}
+    }
+  }
+}
+
+function spawnSummonUnit(){
+  var angle=Math.random()*Math.PI*2;
+  var sx=player.x+Math.cos(angle)*50,sy=player.y+Math.sin(angle)*50;
+  player.summons.push({x:sx,y:sy,life:480,atkTimer:0,radius:10});
+  spawnFloatText(player.x,player.y-30,'📚 助教出场！','#fdcb6e');
+}
+
+function drawSummons(){
+  if(!selectedChar||selectedChar.id!=='linlaoshi')return;
+  for(var i=0;i<player.summons.length;i++){
+    var sm=player.summons[i];
+    var alpha=sm.life<60?sm.life/60:1;
+    ctx.save();ctx.globalAlpha=alpha;
+    ctx.fillStyle='#fdcb6e';
+    ctx.beginPath();ctx.arc(sm.x,sm.y,sm.radius,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(sm.x,sm.y,sm.radius,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#1a1a2e';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('📖',sm.x,sm.y);
+    ctx.restore();
+  }
+}
+
+function drawPlayer(){
+  var breathe=1+Math.sin(frameCount*0.08)*0.02;
+  var drawRadius=player.radius*breathe;
+  var ch=selectedChar||CHARACTERS[0];
+
+  // 根据角色显示不同颜色
+  var colors={yousong:'#f7c948',zhiyuan:'#ff6b35',weijie:'#00d4ff',wuyu:'#ffd700',
+    zhihui:'#2ed573',bin:'#a55eea',dana:'#ff69b4',xue:'#ff4757',yuhui:'#74b9ff',linlaoshi:'#fdcb6e'};
+  var bodyColor=colors[ch.id]||'#f7c948';
+
+  var bodyGrad=ctx.createRadialGradient(player.x-drawRadius*0.3,player.y-drawRadius*0.3,0,player.x,player.y,drawRadius);
+  bodyGrad.addColorStop(0,'#ffeaa7');
+  bodyGrad.addColorStop(0.5,bodyColor);
+  bodyGrad.addColorStop(1,'#e17055');
+  ctx.fillStyle=bodyGrad;
+  ctx.beginPath();ctx.arc(player.x,player.y,drawRadius,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='rgba(255,255,255,0.4)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.arc(player.x,player.y,drawRadius,0,Math.PI*2);ctx.stroke();
+
+  if(player.invincibleTimer>0||player.waveStartInvincible>0){
+    var shieldAlpha=0.3+Math.sin(frameCount*0.2)*0.2;
+    ctx.strokeStyle='rgba(100,200,255,'+shieldAlpha+')';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(player.x,player.y,drawRadius+8,0,Math.PI*2);ctx.stroke();
+  }
+
+  ctx.fillStyle='#1a1a2e';ctx.font='bold '+(drawRadius*1.1)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(ch.emoji,player.x+1,player.y+2);
+  ctx.fillStyle='#fff';ctx.fillText(ch.emoji,player.x,player.y);
+  // 郑志辉：铁壁视觉效果
+  if(selectedChar&&selectedChar.id==='zhihui'&&player.ironWall){
+    var wallAlpha=0.3+Math.sin(frameCount*0.15)*0.15;
+    ctx.strokeStyle='rgba(46,213,115,'+wallAlpha+')';ctx.lineWidth=4;
+    ctx.beginPath();ctx.arc(player.x,player.y,drawRadius+12,0,Math.PI*2);ctx.stroke();
+  }
+  // 吴禹：蓄力视觉效果
+  if(selectedChar&&selectedChar.id==='wuyu'&&player.chargeBonus>0){
+    var chargeAlpha=player.chargeBonus*0.4;
+    ctx.strokeStyle='rgba(255,215,0,'+chargeAlpha+')';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(player.x,player.y,drawRadius+8+player.chargeBonus*10,0,Math.PI*2);ctx.stroke();
+  }
+  // 阿依达娜：好滴好滴视觉
+  if(selectedChar&&selectedChar.id==='dana'&&player.warmGlow){
+    var glowAlpha=0.2+Math.sin(frameCount*0.1)*0.1;
+    ctx.strokeStyle='rgba(255,105,180,'+glowAlpha+')';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(player.x,player.y,drawRadius+15,0,Math.PI*2);ctx.stroke();
+  }
+}
+
+function drawCharZones(){
+  // 黄玮杰：减速区域
+  if(selectedChar&&selectedChar.id==='weijie'&&player.activeZone){
+    var z=player.activeZone;
+    var alpha=z.life<60?z.life/60:0.3;
+    ctx.fillStyle='rgba(0,212,255,'+(alpha*0.2)+')';
+    ctx.beginPath();ctx.arc(z.x,z.y,z.radius,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(0,212,255,'+alpha+')';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(z.x,z.y,z.radius,0,Math.PI*2);ctx.stroke();
+  }
+}
+
+// ========== 敌人 ==========
+function spawnEnemy(typeData){
+  var ex,ey,attempts=0;
+  // 从玩家周围300-600距离随机生成，而不是地图边缘
+  do{
+    var angle=Math.random()*Math.PI*2;
+    var dist=rand(1000,1400);
+    ex=player.x+Math.cos(angle)*dist;
+    ey=player.y+Math.sin(angle)*dist;
+    // 确保在地图内
+    ex=clamp(ex,50,MAP_W-50);
+    ey=clamp(ey,50,MAP_H-50);
+    attempts++;
+  }while(isCollidingWithObstacle(ex,ey,typeData.radius)&&attempts<20);
+
+  var c=DIFF_CONFIG[diff];
+  var waveScale=1+(currentWave-1)*0.07;
+  return{x:ex,y:ey,hp:Math.floor(typeData.hp*0.55*c.enemyHP*waveScale),maxHp:Math.floor(typeData.hp*0.55*c.enemyHP*waveScale),
+    speed:typeData.speed*c.enemySpd*1.1*(1+(currentWave-1)*0.06),damage:Math.floor(typeData.damage*(1+(currentWave-1)*0.08)),
+    radius:typeData.radius,emoji:typeData.emoji,name:typeData.name,color:typeData.color,
+    xp:Math.floor(typeData.xp*c.xpMult),gold:Math.floor(typeData.gold*c.goldMult*(player.goldMult||1)),
+    boss:typeData.boss||false,hitFlash:0,knockbackX:0,knockbackY:0,slowTimer:0,stuckTimer:0,prevX:ex,prevY:ey};
+}
+
+function updateEnemies(){
+  for(var i=enemies.length-1;i>=0;i--){
+    var e=enemies[i];
+    var dx=player.x-e.x,dy=player.y-e.y,d=Math.hypot(dx,dy);
+    var speedMult=e.slowTimer>0?0.6:1;
+    if(d>0.1){
+      var moveX=(dx/d)*e.speed*speedMult+e.knockbackX;
+      var moveY=(dy/d)*e.speed*speedMult+e.knockbackY;
+      var newEX=e.x+moveX,newEY=e.y+moveY;
+      if(!isCollidingWithObstacle(newEX,newEY,e.radius)){
+        e.x=newEX;e.y=newEY;
+      }else if(!isCollidingWithObstacle(newEX,e.y,e.radius)){
+        e.x=newEX;
+      }else if(!isCollidingWithObstacle(e.x,newEY,e.radius)){
+        e.y=newEY;
+      }
+    }
+    e.knockbackX*=0.85;e.knockbackY*=0.85;e.hitFlash=Math.max(0,e.hitFlash-1);
+    if(e.slowTimer>0)e.slowTimer--;
+
+    // 卡地形检测：如果连续30帧没移动，给随机推力
+    if(Math.abs(e.x-e.prevX)<0.5&&Math.abs(e.y-e.prevY)<0.5){
+      e.stuckTimer++;
+      if(e.stuckTimer>30){
+        var pushAngle=Math.random()*Math.PI*2;
+        e.knockbackX+=Math.cos(pushAngle)*8;
+        e.knockbackY+=Math.sin(pushAngle)*8;
+        e.stuckTimer=0;
+      }
+    }else{
+      e.stuckTimer=0;
+    }
+    e.prevX=e.x;e.prevY=e.y;
+
+    // 黄玮杰被动：领域内敌人减速40%+每秒伤害
+    if(selectedChar&&selectedChar.id==='weijie'&&player.activeZone){
+      if(dist(e,player.activeZone)<player.activeZone.radius){
+        e.slowTimer=Math.max(e.slowTimer,10);
+        if(frameCount%30===0){
+          var zdmg=Math.floor(player.dmgMult*5);
+          e.hp-=zdmg;e.hitFlash=3;
+          spawnDamageText(e.x,e.y,'-'+zdmg,'#00d4ff');
+        }
+      }
+    }
+    // 黄玮杰被动：周围200范围敌人减速
+    if(selectedChar&&selectedChar.id==='weijie'&&dist(e,player)<200){
+      e.slowTimer=Math.max(e.slowTimer,10);
+    }
+
+    if(dist(e,player)<e.radius+player.radius){
+      if(player.invincibleTimer<=0&&player.waveStartInvincible<=0&&player.damageCooldown<=0){
+        var dmg=Math.max(1,e.damage-player.armor);
+        // 郑志辉被动：铁壁状态减伤50%+反弹30%伤害
+        if(selectedChar&&selectedChar.id==='zhihui'){
+          if(player.ironWall){
+            dmg=Math.floor(dmg*0.5);
+            var reflectDmg=Math.floor(e.damage*0.3);
+            e.hp-=reflectDmg;e.hitFlash=6;
+            spawnDamageText(e.x,e.y,'-'+reflectDmg,'#2ed573');
+            spawnParticles(e.x,e.y,'#2ed573',4);
+            if(e.hp<=0)killEnemy(i);
+          }else if(player.ironWallFade>0){
+            dmg=Math.floor(dmg*0.7);
+          }
+        }
+        player.hp-=dmg;player.invincibleTimer=50;player.damageCooldown=90;
+        spawnDamageText(player.x,player.y,'-'+dmg,'#ff4757');
+        spawnParticles(player.x,player.y,'#ff4757',8);
+        // 阿依达娜：受伤计数
+        if(selectedChar&&selectedChar.id==='dana'){
+          player.hurtCount++;
+          if(player.warmGlow){
+            var wHeal=Math.floor(dmg*0.5);
+            player.hp=Math.min(player.maxHp,player.hp+wHeal);
+            spawnFloatText(player.x,player.y+15,'+'+wHeal+' 💗','#ff69b4');
+          }
+        }
+        if(player.hp<=0)endGame(false);
+      }
+    }
+  }
+  if(player.damageCooldown>0)player.damageCooldown--;
+}
+
+function drawEnemies(){
+  for(var i=0;i<enemies.length;i++){
+    var e=enemies[i];
+    ctx.save();
+    var drawRadius=e.radius;
+    ctx.fillStyle=e.hitFlash>0?'#fff':e.color;
+    ctx.beginPath();ctx.arc(e.x,e.y,drawRadius,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(e.x,e.y,drawRadius,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#fff';ctx.font='bold '+(e.boss?drawRadius*0.9:drawRadius*1.0)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(e.emoji,e.x,e.y);
+    var bw=drawRadius*2,bh=6,barY=e.y-drawRadius-18;
+    ctx.fillStyle='rgba(0,0,0,0.7)';roundRect(ctx,e.x-bw/2,barY,bw,bh,3);ctx.fill();
+    var hpPercent=Math.max(0,e.hp/e.maxHp);
+    ctx.fillStyle=hpPercent>0.5?'#2ed573':hpPercent>0.25?'#ffa502':'#ff4757';
+    roundRect(ctx,e.x-bw/2,barY,bw*hpPercent,bh,3);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 9px sans-serif';ctx.textAlign='center';
+    ctx.fillText(e.hp+'/'+e.maxHp,e.x,barY+bh/2+3);
+    ctx.fillStyle='rgba(0,0,0,0.6)';var nameWidth=ctx.measureText(e.name).width+10;
+    roundRect(ctx,e.x-nameWidth/2,barY-14,nameWidth,12,3);ctx.fill();
+    ctx.fillStyle='#ddd';ctx.font='10px sans-serif';ctx.textAlign='center';ctx.fillText(e.name,e.x,barY-6);
+    ctx.restore();
+  }
+}
+
+function roundRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+// ========== 投射物 & 武器 ==========
+function Projectile(x,y,vx,vy,data,ownerW){
+  this.x=x;this.y=y;this.vx=vx;this.vy=vy;
+  this.damage=data.damage;this.range=data.range;this.pierce=data.pierce;
+  this.color=data.color;this.radius=data.big?14:data.small?5:9;
+  this.startX=x;this.startY=y;this.traveled=0;
+  this.explode=data.explode||false;this.ownerW=ownerW;
+  this.homing=data.homing||false;this.homTarget=data.homTarget||null;
+  this.zigzag=data.zigzag||false;this.big=data.big||false;this.small=data.small||false;
+  this.trail=[];
+}
+
+Projectile.prototype.update=function(){
+  if(this.homing&&this.homTarget&&this.homTarget.hp>0){
+    var ta=Math.atan2(this.homTarget.y-this.y,this.homTarget.x-this.x);
+    var curA=Math.atan2(this.vy,this.vx);
+    var diff=ta-curA;
+    while(diff>Math.PI)diff-=Math.PI*2;while(diff<-Math.PI)diff+=Math.PI*2;
+    var turn=Math.min(Math.abs(diff),0.12)*Math.sign(diff);
+    var spd=Math.hypot(this.vx,this.vy);var newA=curA+turn;
+    this.vx=Math.cos(newA)*spd;this.vy=Math.sin(newA)*spd;
+  }
+  if(this.zigzag){
+    var perpX=-this.vy,perpY=this.vx,perpLen=Math.hypot(perpX,perpY)||1;
+    var wave=Math.sin(this.traveled*0.15)*2;
+    this.x+=(perpX/perpLen)*wave;this.y+=(perpY/perpLen)*wave;
+  }
+  this.x+=this.vx;this.y+=this.vy;
+  this.traveled=Math.hypot(this.x-this.startX,this.y-this.startY);
+  if(this.traveled>this.range)return false;
+  // 投射物碰到障碍物消失（仅对墙和建筑）
+  if(isCollidingWithObstacle(this.x,this.y,this.radius)){
+    spawnParticles(this.x,this.y,this.color,3);
+    return false;
+  }
+  for(var i=enemies.length-1;i>=0;i--){
+    var e=enemies[i];
+    if(Math.abs(this.x-e.x)<this.radius+e.radius&&Math.abs(this.y-e.y)<this.radius+e.radius){
+      var crit=Math.random()<player.critChance;
+      var dmg=Math.floor(this.damage*player.dmgMult*(crit?1+player.critDmg:1));
+
+      // 吴禹被动：暴击时概率秒杀
+      if(crit&&selectedChar&&selectedChar.id==='wuyu'&&Math.random()<0.1&&!e.boss){
+        dmg=e.hp+1;
+      }
+      // 陈雪被动：斩杀时刻 - 低血量敌人双倍伤害
+      if(selectedChar&&selectedChar.id==='xue'){
+        if(e.hp/e.maxHp<player.executeThreshold)dmg*=2;
+        else if(Math.random()<0.08)dmg*=2;
+      }
+
+      e.hp-=dmg;e.hitFlash=6;
+      var kb=0.5*(1+player.knockbackBonus);var kbDir=Math.hypot(this.vx,this.vy)||1;
+      e.knockbackX+=(this.vx/kbDir)*kb;e.knockbackY+=(this.vy/kbDir)*kb;
+      spawnDamageText(e.x,e.y,(crit?'暴击 ':'')+'-'+dmg,crit?'#ffd700':'#fff');
+      spawnParticles(e.x,e.y,this.color,4);
+      // 林有崧：AI协同 - 子弹命中后30%概率分裂2枚追踪弹
+      if(selectedChar&&selectedChar.id==='yousong'&&Math.random()<0.3&&e.hp>0){
+        for(var si=0;si<2;si++){
+          var sa=Math.atan2(e.y-this.y,e.x-this.x)+(si===0?-0.4:0.4);
+          projectiles.push(new Projectile(this.x,this.y,Math.cos(sa)*14,Math.sin(sa)*14,
+            {damage:this.damage*0.4,speed:14,range:200,pierce:0,color:'#00d4ff',type:'projectile',homing:true,homTarget:e,small:true},null));
+        }
+        spawnParticles(e.x,e.y,'#00d4ff',5);
+      }
+      if(player.lifesteal>0){var heal=dmg*player.lifesteal;player.hp=Math.min(player.maxHp,player.hp+heal);}
+      if(this.explode){
+        for(var j=0;j<enemies.length;j++){
+          if(i!==j&&dist(enemies[j],{x:this.x,y:this.y})<60){
+            var edmg=Math.floor(this.damage*0.5*player.dmgMult);
+            enemies[j].hp-=edmg;enemies[j].hitFlash=4;
+            spawnDamageText(enemies[j].x,enemies[j].y,'-'+edmg,'#ffa502');
+            spawnParticles(enemies[j].x,enemies[j].y,'#ffa502',3);
+          }
+        }
+        spawnParticles(this.x,this.y,'#ff6b35',12);
+      }
+      if(e.hp<=0)killEnemy(i);
+      this.pierce--;if(this.pierce<0)return false;
+    }
+  }
+  return true;
+};
+
+Projectile.prototype.draw=function(){
+  ctx.save();
+  if(this.big){ctx.shadowColor=this.color;ctx.shadowBlur=20;ctx.fillStyle=this.color;ctx.beginPath();ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(this.x,this.y,this.radius*0.4,0,Math.PI*2);ctx.fill();}
+  else if(this.homing){var a=Math.atan2(this.vy,this.vx);ctx.translate(this.x,this.y);ctx.rotate(a);ctx.fillStyle=this.color;ctx.beginPath();ctx.moveTo(this.radius,0);ctx.lineTo(-this.radius,-this.radius*0.7);ctx.lineTo(-this.radius,this.radius*0.7);ctx.closePath();ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(0,0,this.radius*0.3,0,Math.PI*2);ctx.fill();}
+  else if(this.small){ctx.fillStyle=this.color;ctx.beginPath();ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);ctx.fill();}
+  else if(this.explode){var pulse=this.radius+Math.sin(frameCount*0.3)*2;ctx.fillStyle=this.color;ctx.beginPath();ctx.arc(this.x,this.y,pulse,0,Math.PI*2);ctx.fill();ctx.fillStyle='#ffa502';ctx.beginPath();ctx.arc(this.x,this.y,pulse*0.5,0,Math.PI*2);ctx.fill();}
+  else{ctx.fillStyle=this.color;ctx.beginPath();ctx.arc(this.x,this.y,this.radius,0,Math.PI*2);ctx.fill();ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(this.x,this.y,this.radius*0.4,0,Math.PI*2);ctx.fill();}
+  ctx.restore();
+};
+
+// ========== 武器升级/合并系统 ==========
+function getWeaponSellPrice(w){
+  var wd=WEAPON_DEFS[w.key];if(!wd)return 0;
+  var qMult={common:1,uncommon:1.4,rare:1.8,epic:2.5,legendary:3};
+  var base=Math.floor(wd.baseDmg*0.8);
+  var lvMult=1+w.level*0.5;
+  return Math.max(3,Math.floor(base*(qMult[w.quality]||1)*lvMult));
+}
+
+function sellCurrentWeapon(){
+  if(player.weapons.length<=1){showMsg('至少保留一把武器！','bad');return;}
+  var w=player.weapons[player.activeWeapon];
+  var wd=WEAPON_DEFS[w.key];
+  var price=getWeaponSellPrice(w);
+  player.gold+=price;
+  player.weapons.splice(player.activeWeapon,1);
+  if(player.activeWeapon>=player.weapons.length)player.activeWeapon=player.weapons.length-1;
+  weaponSlotsBuilt=false;
+  showMsg('卖掉 '+wd.name+' +'+price+'💰','good');
+}
+
+function mergeWeapons(){
+  // 查找可以合并的同种武器
+  var weaponCounts={};
+  for(var i=0;i<player.weapons.length;i++){
+    var key=player.weapons[i].key;
+    if(!weaponCounts[key])weaponCounts[key]={indices:[],levels:[]};
+    weaponCounts[key].indices.push(i);
+    weaponCounts[key].levels.push(player.weapons[i].level);
+  }
+
+  // 找到可以合并的武器（同种且未满级）
+  for(var key in weaponCounts){
+    var info=weaponCounts[key];
+    if(info.indices.length>=2){
+      var wd=WEAPON_DEFS[key];
+      var targetLevel=info.levels[0]+1;
+      if(targetLevel<=wd.maxLv){
+        // 合并：移除第二把，第一把升级
+        var keepIdx=info.indices[0];
+        var removeIdx=info.indices[1];
+
+        // 显示合并动画
+        showMergeEffect(wd.emoji,wd.name+' '+WEAPON_UPGRADE_NAMES[targetLevel]);
+
+        player.weapons[keepIdx].level=targetLevel;
+        player.weapons.splice(removeIdx,1);
+        if(player.activeWeapon>=player.weapons.length)player.activeWeapon=player.weapons.length-1;
+        weaponSlotsBuilt=false;
+        showMsg('✨ 合并成功！'+wd.name+' 升级为 '+WEAPON_UPGRADE_NAMES[targetLevel],'special');
+        return true;
+      }
+    }
+  }
+
+  // 没有可合并的，尝试金币升级
+  return false;
+}
+
+function upgradeWeaponWithGold(){
+  var w=player.weapons[player.activeWeapon];
+  var wd=WEAPON_DEFS[w.key];
+  if(w.level>=wd.maxLv){showMsg('武器已满级！','bad');return false;}
+
+  var cost=15+w.level*12;
+  if(player.gold<cost){showMsg('金币不足！需要'+cost+'💰','bad');return false;}
+
+  player.gold-=cost;
+  w.level++;
+  weaponSlotsBuilt=false;
+  showMsg('⬆️ '+wd.name+' 升级为 '+WEAPON_UPGRADE_NAMES[w.level]+'！花费'+cost+'💰','good');
+  return true;
+}
+
+function showMergeEffect(emoji,name){
+  var hint=document.getElementById('mergeHint');
+  document.getElementById('mergeEmoji').textContent=emoji;
+  document.getElementById('mergeResult').textContent=name;
+  hint.style.display='block';
+  setTimeout(function(){hint.style.display='none';},1500);
+}
+
+// ========== 遗物系统 ==========
+function applyRelic(relic){
+  relic.apply(player);
+  player.relics.push(relic);
+  updateRelicBar();
+}
+
+function updateRelicBar(){
+  // 更新增益列表
+  var buffList=document.getElementById('buffList');buffList.innerHTML='';
+  var buffs=getActiveBuffs();
+  for(var i=0;i<buffs.length;i++){
+    var b=buffs[i];
+    var slot=document.createElement('div');slot.className='buff-slot';
+    slot.innerHTML=b.emoji+' '+b.name;
+    slot.title=b.name+': '+b.desc;
+    buffList.appendChild(slot);
+  }
+
+  // 更新遗物列表
+  var relicList=document.getElementById('relicList');relicList.innerHTML='';
+  for(var i=0;i<player.relics.length;i++){
+    var r=player.relics[i];
+    var slot=document.createElement('div');slot.className='relic-slot';
+    slot.textContent=r.emoji;slot.title=r.name+': '+r.desc;
+    relicList.appendChild(slot);
+  }
+}
+
+function getActiveBuffs(){
+  var buffs=[];
+  // 属性增益
+  if(player.dmgMult>1)buffs.push({emoji:'⚔️',name:'伤害+'+Math.round((player.dmgMult-1)*100)+'%',desc:'当前伤害加成'});
+  if(player.atkSpdMult>1)buffs.push({emoji:'⚡',name:'攻速+'+Math.round((player.atkSpdMult-1)*100)+'%',desc:'当前攻速加成'});
+  if(player.speed>4.5)buffs.push({emoji:'💨',name:'移速+'+((player.speed-4.5).toFixed(1)),desc:'当前移速加成'});
+  if(player.critChance>0.05)buffs.push({emoji:'💥',name:'暴击+'+Math.round((player.critChance-0.05)*100)+'%',desc:'当前暴击加成'});
+  if(player.armor>0)buffs.push({emoji:'🛡️',name:'护甲+'+player.armor,desc:'当前护甲'});
+  if(player.regen>0)buffs.push({emoji:'💚',name:'回复'+player.regen.toFixed(1)+'/秒',desc:'每秒生命回复'});
+  if(player.pierceBonus>0)buffs.push({emoji:'📍',name:'穿透+'+player.pierceBonus,desc:'子弹穿透数'});
+  if(player.rangeMult>1)buffs.push({emoji:'👁️',name:'射程+'+Math.round((player.rangeMult-1)*100)+'%',desc:'当前射程加成'});
+  if(player.lifesteal>0)buffs.push({emoji:'🩸',name:'吸血'+Math.round(player.lifesteal*100)+'%',desc:'伤害回复生命'});
+  if(player.multiShot>0)buffs.push({emoji:'🎯',name:'多重+'+player.multiShot,desc:'额外弹幕数'});
+  if(player.xpMult>1)buffs.push({emoji:'✨',name:'经验+'+Math.round((player.xpMult-1)*100)+'%',desc:'经验获取加成'});
+  if(player.goldMult>1)buffs.push({emoji:'💰',name:'金币+'+Math.round((player.goldMult-1)*100)+'%',desc:'金币获取加成'});
+  if(player.knockbackBonus>0)buffs.push({emoji:'💫',name:'击退+'+Math.round(player.knockbackBonus*100)+'%',desc:'击退效果加强'});
+  if(player.thorns>0)buffs.push({emoji:'🌹',name:'反伤'+Math.round(player.thorns*100)+'%',desc:'受伤反弹伤害'});
+  if(player.magnetRange>0)buffs.push({emoji:'🧲',name:'磁铁+'+player.magnetRange,desc:'物品吸取范围'});
+  // 场景buff
+  if(currentZoneBuff)buffs.push({emoji:'🗺️',name:currentZoneBuff.buff,desc:currentZoneBuff.buffDesc});
+  return buffs;
+}
+
+// ========== 投射物 & 武器（续） ==========
+function fireWeapons(){
+  var wi=player.activeWeapon;
+  if(wi>=player.weapons.length)return;
+  var w=player.weapons[wi];
+  var wd=WEAPON_DEFS[w.key];
+  if(!wd)return;
+  w.cd--;
+  var effectiveRate=Math.ceil(wd.rate/player.atkSpdMult);
+  if(w.cd>0)return;
+  w.cd=effectiveRate;
+  // 吴禹：攻击时重置蓄力
+  if(selectedChar&&selectedChar.id==='wuyu'){player.chargeTimer=0;player.chargeBonus=0;}
+  var qMult=QUALITY_MULT[w.quality]||1;
+  var lvMult=WEAPON_UPGRADE_MULT[w.level]||1;
+  var finalDmg=wd.baseDmg*qMult*lvMult*CFG.dmgMult*player.dmgMult;
+  // 吴禹：蓄力加成
+  if(selectedChar&&selectedChar.id==='wuyu'&&player.chargeBonus>0){
+    finalDmg*=(1+player.chargeBonus);
+  }
+  // 林致远：连杀节奏加成
+  if(selectedChar&&selectedChar.id==='zhiyuan'&&player.rhythmStacks>0){
+    player.atkSpdMult=1+player.rhythmStacks*0.05;
+    player.speed=4.5*(selectedChar.spd||1)+player.rhythmStacks*0.15;
+  }
+  var bonusPierce=Math.floor(w.level/2);
+
+  if(w.key==='ai_pen'){
+    var target=null,minD=Infinity;
+    for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+    if(!target)return;
+    var a=Math.atan2(target.y-player.y,target.x-player.x);
+    projectiles.push(new Projectile(player.x,player.y,Math.cos(a)*wd.speed,Math.sin(a)*wd.speed,
+      {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus+bonusPierce,
+       color:wd.color,type:'projectile',homing:true,homTarget:target},w));
+    return;
+  }
+  if(w.key==='coffee_gun'){
+    var target=null,minD=Infinity;
+    for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+    if(!target)return;
+    var a=Math.atan2(target.y-player.y,target.x-player.x);
+    for(var s=0;s<(1+player.multiShot+w.level);s++){
+      var sp=(s-(player.multiShot+w.level)/2)*0.15;
+      projectiles.push(new Projectile(player.x,player.y,Math.cos(a+sp)*wd.speed,Math.sin(a+sp)*wd.speed,
+        {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:0,color:wd.color,type:'projectile'},w));
+    }
+    return;
+  }
+  if(w.key==='shield_bash'){
+    var range=(wd.range||60)+w.level*15;
+    for(var i=0;i<enemies.length;i++){
+      if(dist(player,enemies[i])<range){
+        var crit=Math.random()<player.critChance;
+        var mdmg=Math.floor(finalDmg*(crit?1+player.critDmg:1));
+        enemies[i].hp-=mdmg;enemies[i].hitFlash=8;
+        var kba=Math.atan2(enemies[i].y-player.y,enemies[i].x-player.x);
+        enemies[i].knockbackX+=Math.cos(kba)*5*(1+player.knockbackBonus+w.level*0.3);
+        enemies[i].knockbackY+=Math.sin(kba)*5*(1+player.knockbackBonus+w.level*0.3);
+        spawnDamageText(enemies[i].x,enemies[i].y,(crit?'暴击! ':'')+'-'+mdmg,crit?'#ffd700':wd.color);
+        spawnParticles(enemies[i].x,enemies[i].y,wd.color,6);
+        if(player.lifesteal>0)player.hp=Math.min(player.maxHp,player.hp+mdmg*player.lifesteal);
+        if(enemies[i].hp<=0)killEnemy(i);
+      }
+    }
+    weaponEffects.push({type:'melee_arc',x:player.x,y:player.y,r:range,color:wd.color,life:1});
+    return;
+  }
+  if(w.key==='procrastination'){
+    var range=(wd.range||100)+w.level*20;
+    for(var i=0;i<enemies.length;i++){
+      if(dist(player,enemies[i])<range){
+        var admg=Math.floor(finalDmg);
+        enemies[i].hp-=admg;enemies[i].hitFlash=4;
+        spawnDamageText(enemies[i].x,enemies[i].y,'-'+admg,wd.color);
+        if(player.lifesteal>0)player.hp=Math.min(player.maxHp,player.hp+admg*player.lifesteal);
+        if(enemies[i].hp<=0)killEnemy(i);
+      }
+    }
+    weaponEffects.push({type:'aoe_pulse',x:player.x,y:player.y,r:range,color:wd.color,life:1});
+    return;
+  }
+  if(w.key==='literature_bomb'){
+    var target=null,minD=Infinity;
+    for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+    if(!target)return;
+    var a=Math.atan2(target.y-player.y,target.x-player.x);
+    projectiles.push(new Projectile(player.x,player.y,Math.cos(a)*wd.speed,Math.sin(a)*wd.speed,
+      {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus+bonusPierce,
+       color:wd.color,type:'projectile',explode:true},w));
+    return;
+  }
+  if(w.key==='chill_wave'){
+    var range=(wd.range||140)+w.level*25;
+    for(var i=0;i<enemies.length;i++){
+      if(dist(player,enemies[i])<range){
+        var admg=Math.floor(finalDmg);
+        enemies[i].hp-=admg;enemies[i].hitFlash=6;
+        enemies[i].slowTimer=60+w.level*20;
+        spawnDamageText(enemies[i].x,enemies[i].y,'-'+admg,wd.color);
+        if(player.lifesteal>0)player.hp=Math.min(player.maxHp,player.hp+admg*player.lifesteal);
+        if(enemies[i].hp<=0)killEnemy(i);
+      }
+    }
+    weaponEffects.push({type:'chill_ring',x:player.x,y:player.y,r:0,maxR:range,color:wd.color,life:1});
+    return;
+  }
+  if(w.key==='thesis_draft'){
+    var target=null,minD=Infinity;
+    for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+    if(!target)return;
+    var a=Math.atan2(target.y-player.y,target.x-player.x);
+    for(var s=0;s<1+w.level;s++){
+      var spread=(Math.random()-0.5)*0.3;
+      projectiles.push(new Projectile(player.x,player.y,Math.cos(a+spread)*wd.speed,Math.sin(a+spread)*wd.speed,
+        {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:0,color:wd.color,type:'projectile'},w));
+    }
+    return;
+  }
+  if(w.key==='defense_ppt'){
+    var target=null,minD=Infinity;
+    for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+    if(!target)return;
+    var a=Math.atan2(target.y-player.y,target.x-player.x);
+    for(var sa=-(1+w.level);sa<=(1+w.level);sa++){
+      projectiles.push(new Projectile(player.x,player.y,Math.cos(a+sa*0.3)*wd.speed,Math.sin(a+sa*0.3)*wd.speed,
+        {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus,
+         color:wd.color,type:'projectile'},w));
+    }
+    weaponEffects.push({type:'fan_shot',x:player.x,y:player.y,angle:a,color:wd.color,life:1});
+    return;
+  }
+  if(w.key==='opening_report'){
+    var count=8+w.level*2;
+    for(var r=0;r<count;r++){
+      var ra=(Math.PI*2/count)*r;
+      projectiles.push(new Projectile(player.x,player.y,Math.cos(ra)*wd.speed,Math.sin(ra)*wd.speed,
+        {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus,
+         color:wd.color,type:'projectile'},w));
+    }
+    weaponEffects.push({type:'ring_burst',x:player.x,y:player.y,r:0,maxR:60,color:wd.color,life:1});
+    return;
+  }
+  if(w.key==='teacher_note'){
+    var range=(wd.range||120)+w.level*15;
+    for(var i=0;i<enemies.length;i++){
+      if(dist(player,enemies[i])<range){
+        var admg=Math.floor(finalDmg);
+        enemies[i].hp-=admg;enemies[i].hitFlash=4;
+        enemies[i].speed*=0.7-w.level*0.03;
+        spawnDamageText(enemies[i].x,enemies[i].y,'-'+admg,wd.color);
+        if(player.lifesteal>0)player.hp=Math.min(player.maxHp,player.hp+admg*player.lifesteal);
+        if(enemies[i].hp<=0)killEnemy(i);
+      }
+    }
+    weaponEffects.push({type:'note_aura',x:player.x,y:player.y,r:range,color:wd.color,life:1});
+    return;
+  }
+  if(w.key==='reference'){
+    var target=null,minD=Infinity;
+    for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+    if(!target)return;
+    var a=Math.atan2(target.y-player.y,target.x-player.x);
+    projectiles.push(new Projectile(player.x,player.y,Math.cos(a)*wd.speed,Math.sin(a)*wd.speed,
+      {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus+bonusPierce,
+       color:wd.color,type:'projectile',big:true},w));
+    return;
+  }
+  if(w.key==='keyboard'){
+    var target=null,minD=Infinity;
+    for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+    if(!target)return;
+    var a=Math.atan2(target.y-player.y,target.x-player.x);
+    for(var s=0;s<1+w.level;s++){
+      var sp=(Math.random()-0.5)*0.2;
+      projectiles.push(new Projectile(player.x,player.y,Math.cos(a+sp)*wd.speed,Math.sin(a+sp)*wd.speed,
+        {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:0,color:wd.color,type:'projectile',small:true},w));
+    }
+    return;
+  }
+  if(w.key==='advisor_call'){
+    var target=null,minD=Infinity;
+    for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+    if(!target)return;
+    var a=Math.atan2(target.y-player.y,target.x-player.x);
+    projectiles.push(new Projectile(player.x,player.y,Math.cos(a)*wd.speed,Math.sin(a)*wd.speed,
+      {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus+bonusPierce,
+       color:wd.color,type:'projectile',homing:true,homTarget:target,zigzag:true},w));
+    weaponEffects.push({type:'lightning',x:player.x,y:player.y,tx:target.x,ty:target.y,color:wd.color,life:1});
+    return;
+  }
+  // 通用弹幕
+  var target=null,minD=Infinity;
+  for(var i=0;i<enemies.length;i++){var dd=dist(player,enemies[i]);if(dd<minD&&dd<wd.range*player.rangeMult){minD=dd;target=enemies[i];}}
+  if(!target)return;
+  var a=Math.atan2(target.y-player.y,target.x-player.x);
+  var shotCount=1+player.multiShot;
+  for(var s=0;s<shotCount;s++){
+    var sp=(shotCount>1)?(s-(shotCount-1)/2)*0.2:0;
+    projectiles.push(new Projectile(player.x,player.y,Math.cos(a+sp)*wd.speed,Math.sin(a+sp)*wd.speed,
+      {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus+bonusPierce,
+       color:wd.color,type:'projectile'},w));
+  }
+}
+
+function killEnemy(idx){
+  var e=enemies[idx];
+  var goldGain=Math.floor(e.gold*player.goldMult);
+
+  // 吴禹被动：击杀概率双倍金币
+  if(selectedChar&&selectedChar.id==='zhiyuan'&&Math.random()<0.15){
+    goldGain*=2;
+    spawnFloatText(e.x,e.y-20,'💰 x2!','#ffd700');
+  }
+  // 阿依达娜被动：击杀回复HP
+  if(selectedChar&&selectedChar.id==='dana'){
+    var heal=Math.floor(player.maxHp*0.02);
+    player.hp=Math.min(player.maxHp,player.hp+heal);
+    spawnFloatText(e.x,e.y+20,'+'+heal+' HP','#2ed573');
+  }
+
+  // 连杀金币加成
+  if(player.combo>=5){
+    var comboBonus=Math.floor(player.combo*1.5);
+    goldGain+=comboBonus;
+  }
+
+  // 金币获取减少
+  goldGain=Math.floor(goldGain*0.5);
+
+  player.xp+=Math.floor(e.xp*player.xpMult);player.gold+=goldGain;player.kills++;
+  spawnParticles(e.x,e.y,e.color,10);spawnFloatText(e.x,e.y,'+'+e.xp+' XP','#7b2ff7');
+
+  // 连杀系统
+  player.combo++;
+  player.comboTimer=120; // 2秒
+  if(player.combo>player.maxCombo)player.maxCombo=player.combo;
+  if(player.combo>=5){
+    var comboBonus=Math.floor(player.combo*0.8);
+    player.gold+=comboBonus;
+    spawnFloatText(e.x,e.y-30,'🔥 '+player.combo+' COMBO! +'+comboBonus+'💰','#ff6b35');
+  }
+
+  // ===== 角色击杀独特机制 =====
+  // 林致远：连杀节奏 - 每次击杀叠1层，每层+5%攻速+3%移速
+  if(selectedChar&&selectedChar.id==='zhiyuan'){
+    if(player.rhythmStacks<10)player.rhythmStacks++;
+    player.rhythmTimer=180; // 3秒断连清空
+    spawnFloatText(e.x,e.y-40,'🎵 节奏x'+player.rhythmStacks,'#ff6b35');
+  }
+  // 黄钰：弹幕扩散 - 击杀后从敌人位置发射6枚扩散弹
+  if(selectedChar&&selectedChar.id==='yuhui'){
+    for(var si=0;si<6;si++){
+      var sa=(Math.PI*2/6)*si;
+      projectiles.push(new Projectile(e.x,e.y,Math.cos(sa)*10,Math.sin(sa)*10,
+        {damage:player.dmgMult*8,speed:10,range:180,pierce:0,color:'#74b9ff',type:'projectile',small:true},null));
+    }
+    spawnParticles(e.x,e.y,'#74b9ff',8);
+  }
+  // 陈雪：斩杀时刻 - 击杀低血量敌人后重置所有武器CD
+  if(selectedChar&&selectedChar.id==='xue'){
+    for(var wi=0;wi<player.weapons.length;wi++)player.weapons[wi].cd=0;
+    spawnFloatText(e.x,e.y-50,'⚡ CD重置!','#ff4757');
+  }
+
+  // 掉落物系统 - 10%概率掉落金币，4%概率掉落经验球，1%概率掉落道具
+  if(Math.random()<0.1){
+    spawnDrop(e.x,e.y,'gold',Math.floor(1+Math.random()*2));
+  }
+  if(Math.random()<0.04){
+    spawnDrop(e.x,e.y,'xp',Math.floor(8+Math.random()*10));
+  }
+  if(Math.random()<0.01){
+    spawnDrop(e.x,e.y,'heal',Math.floor(player.maxHp*0.04));
+  }
+
+  checkLevelUp();enemies.splice(idx,1);
+}
+
+// ========== 粒子 & 文字 ==========
+function Particle(x,y,color){this.x=x;this.y=y;this.color=color;this.vx=(Math.random()-0.5)*7;this.vy=(Math.random()-0.5)*7-2;this.life=1;this.decay=0.025+Math.random()*0.02;this.size=2+Math.random()*4;}
+Particle.prototype.update=function(){this.x+=this.vx;this.y+=this.vy;this.vy+=0.1;this.life-=this.decay;return this.life>0;};
+Particle.prototype.draw=function(){ctx.globalAlpha=this.life;ctx.fillStyle=this.color;ctx.beginPath();ctx.arc(this.x,this.y,this.size*this.life,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;};
+function DamageText(x,y,text,color){this.x=x;this.y=y;this.text=text;this.color=color;this.life=1;this.vy=-2;}
+DamageText.prototype.update=function(){this.y+=this.vy;this.vy*=0.95;this.life-=0.025;return this.life>0;};
+DamageText.prototype.draw=function(){ctx.globalAlpha=this.life;ctx.fillStyle=this.color;ctx.font='bold 14px sans-serif';ctx.textAlign='center';ctx.fillText(this.text,this.x,this.y);ctx.globalAlpha=1;};
+function FloatText(x,y,text,color){this.x=x;this.y=y;this.text=text;this.color=color;this.life=1;this.vy=-1.5;}
+FloatText.prototype.update=function(){this.y+=this.vy;this.life-=0.018;return this.life>0;};
+FloatText.prototype.draw=function(){ctx.globalAlpha=Math.max(0,this.life);ctx.fillStyle=this.color;ctx.font='bold 13px sans-serif';ctx.textAlign='center';ctx.fillText(this.text,this.x,this.y);ctx.globalAlpha=1;};
+function spawnParticles(x,y,color,n){for(var i=0;i<n;i++)particles.push(new Particle(x,y,color))}
+function spawnDamageText(x,y,text,color){damageTexts.push(new DamageText(x,y,text,color))}
+function spawnFloatText(x,y,text,color){floatTexts.push(new FloatText(x,y,text,color))}
+
+// 掉落物系统
+function spawnDrop(x,y,type,value){
+  drops.push({x:x,y:y,type:type,value:value,life:600,bobPhase:Math.random()*Math.PI*2,
+    vx:(Math.random()-0.5)*3,vy:(Math.random()-0.5)*3-2});
+}
+
+function updateDrops(){
+  var magnetDist=80+player.magnetRange;
+  for(var i=drops.length-1;i>=0;i--){
+    var d=drops[i];
+    d.life--;d.bobPhase+=0.08;
+    d.vy+=0.15; // 重力
+    d.x+=d.vx;d.y+=d.vy;
+    d.vx*=0.95;d.vy*=0.95;
+
+    // 磁铁吸引
+    var dd=dist(player,d);
+    if(dd<magnetDist){
+      var pull=Math.min(8,(magnetDist-dd)/10);
+      d.vx+=(player.x-d.x)/dd*pull;
+      d.vy+=(player.y-d.y)/dd*pull;
+    }
+
+    // 拾取
+    if(dd<player.radius+15){
+      if(d.type==='gold'){player.gold+=d.value;spawnFloatText(d.x,d.y,'+'+d.value+'💰','#ffd700');}
+      else if(d.type==='xp'){player.xp+=d.value;spawnFloatText(d.x,d.y,'+'+d.value+' XP','#7b2ff7');checkLevelUp();}
+      else if(d.type==='heal'){player.hp=Math.min(player.maxHp,player.hp+d.value);spawnFloatText(d.x,d.y,'+'+d.value+' ❤️','#ff4757');}
+      spawnParticles(d.x,d.y,d.type==='gold'?'#ffd700':d.type==='xp'?'#7b2ff7':'#ff4757',6);
+      drops.splice(i,1);
+      continue;
+    }
+
+    if(d.life<=0)drops.splice(i,1);
+  }
+}
+
+function drawDrops(){
+  for(var i=0;i<drops.length;i++){
+    var d=drops[i];
+    var bob=Math.sin(d.bobPhase)*3;
+    var alpha=d.life<60?d.life/60:1;
+    var scale=d.life<60?0.5+d.life/120:1;
+    ctx.save();ctx.globalAlpha=alpha;ctx.translate(d.x,d.y+bob);ctx.scale(scale,scale);
+
+    // 光晕
+    var glowColor=d.type==='gold'?'rgba(255,215,0,0.3)':d.type==='xp'?'rgba(123,47,247,0.3)':'rgba(255,71,87,0.3)';
+    ctx.fillStyle=glowColor;
+    ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill();
+
+    // 图标
+    ctx.font='14px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(d.type==='gold'?'💰':d.type==='xp'?'✨':'❤️',0,0);
+
+    ctx.restore();
+  }
+}
+
+// 连杀更新
+function updateCombo(){
+  if(player.comboTimer>0){
+    player.comboTimer--;
+    if(player.comboTimer<=0)player.combo=0;
+  }
+}
+
+// ========== 波次系统 ==========
+function getWaveConfig(wave){
+  var baseCount=20+Math.floor(wave*7);
+  var bossWave=[4,8,12].indexOf(wave)>=0;
+  var types=[];
+  if(wave<=2)types=[0,5];
+  else if(wave<=5)types=[0,1,2,5];
+  else if(wave<=8)types=[0,1,2,3,4,5,6];
+  else types=[0,1,2,3,4,5,6,7,8,9];
+  return{count:baseCount,types:types.map(function(t){return ENEMY_TYPES[t]}),boss:bossWave,
+    bossType:bossWave?ENEMY_TYPES[Math.min(7+Math.floor(wave/4)-1,ENEMY_TYPES.length-1)]:null};
+}
+
+function startWave(){
+  waveState='fighting';
+  var waveDur=getWaveDuration(currentWave);
+  waveTimer=waveDur*60;
+  waveSpawnCount=0;waveSpawnTimer=0;
+  var cfg=getWaveConfig(currentWave);
+  waveTotalEnemies=cfg.count;
+  waveSpawnInterval=Math.max(30,Math.floor((waveDur*60*0.8)/waveTotalEnemies));
+  waveCfg=cfg;
+  waveAllSpawned=false;
+
+  // 波次开始事件 - 50%概率触发多步骤故事
+  if(currentWave>1&&Math.random()<0.5){
+    setTimeout(function(){openStoryEvent();},1000);
+  }
+  // 每波生成0-1个增益物
+  var powerupCount=Math.floor(Math.random()*2);
+  for(var pi=0;pi<powerupCount;pi++){
+    (function(delay){setTimeout(function(){spawnPowerup();},delay);})(pi*2000+3000);
+  }
+  // 40%概率生成事件触发点，每波最多1个
+  if(Math.random()<0.4){
+    setTimeout(function(){spawnEventTrigger();},3000);
+  }
+}
+
+// 波次内持续生成敌人
+function updateWaveSpawns(){
+  if(waveState!=='fighting'||waveAllSpawned)return;
+
+  waveSpawnTimer++;
+  if(waveSpawnTimer>=waveSpawnInterval&&waveSpawnCount<waveTotalEnemies){
+    waveSpawnTimer=0;
+    enemies.push(spawnEnemy(pick(waveCfg.types)));
+    waveSpawnCount++;
+
+    // BOSS在生成50%小怪后出现
+    if(waveCfg.boss&&waveSpawnCount===Math.floor(waveTotalEnemies/2)){
+      setTimeout(function(){
+        if(gameState==='playing'&&waveState==='fighting'){
+          enemies.push(spawnEnemy(waveCfg.bossType));
+          showMsg('⚠️ BOSS来袭：'+waveCfg.bossType.name+'！','bad');
+        }
+      },500);
+    }
+
+    // 全部生成完毕
+    if(waveSpawnCount>=waveTotalEnemies){
+      waveAllSpawned=true;
+    }
+  }
+}
+
+function updateWave(){
+  if(waveState!=='fighting')return;
+  waveTimer--;
+  if(waveTimer<=0){
+    player.hp-=10;player.invincibleTimer=30;
+    spawnDamageText(player.x,player.y,'时间到 -10','#ff4757');
+    spawnParticles(player.x,player.y,'#ff4757',8);
+    if(player.hp<=0){endGame(false);return;}
+    enemies=[];waveState='clear';
+    showMsg('⏰ 时间到！剩余敌人已清除','bad');
+    onWaveEnd();
+    return;
+  }
+  // 只有怪物全部生成完毕且场上无怪才算清场
+  if(waveAllSpawned&&enemies.length===0){waveState='clear';onWaveEnd();}
+}
+
+function onWaveEnd(){
+  // 遗物效果：波次结束回血
+  if(player.waveEndHeal>0){
+    var heal=Math.floor(player.maxHp*player.waveEndHeal);
+    player.hp=Math.min(player.maxHp,player.hp+heal);
+    spawnFloatText(player.x,player.y,'+'+heal+' HP','#2ed573');
+  }
+  // 黄斌被动：波次结束额外金币
+  if(selectedChar&&selectedChar.id==='bin'){
+    player.gold+=5;
+    spawnFloatText(player.x,player.y,'+5 💰','#ffd700');
+  }
+
+  setTimeout(openShop,600);
+}
+
+var EVENT_POOL=[
+  {title:"📚 图书馆奇遇",desc:"你在图书馆发现一本古籍，里面似乎记载着强大的力量...",choices:[
+    {text:"仔细研读",icon:"📖",result:"library_read"},
+    {text:"带走研究",icon:"🎒",result:"library_keep"},
+    {text:"放回原处",icon:"📚",result:"library_return"}]},
+  {title:"🍜 食堂偶遇",desc:"食堂阿姨看你很瘦，给你多打了菜...",choices:[
+    {text:"谢谢阿姨",icon:"🙏",result:"cafe_eat"},
+    {text:"分给同学",icon:"🤝",result:"cafe_share"},
+    {text:"打包带走",icon:"📦",result:"cafe_pack"}]},
+  {title:"👔 导师来电",desc:"导师突然打电话说要讨论论文...",choices:[
+    {text:"马上过去",icon:"🏃",result:"advisor_go"},
+    {text:"假装没看到",icon:"🙈",result:"advisor_ignore"},
+    {text:"已读不回",icon:"👻",result:"advisor_ghost"}]},
+  {title:"🏠 室友求助",desc:"室友黄玮杰说电脑坏了，想找你帮忙...",choices:[
+    {text:"帮忙修",icon:"🔧",result:"dorm_lend"},
+    {text:"教他方法",icon:"📖",result:"dorm_copy"},
+    {text:"说自己也不会",icon:"🤷",result:"dorm_hide"}]},
+  {title:"🌙 深夜实验室",desc:"凌晨2点，实验室只剩你一个人...",choices:[
+    {text:"继续肝",icon:"💻",result:"night_work"},
+    {text:"回去睡觉",icon:"😴",result:"night_sleep"},
+    {text:"喝杯咖啡",icon:"☕",result:"night_coffee"}]},
+  {title:"⚽ 操场偶遇",desc:"同学邀请你去操场打篮球...",choices:[
+    {text:"加入比赛",icon:"🏀",result:"sport_accept"},
+    {text:"在旁边看",icon:"👀",result:"sport_watch"},
+    {text:"婉拒",icon:"🏃",result:"sport_refuse"}]},
+  {title:"🖨️ 打印店惊魂",desc:"打印店老板说你的论文格式有问题...",choices:[
+    {text:"请他帮忙改",icon:"🙏",result:"print_help"},
+    {text:"自己改",icon:"💻",result:"print_alone"},
+    {text:"多打印几份",icon:"📄",result:"print_more"}]},
+  {title:"🎓 答辩彩排",desc:"师兄师姐在进行答辩彩排，邀请你旁听...",choices:[
+    {text:"认真听",icon:"📝",result:"exhibition_try"},
+    {text:"偷学技巧",icon:"🤫",result:"exhibition_watch"},
+    {text:"溜了溜了",icon:"🏃",result:"exhibition_escape"}]},
+  {title:"📱 外卖到了",desc:"外卖小哥打电话说到了，但你在实验室走不开...",choices:[
+    {text:"冲下去拿",icon:"🏃",result:"delivery_rush"},
+    {text:"让室友帮忙",icon:"🤝",result:"delivery_ask"},
+    {text:"不吃了",icon:"😤",result:"delivery_skip"}]},
+  {title:"💬 表白墙风波",desc:"学校表白墙上出现了一条关于你的帖子...",choices:[
+    {text:"去评论区看看",icon:"👀",result:"confession_leave"},
+    {text:"假装没看到",icon:"🙈",result:"confession_ignore"},
+    {text:"自己也发一条",icon:"📱",result:"confession_comment"}]},
+  {title:"📢 校园广播",desc:"校园广播突然播放了一首你最喜欢的歌...",choices:[
+    {text:"跟着哼",icon:"🎵",result:"campus_run"},
+    {text:"安静听完",icon:"🎶",result:"campus_quiet"},
+    {text:"躺平享受",icon:"😎",result:"campus躺平"}]},
+  {title:"👩‍🏫 助教答疑",desc:"助教在群里发了答疑时间...",choices:[
+    {text:"去问问题",icon:"❓",result:"ta_listen"},
+    {text:"挑战他的答案",icon:"⚔️",result:"ta_argue"},
+    {text:"帮忙维持秩序",icon:"🤝",result:"ta_agree"}]},
+  {title:"👩‍🎓 学姐请教",desc:"学姐找你请教一个技术问题...",choices:[
+    {text:"认真教她",icon:"📖",result:"senior_ask"},
+    {text:"说自己也不太会",icon:"🤷",result:"senior_refuse"},
+    {text:"教完顺便请吃饭",icon:"🍜",result:"senior_life"}]},
+  {title:"🌐 网络故障",desc:"实验室突然断网了...",choices:[
+    {text:"检查路由器",icon:"🔧",result:"cyber_save"},
+    {text:"重启电脑",icon:"💻",result:"cyber_restart"},
+    {text:"趁机摸鱼",icon:"📱",result:"cyber_slack"}]}
+];
+
+
+// ========== 事件系统 ==========
+function openEvent(){
+  if(gameState!=='event'&&gameState!=='playing')return;
+  gameState='event';
+  var event=pick(EVENT_POOL);
+  document.getElementById('eventScreen').style.display='flex';
+  document.getElementById('eventTitle').textContent=event.title;
+  document.getElementById('eventDesc').textContent=event.desc;
+
+  var choicesDiv=document.getElementById('eventChoices');choicesDiv.innerHTML='';
+  for(var i=0;i<event.choices.length;i++){
+    (function(choice,idx){
+      var btn=document.createElement('div');btn.className='event-choice';
+      btn.innerHTML='<div class="event-key">'+(idx+1)+'</div>'+
+        '<div class="event-icon">'+choice.icon+'</div>'+
+        '<div class="event-text">'+choice.text+'</div>';
+      btn.addEventListener('click',function(){
+        resolveEventChoice(choice);
+      });
+      choicesDiv.appendChild(btn);
+    })(event.choices[i],i);
+  }
+}
+
+function resolveEventChoice(choice){
+  // 保留旧的单步事件处理（兼容）
+  var result=choice.result;
+  var resultText='';
+
+  // 图书馆事件
+  if(result==='library_read'){player.dmgMult+=0.15;resultText='你读懂了古籍的奥秘，伤害提升15%！';}
+  else if(result==='library_keep'){player.pierceBonus+=2;resultText='古籍化为知识力量，穿透+2！';}
+  else if(result==='library_return'){var heal=Math.floor(player.maxHp*0.3);player.hp=Math.min(player.maxHp,player.hp+heal);resultText='你心怀敬畏，回复'+heal+'生命。';}
+
+  // 食堂事件
+  else if(result==='cafe_eat'){var heal=Math.floor(player.maxHp*0.4);player.hp=Math.min(player.maxHp,player.hp+heal);resultText='阿姨的爱心午餐，回复'+heal+'生命！';}
+  else if(result==='cafe_share'){player.speed+=0.8;resultText='分享美食收获友谊，移速+0.8！';}
+  else if(result==='cafe_pack'){player.regen+=2;resultText='打包带走，获得持续回血效果！';}
+
+  // 导师事件
+  else if(result==='advisor_go'){player.gold+=25;resultText='导师："最近辛苦了，继续努力！"+25金币';}
+  else if(result==='advisor_ignore'){player.critChance+=0.2;resultText='逃避成功！暴击率+20%！';}
+  else if(result==='advisor_ghost'){player.armor+=2;resultText='已读不回脸皮变厚，护甲+2！';}
+
+  // 室友事件
+  else if(result==='dorm_lend'){player.gold+=15;resultText='黄玮杰："谢谢有崧！"+15金币';}
+  else if(result==='dorm_copy'){player.xpMult=(player.xpMult||1)+0.25;resultText='互相学习，经验获取+25%！';}
+  else if(result==='dorm_hide'){player.dmgMult+=0.15;resultText='独狼本色，伤害+15%！';}
+
+  // 深夜实验室
+  else if(result==='night_work'){player.dmgMult+=0.2;resultText='肝帝觉醒！伤害+20%！';}
+  else if(result==='night_sleep'){var heal=Math.floor(player.maxHp*0.5);player.hp=Math.min(player.maxHp,player.hp+heal);resultText='精力充沛！回复'+heal+'生命！';}
+  else if(result==='night_coffee'){player.atkSpdMult+=0.25;resultText='咖啡因加持！攻速+25%！';}
+
+  // 操场事件
+  else if(result==='sport_accept'){player.speed+=0.5;resultText='运动细胞觉醒！移速+0.5！';}
+  else if(result==='sport_watch'){player.critChance+=0.1;resultText='观战学技巧，暴击+10%！';}
+  else if(result==='sport_refuse'){player.armor+=3;resultText='稳健派护甲+3！';}
+
+  // 打印店事件
+  else if(result==='print_help'){player.rangeMult+=0.2;resultText='排版优化，射程+20%！';}
+  else if(result==='print_alone'){player.dmgMult+=0.15;resultText='独立自主，伤害+15%！';}
+  else if(result==='print_more'){player.pierceBonus+=1;resultText='以量取胜，穿透+1！';}
+
+  // 答辩彩排
+  else if(result==='exhibition_try'){player.dmgMult+=0.1;player.atkSpdMult+=0.1;player.speed+=0.3;resultText='实战演练！全属性提升！';}
+  else if(result==='exhibition_watch'){player.gold+=15;player.xp+=10;resultText='偷学成功！+15金币+10经验！';}
+  else if(result==='exhibition_escape'){player.speed+=0.4;resultText='答辩恐惧症发作，移速+0.4！';}
+
+  // 外卖事件
+  else if(result==='delivery_rush'){player.speed+=0.5;resultText='为了美食冲刺！移速+0.5！';}
+  else if(result==='delivery_ask'){var heal=Math.floor(player.maxHp*0.25);player.hp=Math.min(player.maxHp,player.hp+heal);resultText='室友帮忙，回复'+heal+'生命！';}
+  else if(result==='delivery_skip'){player.dmgMult+=0.1;resultText='饥饿使人强大，伤害+10%！';}
+
+  // 表白墙事件
+  else if(result==='confession_leave'){player.gold+=20;resultText='社交达人！+20金币！';}
+  else if(result==='confession_ignore'){player.dmgMult+=0.15;resultText='专注模式，伤害+15%！';}
+  else if(result==='confession_comment'){player.xpMult=(player.xpMult||1)+0.1;resultText='互动奖励，经验+10%！';}
+
+  // 校园广播事件
+  else if(result==='campus_run'){player.speed+=0.3;resultText='抢时间！移速+0.3！';}
+  else if(result==='campus_quiet'){player.xpMult=(player.xpMult||1)+0.15;resultText='沉浸学习，经验+15%！';}
+  else if(result==='campus躺平'){var heal=Math.floor(player.maxHp*0.4);player.hp=Math.min(player.maxHp,player.hp+heal);resultText='及时止损，回复'+heal+'生命！';}
+
+  // 助教事件
+  else if(result==='ta_listen'){player.dmgMult+=0.2;resultText='虚心求教，伤害+20%！';}
+  else if(result==='ta_argue'){player.critChance+=0.15;resultText='敢于质疑，暴击+15%！';}
+  else if(result==='ta_agree'){player.gold+=20;resultText='社交礼仪，+20金币！';}
+
+  // 学姐事件
+  else if(result==='senior_ask'){player.xpMult=(player.xpMult||1)+0.15;resultText='学姐经验分享，经验+15%！';}
+  else if(result==='senior_refuse'){player.dmgMult+=0.1;resultText='独立作战，伤害+10%！';}
+  else if(result==='senior_life'){var heal=Math.floor(player.maxHp*0.3);player.hp=Math.min(player.maxHp,player.hp+heal);player.gold+=10;resultText='学姐关怀，回复'+heal+'生命+10金币！';}
+
+  // 网络故障事件
+  else if(result==='cyber_save'){player.armor+=3;resultText='虚惊一场，护甲+3！';}
+  else if(result==='cyber_restart'){player.atkSpdMult+=0.15;resultText='技术宅攻速+15%！';}
+  else if(result==='cyber_slack'){player.xpMult=(player.xpMult||1)+0.2;resultText='摸鱼哲学，经验+20%！';}
+
+  // 显示结果
+  var choicesDiv=document.getElementById('eventChoices');
+  var titleEl=document.getElementById('eventTitle');
+  var descEl=document.getElementById('eventDesc');
+  titleEl.textContent='✨ '+choice.text;
+  descEl.innerHTML='<span style="color:#ffd700;font-size:1.05em;line-height:1.8">'+resultText+'</span><br><br><span style="color:#889;font-size:0.9em">按 Enter 或点击继续...</span>';
+  choicesDiv.innerHTML='';
+
+  var continueBtn=document.createElement('button');continueBtn.className='btn btn-primary';
+  continueBtn.textContent='继续 ▶';continueBtn.style.marginTop='10px';
+  continueBtn.addEventListener('click',function(){closeEventAndShop();});
+  choicesDiv.appendChild(continueBtn);
+
+  // 绑定Enter键
+  var eventKeyHandler=function(e){
+    if(e.code==='Enter'||e.code==='Space'){
+      document.removeEventListener('keydown',eventKeyHandler);
+      closeEventAndShop();
+    }
+  };
+  document.addEventListener('keydown',eventKeyHandler);
+}
+
+function closeEventAndShop(){
+  document.getElementById('eventScreen').style.display='none';
+  gameState='playing';
+  canvas.focus();
+}
+
+// ========== 经验 & 升级 ==========
+function checkLevelUp(){
+  while(player.xp>=player.xpToLvl&&player.level<30){
+    player.xp-=player.xpToLvl;player.level++;
+    player.xpToLvl=Math.floor(player.xpToLvl*1.35); // 升级曲线更陡
+    openLevelUp();
+  }
+}
+
+function openLevelUp(){
+  gameState='levelup';
+  document.getElementById('levelUpScreen').style.display='flex';
+  var grid=document.getElementById('choiceGrid');grid.innerHTML='';
+
+  // 按品质分组，稀有选项概率更低
+  var pool=STAT_UPGRADES.slice();
+  var choices=[];
+  for(var i=0;i<2;i++){
+    // 75% common, 20% uncommon, 5% rare
+    var roll=Math.random();
+    var targetQ=roll<0.75?'common':roll<0.95?'uncommon':'rare';
+    var filtered=pool.filter(function(u){return u.quality===targetQ;});
+    if(filtered.length===0)filtered=pool;
+    var idx=Math.floor(Math.random()*filtered.length);
+    choices.push(filtered[idx]);
+  }
+
+  for(var j=0;j<choices.length;j++){
+    (function(choice,keyNum){
+      var card=document.createElement('div');card.className='choice-card';
+      var qColor=choice.quality==='rare'?'#0984e3':choice.quality==='uncommon'?'#2ed573':'#aaa';
+      card.innerHTML='<div class="choice-key">'+keyNum+'</div>'+
+        '<div class="choice-icon">'+choice.emoji+'</div>'+
+        '<div class="choice-name">'+choice.name+'</div>'+
+        '<div class="choice-desc">'+choice.desc+'</div>'+
+        '<div class="choice-rarity" style="background:'+qColor+'20;color:'+qColor+'">'+QUALITY_NAME[choice.quality]+'</div>';
+      card.addEventListener('click',function(){
+        choice.apply(player);
+        // 升级特效
+        spawnParticles(player.x,player.y,'#ffd700',15);
+        spawnFloatText(player.x,player.y-40,'⬆️ LEVEL UP! Lv.'+player.level,'#ffd700');
+        showMsg('✨ '+choice.name+'！','good');
+        closeLevelUp();
+      });
+      grid.appendChild(card);
+    })(choices[j],j+1);
+  }
+}
+
+function closeLevelUp(){
+  document.getElementById('levelUpScreen').style.display='none';
+  gameState='playing';canvas.focus();
+}
+
+// ========== 商店系统 ==========
+var shopWeapons=[],shopItems=[],shopRelics=[];
+function generateShopSlots(){
+  shopWeapons=[];shopItems=[];shopRelics=[];
+  // 武器区 - 4把
+  var wKeys=Object.keys(WEAPON_DEFS);
+  var ownedKeys=player.weapons.map(function(w){return w.key;});
+  var availWeapons=wKeys.filter(function(k){return ownedKeys.indexOf(k)===-1;});
+  if(availWeapons.length<4)availWeapons=wKeys.slice();
+  for(var i=0;i<4&&availWeapons.length>0;i++){
+    var wk=pick(availWeapons),wd=WEAPON_DEFS[wk];
+    var qualities=['common','common','uncommon','uncommon','rare','rare'];
+    var q=pick(qualities);
+    var basePrice=8+Math.floor(Math.random()*12);
+    var priceMult={common:1,uncommon:1.5,rare:2,epic:3};
+    shopWeapons.push({type:'weapon',key:wk,name:wd.name,emoji:wd.emoji,
+      quality:q,price:Math.floor(basePrice*(priceMult[q]||1)),
+      desc:'伤害:'+Math.floor(wd.baseDmg*(priceMult[q]||1))});
+    availWeapons=availWeapons.filter(function(k){return k!==wk;});
+  }
+  // 增益区 - 4个
+  var availItems=ITEM_POOL.slice();
+  for(var i=0;i<4&&availItems.length>0;i++){
+    var idx=Math.floor(Math.random()*availItems.length),it=availItems[idx];
+    shopItems.push({type:'item',ref:it,name:it.name,emoji:it.emoji,
+      quality:it.quality,price:it.price,desc:it.desc});
+    availItems.splice(idx,1);
+  }
+  // 遗物区 - 2个
+  var availRelics=RELIC_POOL.filter(function(r){return!player.relics.some(function(pr){return pr.id===r.id});});
+  if(availRelics.length<2)availRelics=RELIC_POOL.slice();
+  for(var i=0;i<2&&availRelics.length>0;i++){
+    var ri=Math.floor(Math.random()*availRelics.length),rl=availRelics[ri];
+    var relicPrice={common:24,uncommon:36,rare:50,epic:70,legendary:100};
+    shopRelics.push({type:'relic',ref:rl,name:rl.name,emoji:rl.emoji,
+      quality:rl.quality,price:relicPrice[rl.quality]||20,desc:rl.desc});
+    availRelics.splice(ri,1);
+  }
+}
+
+function openShop(){
+  gameState='shop';
+  document.getElementById('shopScreen').style.display='flex';
+  // 黄斌：金币利息 - 每波结束当前金币的15%转化为额外金币
+  if(selectedChar&&selectedChar.id==='bin'){
+    var interest=Math.floor(player.gold*player.interestRate);
+    if(interest>0){
+      player.gold+=interest;
+      setTimeout(function(){showMsg('📈 利息收入 +'+interest+'💰','good');},500);
+    }
+  }
+  document.getElementById('shopWaveInfo').textContent=
+    '第 '+currentWave+' 波完成！'+(currentWave>=12?'最终波通过！':'准备迎接第 '+(currentWave+1)+' 波...');
+  document.getElementById('shopGold').textContent=player.gold;
+  var goldDisp=document.getElementById('goldDisplay');
+  if(player.gold<20)goldDisp.classList.add('gold-low');
+  else goldDisp.classList.remove('gold-low');
+  generateShopSlots();renderShop();
+  if(currentWave>=12){endGame(true);return;}
+  document.getElementById('nextWaveBtn').style.display='inline-block';
+}
+
+function renderShop(){
+  function renderSlot(slot,idx,parentIdx){
+    var el=document.createElement('div');el.className='shop-item';
+    var qColor=QUALITY_COLOR[slot.quality]||'#aaa';
+    var isOwned=slot.type==='weapon'&&player.weapons.some(function(w){return w.key===slot.key});
+    var cantAfford=player.gold<slot.price;
+    if(isOwned)el.classList.add('sold-out');
+    else if(cantAfford){el.style.opacity='0.55';el.style.borderColor='rgba(255,71,87,0.3)';}
+    el.innerHTML='<div style="position:absolute;top:4px;left:6px;font-size:0.7em;color:rgba(255,255,255,0.3)">'+(parentIdx+1)+'</div>'+
+      '<div class="item-icon">'+slot.emoji+'</div>'+
+      '<div class="item-name" style="color:'+qColor+'">'+slot.name+'</div>'+
+      '<div class="item-desc">'+slot.desc+'</div>'+
+      '<div class="item-price" style="'+(cantAfford?'color:#ff4757':'')+'">💰 '+slot.price+(cantAfford?' (差'+(slot.price-player.gold)+')':'')+'</div>'+
+      '<div style="font-size:0.7em;color:'+qColor+';margin-top:2px">'+QUALITY_NAME[slot.quality]+'</div>';
+    if(!isOwned){
+      el.addEventListener('click',function(){
+        if(player.gold<slot.price){
+          el.classList.add('cannot-buy');
+          setTimeout(function(){el.classList.remove('cannot-buy');},500);
+          showMsg('❌ 金币不足！需要 '+slot.price+'💰，当前 '+player.gold+'💰','bad');return;}
+        player.gold-=slot.price;
+        if(slot.type==='weapon'){
+          if(player.weapons.length<player.maxWeaponSlots){
+            player.weapons.push({key:slot.key,cd:0,quality:slot.quality,level:0});
+            player.activeWeapon=player.weapons.length-1;
+            weaponSlotsBuilt=false;
+            showMsg('装备了：'+slot.name,'good');
+          }else{
+            showMsg('武器槽已满（最多'+player.maxWeaponSlots+'把）！','bad');
+            player.gold+=slot.price;
+          }
+        }else if(slot.type==='item'){
+          slot.ref.apply(player);player.items.push(slot.ref.id);
+          showMsg('获得道具：'+slot.name,'good');
+        }else if(slot.type==='relic'){
+          applyRelic(slot.ref);
+          showMsg('获得遗物：'+slot.name,'good');
+        }
+          document.getElementById('shopGold').textContent=player.gold;
+          renderShop();
+        });
+      }
+      return el;
+    }
+    var wg=document.getElementById('shopWeaponGrid');wg.innerHTML='';
+    for(var i=0;i<shopWeapons.length;i++){var el=renderSlot(shopWeapons[i],i,i);if(el)wg.appendChild(el);}
+    var ig=document.getElementById('shopItemGrid');ig.innerHTML='';
+    for(var i=0;i<shopItems.length;i++){var el=renderSlot(shopItems[i],i,i);if(el)ig.appendChild(el);}
+    var rg=document.getElementById('shopRelicGrid');rg.innerHTML='';
+    for(var i=0;i<shopRelics.length;i++){var el=renderSlot(shopRelics[i],i,i);if(el)rg.appendChild(el);}
+}
+
+document.getElementById('refreshBtn').addEventListener('click',function(){
+  if(player.gold<3){showMsg('金币不足！','bad');return;}
+  player.gold-=3;
+  document.getElementById('shopGold').textContent=player.gold;
+  generateShopSlots();renderShop();
+  showMsg('商店已刷新','good');
+});
+
+document.getElementById('nextWaveBtn').addEventListener('click',function(){
+  document.getElementById('shopScreen').style.display='none';
+  currentWave++;gameState='playing';
+  canvas.focus();startWave();
+});
+
+// ========== 绘制地面纹理 ==========
+function drawGroundTextures(){
+  var thirdW=MAP_W/3,thirdH=MAP_H/3;
+
+  // 左上 - 宿舍区：砖地板纹理
+  var zx=0-camX,zy=0-camY,zw=thirdW,zh=thirdH;
+  if(zx+zw>0&&zx<canvas.width&&zy+zh>0&&zy<canvas.height){
+    ctx.strokeStyle='rgba(100,80,60,0.15)';ctx.lineWidth=1;
+    for(var bx=Math.max(0,zx);bx<Math.min(canvas.width,zx+zw);bx+=40){
+      for(var by=Math.max(0,zy);by<Math.min(canvas.height,zy+zh);by+=20){
+        ctx.strokeRect(bx,by,40,20);
+      }
+    }
+  }
+
+  // 右上 - 食堂运动区：跑道纹理
+  zx=thirdW*2-camX;zy=0-camY;
+  if(zx+zw>0&&zx<canvas.width&&zy+zh>0&&zy<canvas.height){
+    ctx.strokeStyle='rgba(255,255,255,0.06)';ctx.lineWidth=2;
+    for(var r=0;r<5;r++){
+      ctx.beginPath();
+      ctx.arc(Math.max(0,Math.min(canvas.width,zx+zw/2)),Math.max(0,Math.min(canvas.height,zy+zh/2)),80+r*30,0,Math.PI*2);
+      ctx.stroke();
+    }
+  }
+
+  // 左下 - 教学区：方格地板
+  zx=0-camX;zy=thirdH*2-camY;
+  if(zx+zw>0&&zx<canvas.width&&zy+zh>0&&zy<canvas.height){
+    ctx.strokeStyle='rgba(150,150,180,0.1)';ctx.lineWidth=1;
+    for(var gx=Math.max(0,zx);gx<Math.min(canvas.width,zx+zw);gx+=60){
+      for(var gy=Math.max(0,zy);gy<Math.min(canvas.height,zy+zh);gy+=60){
+        ctx.strokeRect(gx,gy,60,60);
+        // 对角线装饰
+        ctx.beginPath();ctx.moveTo(gx,gy);ctx.lineTo(gx+60,gy+60);ctx.stroke();
+      }
+    }
+  }
+
+  // 右下 - 图书馆办公区：木地板纹理
+  zx=thirdW*2-camX;zy=thirdH*2-camY;
+  if(zx+zw>0&&zx<canvas.width&&zy+zh>0&&zy<canvas.height){
+    ctx.strokeStyle='rgba(139,90,43,0.12)';ctx.lineWidth=1;
+    for(var ly=Math.max(0,zy);ly<Math.min(canvas.height,zy+zh);ly+=15){
+      ctx.beginPath();ctx.moveTo(Math.max(0,zx),ly);ctx.lineTo(Math.min(canvas.width,zx+zw),ly);ctx.stroke();
+    }
+  }
+
+  // 中心区域 - 战场：十字标记
+  zx=thirdW-camX;zy=thirdH-camY;
+  if(zx+zw>0&&zx<canvas.width&&zy+zh>0&&zy<canvas.height){
+    ctx.strokeStyle='rgba(255,100,100,0.08)';ctx.lineWidth=1;
+    // 十字线
+    ctx.beginPath();ctx.moveTo(zx+zw/2,zy);ctx.lineTo(zx+zw/2,zy+zh);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(zx,zy+zh/2);ctx.lineTo(zx+zw,zy+zh/2);ctx.stroke();
+    // 同心圆
+    for(var cr=0;cr<4;cr++){
+      ctx.beginPath();ctx.arc(zx+zw/2,zy+zh/2,50+cr*40,0,Math.PI*2);ctx.stroke();
+    }
+  }
+}
+
+// ========== 绘制动态装饰 ==========
+function drawDynamicDecorations(){
+  var t=frameCount*0.02;
+
+  // 宿舍区 - 窗户灯光闪烁
+  ctx.fillStyle='rgba(255,220,100,'+(0.1+Math.sin(t*3)*0.05)+')';
+  var dormLights=[{x:250,y:250},{x:250,y:400},{x:650,y:350}];
+  for(var i=0;i<dormLights.length;i++){
+    var lx=dormLights[i].x-camX,ly=dormLights[i].y-camY;
+    if(lx>-50&&lx<canvas.width+50&&ly>-50&&ly<canvas.height+50){
+      ctx.fillRect(lx,ly,20,15);
+    }
+  }
+
+  // 食堂 - 蒸汽效果
+  ctx.fillStyle='rgba(200,200,200,0.08)';
+  for(var i=0;i<3;i++){
+    var sx=2850+i*40-camX+Math.sin(t+i)*10,sy=300-camY-Math.abs(Math.sin(t*2+i))*20;
+    if(sx>-50&&sx<canvas.width+50&&sy>-50&&sy<canvas.height+50){
+      ctx.beginPath();ctx.arc(sx,sy,15+Math.sin(t+i)*5,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  // 操场 - 跑道动态线
+  ctx.strokeStyle='rgba(255,255,255,'+(0.1+Math.sin(t*2)*0.05)+')';ctx.lineWidth=2;
+  var fieldX=3250-camX,fieldY=490-camY;
+  if(fieldX>-100&&fieldX<canvas.width+100&&fieldY>-100&&fieldY<canvas.height+100){
+    for(var l=0;l<4;l++){
+      var offset=(t*50+l*60)%180;
+      ctx.beginPath();ctx.moveTo(fieldX+offset,fieldY);ctx.lineTo(fieldX+offset+20,fieldY+180);ctx.stroke();
+    }
+  }
+
+  // 图书馆 - 知识粒子
+  ctx.fillStyle='rgba(100,200,255,0.15)';
+  for(var i=0;i<5;i++){
+    var px=2900+i*30-camX+Math.sin(t*1.5+i*1.2)*15;
+    var py=2250-camY+Math.cos(t+i*0.8)*10;
+    if(px>-20&&px<canvas.width+20&&py>-20&&py<canvas.height+20){
+      ctx.beginPath();ctx.arc(px,py,3,0,Math.PI*2);ctx.fill();
+    }
+  }
+
+  // 中心区域 - 能量漩涡
+  ctx.strokeStyle='rgba(255,100,100,'+(0.08+Math.sin(t)*0.04)+')';ctx.lineWidth=1;
+  var cx=2000-camX,cy=1500-camY;
+  if(cx>-200&&cx<canvas.width+200&&cy>-200&&cy<canvas.height+200){
+    for(var r=0;r<3;r++){
+      ctx.beginPath();
+      ctx.arc(cx,cy,30+r*25,t+r*2,t+r*2+Math.PI*1.5);
+      ctx.stroke();
+    }
+  }
+
+  // 打印店 - 打印机闪烁
+  if(Math.sin(t*5)>0.7){
+    ctx.fillStyle='rgba(255,100,100,0.2)';
+    var printX=750-camX,printY=2135-camY;
+    if(printX>-30&&printX<canvas.width+30&&printY>-30&&printY<canvas.height+30){
+      ctx.fillRect(printX,printY,80,40);
+    }
+  }
+
+  // 路灯光晕动画
+  ctx.fillStyle='rgba(255,220,100,0.08)';
+  var lampGlows=[{x:400,y:600},{x:1200,y:600},{x:2800,y:600},{x:3600,y:600},{x:400,y:2200},{x:3600,y:2200}];
+  for(var i=0;i<lampGlows.length;i++){
+    var lg=lampGlows[i];
+    var lx=lg.x-camX+Math.sin(t+i)*2,ly=lg.y-camY+Math.cos(t*0.8+i)*2;
+    if(lx>-40&&lx<canvas.width+40&&ly>-40&&ly<canvas.height+40){
+      ctx.beginPath();ctx.arc(lx,ly,25+Math.sin(t*2+i)*5,0,Math.PI*2);ctx.fill();
+    }
+  }
+}
+
+// ========== 绘制背景 ==========
+var MAP_ZONES=[
+  {name:'宿舍区',color:'rgba(30,50,100,0.2)',x:0,y:0,w:MAP_W/3,h:MAP_H/3,icon:'🏠',
+   buff:'休息恢复',buffDesc:'生命回复+2/秒',apply:function(s){s.regen+=2},remove:function(s){s.regen-=2}},
+  {name:'食堂',color:'rgba(80,60,30,0.2)',x:MAP_W/3,y:0,w:MAP_W/3,h:MAP_H/3,icon:'🍜',
+   buff:'美食加持',buffDesc:'最大生命+30',apply:function(s){s.maxHp+=30;s.hp+=30},remove:function(s){s.maxHp-=30;s.hp=Math.min(s.hp,s.maxHp)}},
+  {name:'操场',color:'rgba(30,80,50,0.2)',x:MAP_W*2/3,y:0,w:MAP_W/3,h:MAP_H/3,icon:'⚽',
+   buff:'运动场',buffDesc:'移速+0.5，但护甲-1',apply:function(s){s.speed+=0.5;s.armor-=1},remove:function(s){s.speed-=0.5;s.armor+=1}},
+  {name:'实验室',color:'rgba(60,30,100,0.2)',x:0,y:MAP_H/3,w:MAP_W/3,h:MAP_H/3,icon:'🔬',
+   buff:'科研加成',buffDesc:'伤害+15%，但攻速-10%',apply:function(s){s.dmgMult+=0.15;s.atkSpdMult-=0.1},remove:function(s){s.dmgMult-=0.15;s.atkSpdMult+=0.1}},
+  {name:'教学楼',color:'rgba(90,70,30,0.2)',x:MAP_W/3,y:MAP_H/3,w:MAP_W/3,h:MAP_H/3,icon:'🏫',
+   buff:'知识殿堂',buffDesc:'经验获取+30%',apply:function(s){s.xpMult=(s.xpMult||1)+0.3},remove:function(s){s.xpMult=(s.xpMult||1)-0.3}},
+  {name:'图书馆',color:'rgba(30,80,70,0.2)',x:MAP_W*2/3,y:MAP_H/3,w:MAP_W/3,h:MAP_H/3,icon:'📚',
+   buff:'静心学习',buffDesc:'暴击+10%，射程+20%',apply:function(s){s.critChance+=0.1;s.rangeMult+=0.2},remove:function(s){s.critChance-=0.1;s.rangeMult-=0.2}},
+  {name:'打印店',color:'rgba(100,40,40,0.2)',x:0,y:MAP_H*2/3,w:MAP_W/3,h:MAP_H/3,icon:'🖨️',
+   buff:'装备强化',buffDesc:'攻速+20%，但移速-0.3',apply:function(s){s.atkSpdMult+=0.2;s.speed-=0.3},remove:function(s){s.atkSpdMult-=0.2;s.speed+=0.3}},
+  {name:'导师办公室',color:'rgba(70,70,100,0.2)',x:MAP_W/3,y:MAP_H*2/3,w:MAP_W/3,h:MAP_H/3,icon:'👔',
+   buff:'导师指导',buffDesc:'全属性+8%，但金币获取-20%',apply:function(s){s.dmgMult+=0.08;s.atkSpdMult+=0.08;s.speed+=0.1;s.goldMult=(s.goldMult||1)*0.8},remove:function(s){s.dmgMult-=0.08;s.atkSpdMult-=0.08;s.speed-=0.1;s.goldMult=(s.goldMult||1)/0.8}},
+  {name:'答辩厅',color:'rgba(100,60,30,0.2)',x:MAP_W*2/3,y:MAP_H*2/3,w:MAP_W/3,h:MAP_H/3,icon:'🎓',
+   buff:'最终战场',buffDesc:'伤害+25%，但防御-2',apply:function(s){s.dmgMult+=0.25;s.armor-=2},remove:function(s){s.dmgMult-=0.25;s.armor+=2}}
+];
+var currentZoneBuff=null;
+
+// ========== 障碍物系统 ==========
+var OBSTACLES=[];
+
+function generateObstacles(){
+  OBSTACLES=[];
+  // 围墙 - 地图外圈（更亮的颜色）
+  var wallThick=40;
+  // 上围墙（留缺口）
+  OBSTACLES.push({x:0,y:0,w:MAP_W*0.35,h:wallThick,color:'#8a7a5a',type:'wall'});
+  OBSTACLES.push({x:MAP_W*0.45,y:0,w:MAP_W*0.55,h:wallThick,color:'#8a7a5a',type:'wall'});
+  // 下围墙（留缺口）
+  OBSTACLES.push({x:0,y:MAP_H-wallThick,w:MAP_W*0.3,h:wallThick,color:'#8a7a5a',type:'wall'});
+  OBSTACLES.push({x:MAP_W*0.4,y:MAP_H-wallThick,w:MAP_W*0.6,h:wallThick,color:'#8a7a5a',type:'wall'});
+  // 左围墙（留缺口）
+  OBSTACLES.push({x:0,y:0,w:wallThick,h:MAP_H*0.4,color:'#8a7a5a',type:'wall'});
+  OBSTACLES.push({x:0,y:MAP_H*0.5,w:wallThick,h:MAP_H*0.5,color:'#8a7a5a',type:'wall'});
+  // 右围墙（留缺口）
+  OBSTACLES.push({x:MAP_W-wallThick,y:0,w:wallThick,h:MAP_H*0.35,color:'#8a7a5a',type:'wall'});
+  OBSTACLES.push({x:MAP_W-wallThick,y:MAP_H*0.45,w:wallThick,h:MAP_H*0.55,color:'#8a7a5a',type:'wall'});
+
+  // ====== 建筑 - 分散在地图四个象限 ======
+
+  // 左上区域 - 宿舍区
+  OBSTACLES.push({x:200,y:200,w:160,h:80,color:'#5a6a9a',type:'building',label:'1号楼'});
+  OBSTACLES.push({x:200,y:360,w:160,h:80,color:'#5a6a9a',type:'building',label:'2号楼'});
+  OBSTACLES.push({x:600,y:300,w:180,h:100,color:'#7a5a9a',type:'building',label:'综合实验楼'});
+
+  // 右上区域 - 食堂&运动区
+  OBSTACLES.push({x:2800,y:250,w:200,h:100,color:'#a08a50',type:'building',label:'第一食堂'});
+  OBSTACLES.push({x:3200,y:400,w:250,h:180,color:'rgba(80,180,80,0.4)',type:'field',label:'田径场'});
+
+  // 左下区域 - 教学区
+  OBSTACLES.push({x:300,y:2000,w:200,h:100,color:'#9a8a5a',type:'building',label:'明德楼'});
+  OBSTACLES.push({x:300,y:2200,w:200,h:100,color:'#9a8a5a',type:'building',label:'至善楼'});
+  OBSTACLES.push({x:700,y:2100,w:100,h:70,color:'#aa5a5a',type:'building',label:'打印店'});
+
+  // 右下区域 - 图书馆&办公区
+  OBSTACLES.push({x:2800,y:2200,w:220,h:120,color:'#5a8a8a',type:'building',label:'图书馆'});
+  OBSTACLES.push({x:3200,y:2000,w:180,h:100,color:'#7a7aaa',type:'building',label:'导师办公室'});
+  OBSTACLES.push({x:3200,y:2400,w:200,h:120,color:'#aa7a5a',type:'building',label:'答辩厅'});
+
+  // 中心区域 - 少量建筑（保持开阔）
+  OBSTACLES.push({x:1800,y:1600,w:150,h:100,color:'#9a8a5a',type:'building',label:'诚智楼'});
+  OBSTACLES.push({x:2200,y:1600,w:150,h:100,color:'#7a7aaa',type:'building',label:'研究生工作室'});
+
+  // ====== 装饰物 - 分散在地图各处 ======
+
+  // 树木
+  var treePositions=[
+    {x:500,y:500},{x:1000,y:300},{x:3000,y:600},{x:3600,y:400},
+    {x:500,y:2400},{x:1000,y:2600},{x:3000,y:2400},{x:3600,y:2600}
+  ];
+  for(var i=0;i<treePositions.length;i++){
+    OBSTACLES.push({x:treePositions[i].x,y:treePositions[i].y,w:30+Math.random()*20,h:30+Math.random()*20,
+      color:'#4a9a4a',type:'tree'});
+  }
+
+  // 长椅
+  var benchPositions=[
+    {x:500,y:400},{x:3100,y:500},{x:500,y:2300},{x:3100,y:2300}
+  ];
+  for(var i=0;i<benchPositions.length;i++){
+    OBSTACLES.push({x:benchPositions[i].x,y:benchPositions[i].y,w:40,h:15,
+      color:'#baa87a',type:'bench'});
+  }
+
+  // 路灯
+  var lampPositions=[
+    {x:400,y:600},{x:1200,y:600},{x:2800,y:600},{x:3600,y:600},
+    {x:400,y:2200},{x:3600,y:2200}
+  ];
+  for(var i=0;i<lampPositions.length;i++){
+    OBSTACLES.push({x:lampPositions[i].x,y:lampPositions[i].y,w:12,h:12,
+      color:'#ffdd88',type:'lamp'});
+  }
+
+  // 花坛
+  var flowerPositions=[
+    {x:800,y:400},{x:3200,y:400},{x:800,y:2400},{x:3200,y:2400}
+  ];
+  for(var i=0;i<flowerPositions.length;i++){
+    OBSTACLES.push({x:flowerPositions[i].x,y:flowerPositions[i].y,w:50,h:50,
+      color:'#cc6688',type:'flower'});
+  }
+}
+
+function isCollidingWithObstacle(x,y,radius){
+  for(var i=0;i<OBSTACLES.length;i++){
+    var o=OBSTACLES[i];
+    // 简化碰撞：检查圆与矩形
+    var closestX=clamp(x,o.x,o.x+o.w);
+    var closestY=clamp(y,o.y,o.y+o.h);
+    var dx=x-closestX,dy=y-closestY;
+    if(dx*dx+dy*dy<radius*radius)return true;
+  }
+  return false;
+}
+
+function drawObstacles(){
+  for(var i=0;i<OBSTACLES.length;i++){
+    var o=OBSTACLES[i];
+    // ctx.translate已处理摄像机偏移，直接用世界坐标
+    var ox=o.x,oy=o.y;
+    // 只绘制可见区域（转换到屏幕坐标判断）
+    var sx=ox-camX,sy=oy-camY;
+    if(sx+o.w<-50||sx>canvas.width+50||sy+o.h<-50||sy>canvas.height+50)continue;
+
+    ctx.save();
+    if(o.type==='wall'){
+      // 围墙：砖墙纹理，更亮
+      ctx.fillStyle=o.color;
+      ctx.fillRect(ox,oy,o.w,o.h);
+      ctx.strokeStyle='rgba(200,180,140,0.4)';ctx.lineWidth=1;
+      // 砖缝线
+      for(var bx=ox;bx<ox+o.w;bx+=20){
+        ctx.beginPath();ctx.moveTo(bx,oy);ctx.lineTo(bx,oy+o.h);ctx.stroke();
+      }
+      for(var by=oy;by<oy+o.h;by+=10){
+        ctx.beginPath();ctx.moveTo(ox,by);ctx.lineTo(ox+o.w,by);ctx.stroke();
+      }
+      // 围墙顶部高光
+      ctx.fillStyle='rgba(255,255,255,0.1)';
+      ctx.fillRect(ox,oy,o.w,4);
+    }else if(o.type==='building'){
+      // 建筑：更亮+立体感
+      ctx.fillStyle=o.color;ctx.fillRect(ox,oy,o.w,o.h);
+      ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=2;
+      ctx.strokeRect(ox,oy,o.w,o.h);
+      // 阴影
+      ctx.fillStyle='rgba(0,0,0,0.4)';
+      ctx.fillRect(ox+6,oy+o.h,o.w,8);
+      ctx.fillRect(ox+o.w,oy+6,8,o.h);
+      // 窗户（更亮）
+      ctx.fillStyle='rgba(180,200,255,0.5)';
+      for(var wx=ox+10;wx<ox+o.w-15;wx+=25){
+        for(var wy=oy+10;wy<oy+o.h-15;wy+=20){
+          ctx.fillRect(wx,wy,12,10);
+          // 窗户边框
+          ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1;
+          ctx.strokeRect(wx,wy,12,10);
+        }
+      }
+      // 标签（更醒目）
+      if(o.label){
+        // 标签背景
+        ctx.fillStyle='rgba(0,0,0,0.6)';
+        var tw=ctx.measureText(o.label).width+10;
+        ctx.fillRect(ox+o.w/2-tw/2,oy+o.h/2-9,tw,18);
+        ctx.fillStyle='#fff';ctx.font='bold 12px sans-serif';
+        ctx.textAlign='center';ctx.textBaseline='middle';
+        ctx.fillText(o.label,ox+o.w/2,oy+o.h/2);
+      }
+    }else if(o.type==='field'){
+      // 操场：更亮绿色+白线
+      ctx.fillStyle=o.color;ctx.fillRect(ox,oy,o.w,o.h);
+      ctx.strokeStyle='rgba(255,255,255,0.5)';ctx.lineWidth=2;
+      ctx.strokeRect(ox+10,oy+10,o.w-20,o.h-20);
+      // 中线
+      ctx.beginPath();ctx.moveTo(ox+o.w/2,oy+10);ctx.lineTo(ox+o.w/2,oy+o.h-10);ctx.stroke();
+      // 中圈
+      ctx.beginPath();ctx.arc(ox+o.w/2,oy+o.h/2,30,0,Math.PI*2);ctx.stroke();
+      if(o.label){
+        ctx.fillStyle='rgba(255,255,255,0.7)';ctx.font='bold 13px sans-serif';
+        ctx.textAlign='center';ctx.fillText(o.label,ox+o.w/2,oy+o.h/2);
+      }
+    }else if(o.type==='tree'){
+      // 树：更亮+阴影
+      ctx.fillStyle='rgba(0,0,0,0.3)';
+      ctx.beginPath();ctx.ellipse(ox+o.w/2+4,oy+o.h/2+6,o.w/2,o.h/3,0,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle=o.color;
+      ctx.beginPath();ctx.arc(ox+o.w/2,oy+o.h/2,o.w/2.5,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#2a6a2a';
+      ctx.beginPath();ctx.arc(ox+o.w/2,oy+o.h/2,o.w/4,0,Math.PI*2);ctx.fill();
+      // 高光
+      ctx.fillStyle='rgba(100,200,100,0.3)';
+      ctx.beginPath();ctx.arc(ox+o.w/2-3,oy+o.h/2-3,o.w/5,0,Math.PI*2);ctx.fill();
+    }else if(o.type==='bench'){
+      ctx.fillStyle=o.color;ctx.fillRect(ox,oy,o.w,o.h);
+      ctx.strokeStyle='rgba(255,255,255,0.25)';ctx.lineWidth=1;ctx.strokeRect(ox,oy,o.w,o.h);
+    }else if(o.type==='lamp'){
+      // 路灯发光效果（更亮）
+      var glow=0.25+Math.sin(frameCount*0.05)*0.1;
+      ctx.fillStyle='rgba(255,220,100,'+glow+')';
+      ctx.beginPath();ctx.arc(ox+6,oy+6,25,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#ffeecc';
+      ctx.beginPath();ctx.arc(ox+6,oy+6,6,0,Math.PI*2);ctx.fill();
+    }else if(o.type==='flower'){
+      // 花坛
+      ctx.fillStyle=o.color;ctx.fillRect(ox,oy,o.w,o.h);
+      ctx.strokeStyle='rgba(255,255,255,0.2)';ctx.lineWidth=1;ctx.strokeRect(ox,oy,o.w,o.h);
+      // 花朵装饰
+      var flowerColors=['#ff6688','#ffaa44','#ff88cc','#ffcc44'];
+      for(var fi=0;fi<4;fi++){
+        ctx.fillStyle=flowerColors[fi];
+        ctx.beginPath();ctx.arc(ox+10+fi*10,oy+o.h/2,4,0,Math.PI*2);ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+}
+
+function drawBackground(){
+  var targetCamX=player.x-canvas.width/2,targetCamY=player.y-canvas.height/2;
+  camX+=(targetCamX-camX)*0.15;camY+=(targetCamY-camY)*0.15;
+  camX=clamp(camX,0,Math.max(0,MAP_W-canvas.width));
+  camY=clamp(camY,0,Math.max(0,MAP_H-canvas.height));
+  ctx.fillStyle='#0a0a12';ctx.fillRect(0,0,canvas.width,canvas.height);
+
+  // 区域底色
+  for(var i=0;i<MAP_ZONES.length;i++){
+    var z=MAP_ZONES[i],zx=z.x-camX,zy=z.y-camY;
+    if(zx+z.w>0&&zx<canvas.width&&zy+z.h>0&&zy<canvas.height){
+      ctx.fillStyle=z.color;ctx.fillRect(zx,zy,z.w,z.h);
+    }
+  }
+
+  // 地面纹理 - 根据区域不同显示不同图案
+  drawGroundTextures();
+
+  // 网格线
+  var gs=80,startX=-(camX%gs),startY=-(camY%gs);
+  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+  for(var x=startX;x<canvas.width;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
+  for(var y=startY;y<canvas.height;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
+
+  // 区域分界线
+  ctx.strokeStyle='rgba(255,255,255,0.08)';ctx.lineWidth=2;ctx.setLineDash([8,4]);
+  var thirdW=MAP_W/3,thirdH=MAP_H/3;
+  for(var gi=1;gi<3;gi++){
+    var gx=thirdW*gi-camX,gy=thirdH*gi-camY;
+    ctx.beginPath();ctx.moveTo(gx,0);ctx.lineTo(gx,canvas.height);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(0,gy);ctx.lineTo(canvas.width,gy);ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  // 区域标签和图标
+  ctx.font='bold 28px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(var i=0;i<MAP_ZONES.length;i++){
+    var z=MAP_ZONES[i],labelX=z.x+z.w/2-camX,labelY=z.y+z.h/2-camY;
+    if(labelX>-100&&labelX<canvas.width+100&&labelY>-100&&labelY<canvas.height+100){
+      ctx.fillStyle='rgba(255,255,255,0.08)';ctx.fillText(z.icon,labelX,labelY-25);
+      ctx.font='bold 16px sans-serif';ctx.fillStyle='rgba(255,255,255,0.5)';ctx.fillText(z.name,labelX,labelY);
+      // 显示buff名称
+      ctx.font='11px sans-serif';ctx.fillStyle='#ffd700';ctx.fillText(z.buff,labelX,labelY+18);
+      ctx.font='bold 28px sans-serif';
+    }
+  }
+
+  // 动态装饰 - 根据区域显示不同效果
+  drawDynamicDecorations();
+
+  // 地图边界
+  ctx.strokeStyle='rgba(255,71,87,0.5)';ctx.lineWidth=2;ctx.setLineDash([10,6]);
+  ctx.strokeRect(-camX,-camY,MAP_W,MAP_H);ctx.setLineDash([]);
+
+  // 小地图
+  drawMinimap();
+}
+
+function drawMinimap(){
+  var mmW=150,mmH=105,mmX=canvas.width-mmW-10,mmY=10,mmScaleX=mmW/MAP_W,mmScaleY=mmH/MAP_H;
+  ctx.fillStyle='rgba(0,0,0,0.8)';ctx.fillRect(mmX-2,mmY-2,mmW+4,mmH+4);
+  ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.strokeRect(mmX-2,mmY-2,mmW+4,mmH+4);
+  var zoneColors=['rgba(30,50,100,0.7)','rgba(80,60,30,0.7)','rgba(30,80,50,0.7)',
+    'rgba(60,30,100,0.7)','rgba(90,70,30,0.7)','rgba(30,80,70,0.7)',
+    'rgba(100,40,40,0.7)','rgba(70,70,100,0.7)','rgba(100,60,30,0.7)'];
+  for(var i=0;i<MAP_ZONES.length;i++){
+    var z=MAP_ZONES[i];ctx.fillStyle=zoneColors[i];
+    ctx.fillRect(mmX+z.x*mmScaleX,mmY+z.y*mmScaleY,z.w*mmScaleX,z.h*mmScaleY);
+  }
+  ctx.strokeStyle='rgba(255,255,255,0.6)';ctx.lineWidth=1;
+  ctx.strokeRect(mmX+camX*mmScaleX,mmY+camY*mmScaleY,canvas.width*mmScaleX,canvas.height*mmScaleY);
+  // 敌人
+  ctx.fillStyle='#ff4757';
+  for(var i=0;i<enemies.length;i++){var e=enemies[i];ctx.fillRect(mmX+e.x*mmScaleX-1,mmY+e.y*mmScaleY-1,3,3);}
+  // 增益物（绿色点）
+  ctx.fillStyle='#2ed573';
+  for(var i=0;i<powerups.length;i++){var p=powerups[i];ctx.fillRect(mmX+p.x*mmScaleX-1,mmY+p.y*mmScaleY-1,3,3);}
+  // 事件触发点（橙色点）
+  ctx.fillStyle='#ff6b35';
+  for(var i=0;i<EVENT_TRIGGERS.length;i++){var t=EVENT_TRIGGERS[i];ctx.fillRect(mmX+t.x*mmScaleX-1,mmY+t.y*mmScaleY-1,3,3);}
+  // 障碍物（灰色小块）
+  ctx.fillStyle='rgba(150,130,100,0.6)';
+  for(var i=0;i<OBSTACLES.length;i++){
+    var o=OBSTACLES[i];
+    if(o.type==='wall'||o.type==='building'){
+      ctx.fillRect(mmX+o.x*mmScaleX,mmY+o.y*mmScaleY,Math.max(2,o.w*mmScaleX),Math.max(2,o.h*mmScaleY));
+    }
+  }
+  // 玩家（闪烁）
+  ctx.fillStyle=Math.floor(frameCount/10)%2===0?'#ffd700':'#fff';
+  ctx.beginPath();ctx.arc(mmX+player.x*mmScaleX,mmY+player.y*mmScaleY,4,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle='#ffd700';ctx.stroke();
+  ctx.fillStyle='#aaa';ctx.font='10px sans-serif';ctx.textAlign='left';ctx.fillText('MAP',mmX,mmY-4);
+}
+
+// ========== UI更新 ==========
+var weaponSlotsBuilt=false;
+function buildWeaponBar(){
+  var wbar=document.getElementById('weaponBar');wbar.innerHTML='';
+  for(var j=0;j<player.maxWeaponSlots;j++){
+    var slot=document.createElement('div');slot.className='weapon-slot';slot.id='wslot'+j;
+    var numLabel=document.createElement('div');
+    numLabel.style.cssText='position:absolute;top:1px;left:3px;font-size:9px;color:rgba(255,255,255,0.4)';
+    numLabel.textContent=(j+1);slot.appendChild(numLabel);
+    var cdOverlay=document.createElement('div');cdOverlay.className='cd-overlay';cdOverlay.id='wcd'+j;
+    slot.appendChild(cdOverlay);wbar.appendChild(slot);
+  }
+  weaponSlotsBuilt=true;
+}
+
+function updateHUD(){
+  document.getElementById('hpBar').style.width=Math.max(0,(player.hp/player.maxHp)*100)+'%';
+  document.getElementById('xpBar').style.width=Math.max(0,(player.xp/player.xpToLvl)*100)+'%';
+  document.getElementById('goldVal').textContent=player.gold;
+  document.getElementById('lvlVal').textContent=player.level;
+  document.getElementById('waveNum').textContent=currentWave;
+  document.getElementById('enemyCount').textContent='剩余: '+enemies.length;
+  document.getElementById('killVal').textContent=player.kills;
+  var sec=Math.ceil(waveTimer/60);
+  document.getElementById('timerDisplay').textContent=sec>0?sec+'s':'超时!';
+  if(player.activeWeapon<player.weapons.length){
+    var aw=player.weapons[player.activeWeapon],awd=WEAPON_DEFS[aw.key];
+    if(awd){
+      document.getElementById('weaponName').textContent=awd.emoji+' '+awd.name;
+      document.getElementById('weaponUpgrade').textContent=WEAPON_UPGRADE_NAMES[aw.level];
+      document.getElementById('weaponUpgrade').style.color=aw.level>0?'#ffd700':'#888';
+      document.getElementById('sellPrice').textContent=getWeaponSellPrice(aw);
+    }
+  }
+  if(!weaponSlotsBuilt)buildWeaponBar();
+  for(var i=0;i<6;i++){
+    var slot=document.getElementById('wslot'+i),cdEl=document.getElementById('wcd'+i);
+    if(i<player.weapons.length){
+      var w=player.weapons[i],wd=WEAPON_DEFS[w.key];
+      if(wd){
+        var qColor=QUALITY_COLOR[w.quality]||'#aaa',isActive=(i===player.activeWeapon);
+        slot.className='weapon-slot'+(isActive?' active':'');
+        slot.style.borderColor=isActive?qColor:'rgba(255,255,255,0.15)';
+        slot.style.boxShadow=isActive?('0 0 12px '+qColor+'60'):'none';
+        slot.title='['+(i+1)+'] '+wd.name+' ('+QUALITY_NAME[w.quality]+') '+WEAPON_UPGRADE_NAMES[w.level];
+
+        // 更新武器图标和等级显示
+        var content=wd.emoji;
+        if(w.level>0){
+          var stars=w.level<=4?'⭐'.repeat(w.level):'⭐'.repeat(4)+'🔮';
+          content+='<div class="upgrade-stars">'+stars+'</div>';
+        }
+        if(slot.innerHTML!==content)slot.innerHTML=content;
+
+        var rate=Math.ceil(wd.rate/player.atkSpdMult);
+        cdEl.style.height=Math.max(0,(w.cd/rate)*100)+'%';
+        cdEl.style.display='block';
+      }
+    }else{
+      slot.className='weapon-slot';slot.innerHTML='';slot.style.opacity='0.3';
+      slot.style.borderColor='rgba(255,255,255,0.15)';slot.style.boxShadow='none';
+      cdEl.style.display='none';
+    }
+  }
+
+  // 更新增益栏（每30帧更新一次，避免性能问题）
+  if(frameCount%30===0)updateRelicBar();
+}
+
+function showMsg(text,type){
+  type=type||'good';
+  var colors={good:'#00d4ff',bad:'#ff4757',special:'#ffd700'};
+  floatTexts.push(new FloatText(canvas.width/2,canvas.height/2-80,text,colors[type]||'#fff'));
+}
+
+// ========== 武器特效 ==========
+function drawWeaponEffects(){
+  for(var i=weaponEffects.length-1;i>=0;i--){
+    var fx=weaponEffects[i];fx.life-=0.06;
+    if(fx.life<=0){weaponEffects.splice(i,1);continue;}
+    ctx.save();ctx.globalAlpha=fx.life;
+    if(fx.type==='melee_arc'){
+      ctx.strokeStyle=fx.color;ctx.lineWidth=3*fx.life;
+      ctx.beginPath();ctx.arc(fx.x,fx.y,fx.r,-Math.PI*0.6,Math.PI*0.6);ctx.stroke();
+      ctx.beginPath();ctx.arc(fx.x,fx.y,fx.r,Math.PI*0.4,Math.PI*1.6);ctx.stroke();
+      if(fx.color.charAt(0)==='#'){
+        var hex=fx.color.replace('#','');var rr=parseInt(hex.substring(0,2),16);var gg=parseInt(hex.substring(2,4),16);var bb=parseInt(hex.substring(4,6),16);
+        ctx.fillStyle='rgba('+rr+','+gg+','+bb+',0.12)';
+      }
+      ctx.beginPath();ctx.moveTo(fx.x,fx.y);ctx.arc(fx.x,fx.y,fx.r,-Math.PI*0.6,Math.PI*0.6);ctx.closePath();ctx.fill();
+      ctx.beginPath();ctx.moveTo(fx.x,fx.y);ctx.arc(fx.x,fx.y,fx.r,Math.PI*0.4,Math.PI*1.6);ctx.closePath();ctx.fill();
+    }else if(fx.type==='aoe_pulse'){
+      ctx.strokeStyle=fx.color;ctx.lineWidth=3*fx.life;
+      ctx.beginPath();ctx.arc(fx.x,fx.y,fx.r*(1-fx.life*0.3),0,Math.PI*2);ctx.stroke();
+    }else if(fx.type==='chill_ring'){
+      fx.r+=8;ctx.strokeStyle=fx.color;ctx.lineWidth=3*fx.life;
+      ctx.beginPath();ctx.arc(fx.x,fx.y,fx.r,0,Math.PI*2);ctx.stroke();
+    }else if(fx.type==='fan_shot'){
+      ctx.strokeStyle=fx.color;ctx.lineWidth=2*fx.life;
+      for(var sa=-1;sa<=1;sa++){var fa=fx.angle+sa*0.3;ctx.beginPath();ctx.moveTo(fx.x,fx.y);ctx.lineTo(fx.x+Math.cos(fa)*80,fx.y+Math.sin(fa)*80);ctx.stroke();}
+    }else if(fx.type==='ring_burst'){
+      fx.r+=6;ctx.strokeStyle=fx.color;ctx.lineWidth=2*fx.life;
+      ctx.beginPath();ctx.arc(fx.x,fx.y,fx.r,0,Math.PI*2);ctx.stroke();
+    }else if(fx.type==='note_aura'){
+      ctx.translate(fx.x,fx.y);ctx.rotate(frameCount*0.05);
+      ctx.strokeStyle=fx.color;ctx.lineWidth=2*fx.life;
+      ctx.beginPath();ctx.arc(0,0,fx.r,0,Math.PI*0.5);ctx.stroke();
+      ctx.beginPath();ctx.arc(0,0,fx.r,Math.PI,Math.PI*1.5);ctx.stroke();
+    }else if(fx.type==='lightning'){
+      ctx.strokeStyle=fx.color;ctx.lineWidth=2*fx.life;
+      ctx.beginPath();ctx.moveTo(fx.x,fx.y);
+      var dx=fx.tx-fx.x,dy=fx.ty-fx.y,segs=6;
+      for(var s=1;s<=segs;s++){var t=s/segs;ctx.lineTo(fx.x+dx*t+(s<segs?(Math.random()-0.5)*20:0),fx.y+dy*t+(s<segs?(Math.random()-0.5)*20:0));}
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+}
+
+// ========== 游戏主循环 ==========
+function gameLoop(){
+  requestAnimationFrame(gameLoop);
+  if(gameState==='start'||gameState==='over'||gameState==='characterSelect'){drawBackground();return;}
+  frameCount++;
+  if(gameState==='playing'){
+    updatePlayer();updateEnemies();updateWave();updateWaveSpawns();updatePowerups();updateEventTriggers();updateDrops();updateCombo();
+    projectiles=projectiles.filter(function(p){return p.update()});
+    fireWeapons();
+    particles=particles.filter(function(p){return p.update()});
+    damageTexts=damageTexts.filter(function(t){return t.update()});
+    floatTexts=floatTexts.filter(function(t){return t.update()});
+  }
+  drawBackground();ctx.save();ctx.translate(-camX,-camY);
+  drawObstacles();drawDrops();drawPowerups();drawEventTriggers();drawSummons();
+  drawEnemies();
+  for(var j=0;j<projectiles.length;j++)projectiles[j].draw();
+  drawWeaponEffects();
+  for(var k=0;k<particles.length;k++)particles[k].draw();
+  for(var m=0;m<damageTexts.length;m++)damageTexts[m].draw();
+  for(var n=0;n<floatTexts.length;n++)floatTexts[n].draw();
+  drawPlayer();drawCharZones();ctx.restore();updateHUD();
+}
+
+// ========== 游戏流程 ==========
+function startGame(){
+  CFG=DIFF_CONFIG[diff];resetPlayer();
+  enemies=[];projectiles=[];particles=[];damageTexts=[];floatTexts=[];weaponEffects=[];
+  currentWave=1;frameCount=0;waveState='idle';
+  generateObstacles();
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('gameOverScreen').style.display='none';
+  document.getElementById('characterSelect').style.display='none';
+  document.getElementById('hud').style.display='flex';
+  document.getElementById('waveInfo').style.display='block';
+  document.getElementById('killCount').style.display='block';
+  document.getElementById('weaponBar').style.display='flex';
+  document.getElementById('weaponInfo').style.display='block';
+  updateRelicBar();
+  gameState='playing';canvas.focus();weaponSlotsBuilt=false;startWave();
+}
+
+function endGame(won){
+  gameState='over';
+  document.getElementById('hud').style.display='none';
+  document.getElementById('waveInfo').style.display='none';
+  document.getElementById('killCount').style.display='none';
+  document.getElementById('weaponBar').style.display='none';
+  document.getElementById('weaponInfo').style.display='none';
+  document.getElementById('shopScreen').style.display='none';
+  document.getElementById('levelUpScreen').style.display='none';
+  document.getElementById('eventScreen').style.display='none';
+  var screen=document.getElementById('gameOverScreen');
+  screen.style.display='flex';screen.className=won?'win':'lose';
+  document.getElementById('endTitle').textContent=won?'🏆 存活成功！':'💀 心态崩了...';
+  var ch=selectedChar||CHARACTERS[0];
+  var stats=[
+    '🎭 角色：<b>'+ch.emoji+' '+ch.name+'</b>',
+    '🌊 到达波次：<b>'+currentWave+'/12</b>',
+    '⚔️ 总击杀：<b>'+player.kills+'</b>',
+    '📊 等级：<b>Lv.'+player.level+'</b>',
+    '💰 获得金币：<b>'+player.gold+'</b>',
+    '🔫 武器数量：<b>'+player.weapons.length+'</b>',
+    '🎫 遗物数量：<b>'+player.relics.length+'</b>',
+    '📋 难度：'+(diff==='easy'?'摸鱼':diff==='normal'?'正常':'卷王')
+  ];
+  document.getElementById('finalStats').innerHTML=stats.join('<br>');
+}
+
+// ========== 输入处理 ==========
+document.addEventListener('keydown',function(e){
+  keys[e.code]=true;
+  if(e.code==='Space')e.preventDefault();
+
+  // 数字键1-6切换武器（游戏中）
+  if(e.code>='Digit1'&&e.code<='Digit6'&&gameState==='playing'){
+    var idx=parseInt(e.code.charAt(5))-1;
+    if(idx<player.weapons.length){
+      player.activeWeapon=idx;
+      showMsg('切换武器：'+WEAPON_DEFS[player.weapons[idx].key].name,'good');
+    }
+  }
+
+  // 数字键1-3选择升级选项
+  if(e.code>='Digit1'&&e.code<='Digit3'&&gameState==='levelup'){
+    var idx=parseInt(e.code.charAt(5))-1;
+    var cards=document.querySelectorAll('.choice-card');
+    if(idx<cards.length)cards[idx].click();
+  }
+
+  // 数字键1-9购买商店物品
+  if(e.code>='Digit1'&&e.code<='Digit9'&&gameState==='shop'){
+    var idx=parseInt(e.code.charAt(5))-1;
+    var items=document.querySelectorAll('.shop-item');
+    if(idx<items.length&&!items[idx].classList.contains('sold-out'))items[idx].click();
+  }
+
+  // 数字键1-3选择事件选项
+  if(e.code>='Digit1'&&e.code<='Digit3'&&gameState==='event'){
+    var idx=parseInt(e.code.charAt(5))-1;
+    var choices=document.querySelectorAll('.event-choice');
+    if(idx<choices.length)choices[idx].click();
+  }
+
+  // Q键卖武器
+  if(e.code==='KeyQ'&&gameState==='playing')sellCurrentWeapon();
+
+  // E键合并/升级武器
+  if(e.code==='KeyE'&&gameState==='playing'){
+    if(!mergeWeapons()){
+      upgradeWeaponWithGold();
+    }
+  }
+
+  // R键刷新商店
+  if(e.code==='KeyR'&&gameState==='shop')document.getElementById('refreshBtn').click();
+
+  // Enter键进入下一波（商店界面）
+  if(e.code==='Enter'&&gameState==='shop'){
+    var nb=document.getElementById('nextWaveBtn');
+    if(nb.style.display!=='none')nb.click();
+  }
+});
+
+document.addEventListener('keyup',function(e){keys[e.code]=false});
+canvas.addEventListener('mousemove',function(e){var rect=canvas.getBoundingClientRect();mousePos.x=e.clientX-rect.left;mousePos.y=e.clientY-rect.top;useMouse=true;});
+canvas.addEventListener('mouseleave',function(){useMouse=false});
+canvas.addEventListener('click',function(){canvas.focus()});
+
+// ========== 事件绑定 ==========
+document.getElementById('startBtn').addEventListener('click',function(){
+  document.getElementById('startScreen').style.display='none';
+  document.getElementById('characterSelect').style.display='flex';
+  gameState='characterSelect';
+  initCharacterSelect();
+});
+
+document.getElementById('restartBtn').addEventListener('click',function(){
+  document.getElementById('gameOverScreen').style.display='none';
+  document.getElementById('startScreen').style.display='flex';
+  gameState='start';
+});
+
+var dbtns=document.querySelectorAll('.diff-btn');
+for(var bi=0;bi<dbtns.length;bi++){
+  (function(btn){
+    btn.addEventListener('click',function(){
+      for(var bj=0;bj<dbtns.length;bj++)dbtns[bj].classList.remove('active');
+      btn.classList.add('active');diff=btn.getAttribute('data-diff');
+    });
+  })(dbtns[bi]);
+}
+
+gameLoop();
+</script>
+</body>
+</html>

@@ -24,6 +24,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap">
 <link rel="stylesheet" href="assets/bgm.css">
 <link rel="stylesheet" href="assets/home.css">
+<link rel="stylesheet" href="assets/game-banner.css">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -56,6 +57,7 @@
     <a class="top-nav__link" href="#services">Services</a>
     <a class="top-nav__link" href="#work">Portfolio</a>
     <a class="top-nav__link" href="#stats">Stats</a>
+    <a class="top-nav__link" href="content/game/" style="color:#f7c948">🎮 Game</a>
   </div>
   <a class="top-nav__cta" href="#contact">Get In Touch</a>
   <button class="top-nav__menu-btn" id="menuBtn" aria-label="菜单">☰</button>
@@ -68,6 +70,7 @@
   <a href="#services" onclick="closeMobileNav()">Services</a>
   <a href="#work" onclick="closeMobileNav()">Portfolio</a>
   <a href="#stats" onclick="closeMobileNav()">Stats</a>
+  <a href="content/game/" onclick="closeMobileNav()" style="color:#f7c948">🎮 Game</a>
   <a href="#contact" onclick="closeMobileNav()">Get In Touch</a>
 </div>
 
@@ -126,6 +129,54 @@
       <div class="hero__scroll-line"></div>
     </div>
     <span class="hero__footer-item">FUZHOU</span>
+  </div>
+</section>
+
+<!-- ===== 游戏入口横幅 ===== -->
+<section class="game-banner" id="game">
+  <div class="game-banner__bg"></div>
+  <div class="game-banner__grid"></div>
+  <div class="game-banner__scanlines"></div>
+  <div class="game-banner__particles">
+    <div class="game-banner__particle"></div>
+    <div class="game-banner__particle"></div>
+    <div class="game-banner__particle"></div>
+    <div class="game-banner__particle"></div>
+    <div class="game-banner__particle"></div>
+    <div class="game-banner__particle"></div>
+    <div class="game-banner__particle"></div>
+    <div class="game-banner__particle"></div>
+  </div>
+  <div class="game-banner__content">
+    <div class="game-banner__emoji">🥔</div>
+    <h2 class="game-banner__title">Deadline幸存者</h2>
+    <p class="game-banner__subtitle">🎮 肉鸽生存 × 学术地狱 × 无尽挑战</p>
+    <div class="game-banner__features">
+      <div class="game-banner__feature">
+        <div class="game-banner__feature-icon">⚔️</div>
+        <div class="game-banner__feature-text">13种武器</div>
+        <div class="game-banner__feature-sub">自由组合</div>
+      </div>
+      <div class="game-banner__feature">
+        <div class="game-banner__feature-icon">👥</div>
+        <div class="game-banner__feature-text">10位角色</div>
+        <div class="game-banner__feature-sub">独特技能</div>
+      </div>
+      <div class="game-banner__feature">
+        <div class="game-banner__feature-icon">🌊</div>
+        <div class="game-banner__feature-text">12波挑战</div>
+        <div class="game-banner__feature-sub">越来越难</div>
+      </div>
+      <div class="game-banner__feature">
+        <div class="game-banner__feature-icon">📖</div>
+        <div class="game-banner__feature-text">校园故事</div>
+        <div class="game-banner__feature-sub">多步事件</div>
+      </div>
+    </div>
+    <a href="content/game/" class="game-banner__cta">🚀 开始游戏</a>
+    <div class="game-banner__controls">
+      <kbd>WASD</kbd> 移动 · <kbd>1-6</kbd> 切换武器 · <kbd>Q</kbd> 卖出 · <kbd>E</kbd> 合并
+    </div>
   </div>
 </section>
 
@@ -362,6 +413,7 @@
         <a href="content/music/">AI Music</a>
         <a href="content/novel/">AI Novel</a>
         <a href="content/ai-software/">AI Software</a>
+        <a href="content/game/" style="color:#f7c948">🎮 Game</a>
       </div>
       <div class="site-footer__col">
         <h4>Connect</h4>
