@@ -30,6 +30,8 @@ canvas{border-radius:8px;border:1px solid rgba(100,150,255,0.15)}
 .weapon-slot .upgrade-stars{position:absolute;top:-4px;right:-4px;font-size:10px;background:rgba(255,215,0,0.9);border-radius:8px;padding:1px 3px;color:#1a1a2e;white-space:nowrap}
 #killCount{position:absolute;top:130px;right:16px;z-index:5;text-align:right;color:#aab;font-size:0.85em;background:rgba(10,15,30,0.85);padding:10px 16px;border-radius:10px;border:1px solid rgba(255,107,129,0.2);backdrop-filter:blur(8px)}
 #killCount .value{color:#ff6b81;font-size:1.3em;font-weight:bold;text-shadow:0 0 10px rgba(255,107,129,0.5)}
+#pauseBtnWrap{transition:all 0.2s}
+#pauseBtnWrap:hover{background:rgba(255,255,255,0.1);border-radius:8px;transform:scale(1.05)}
 
 /* 遗物栏 */
 #relicBar{position:absolute;top:80px;left:16px;z-index:5;display:flex;gap:6px;flex-wrap:wrap;max-width:200px}
@@ -145,6 +147,18 @@ canvas{border-radius:8px;border:1px solid rgba(100,150,255,0.15)}
   </div>
   <div class="hud-item"><div class="value" id="goldVal">0</div><div>金币</div></div>
   <div class="hud-item"><div class="value" id="lvlVal">1</div><div>等级</div></div>
+  <div class="hud-item" id="pauseBtnWrap" style="cursor:pointer" title="暂停 / 退出"><div style="font-size:1.5em">⏸️</div><div>暂停</div></div>
+</div>
+
+<!-- 暂停界面 -->
+<div id="pauseScreen" style="display:none;position:absolute;z-index:25;width:100%;height:100%;background:rgba(5,5,16,0.92);backdrop-filter:blur(6px)">
+  <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;text-align:center">
+    <div style="font-size:3em;margin-bottom:10px">⏸️</div>
+    <h2 style="font-size:2em;color:#ffd700;margin-bottom:30px">游戏暂停</h2>
+    <button class="btn btn-primary" id="resumeBtn" style="margin-bottom:14px;min-width:200px">▶️ 继续游戏</button>
+    <button class="btn" id="quitBtn" style="background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;min-width:200px">🏠 退回主页</button>
+    <p style="color:#667;margin-top:24px;font-size:0.85em">按 <kbd style="background:rgba(100,150,255,0.15);padding:2px 8px;border-radius:3px;color:#aab">Esc</kbd> 也可以暂停</p>
+  </div>
 </div>
 
 <div id="waveInfo" style="display:none">
@@ -296,85 +310,98 @@ resize();window.addEventListener('resize',resize);
 
 // ========== 角色定义 ==========
 var CHARACTERS=[
-  {id:'yousong',name:'林有崧',emoji:'🥔',class:'AI协同',
+  {id:'yousong',name:'林有崧',shortName:'有崧',emoji:'🥔',class:'AI协同',
    desc:'子弹命中后30%概率分裂追踪弹，堆攻速穿透覆盖全屏',
    lore:'2025级硕士，精通摸鱼与赶DDL的平衡艺术',
    stats:'HP+5% · 分裂追踪弹 · 初始武器：AI代笔+咖啡机枪',
    hp:1.05,dmg:1,spd:1,def:1,crit:0.05,
    startWeapons:['ai_pen','coffee_gun'],
-   passive:'AI协同：子弹命中30%分裂2枚追踪弹'},
-  {id:'zhiyuan',name:'林致远',emoji:'🔥',class:'连杀节奏',
+   passive:'AI协同：子弹命中30%分裂2枚追踪弹',
+   mentor:'林伟明',classmates:['黄钰','陈思婷'],roommates:['林致远','黄斌','郑志辉'],room:'506'},
+  {id:'zhiyuan',name:'林致远',shortName:'致远',emoji:'🔥',class:'连杀节奏',
    desc:'每次击杀叠加攻速移速，断连3秒清空，保持连击越打越快',
    lore:'安溪铁观音传人，嘴硬心软的宿舍团宠',
    stats:'移速+15% · 连杀叠攻速 · 初始武器：摆烂冲撞+键盘敲击',
    hp:0.9,dmg:0.95,spd:1.15,def:0.9,crit:0.08,
    startWeapons:['shield_bash','keyboard'],
-   passive:'连杀节奏：击杀叠1层(最多10)，每层+5%攻速+3%移速'},
-  {id:'weijie',name:'黄玮杰',emoji:'🤝',class:'领域控制',
+   passive:'连杀节奏：击杀叠1层(最多10)，每层+5%攻速+3%移速',
+   mentor:'待定',classmates:['林有崧','黄斌','郑志辉'],roommates:['林有崧','黄斌','郑志辉'],room:'506'},
+  {id:'weijie',name:'黄玮杰',shortName:'玮杰',emoji:'🤝',class:'领域控制',
    desc:'每5秒生成减速区域，敌人在区域内减速40%+持续受伤',
    lore:'莆田籍话痨，乒乓球搭档，"有崧"是他最高频的词',
    stats:'AOE伤害+20% · 领域减速区 · 初始武器：拖延力场+老师批注',
    hp:0.95,dmg:1.1,spd:0.95,def:1.05,crit:0.06,
    startWeapons:['procrastination','teacher_note'],
-   passive:'领域控制：每5秒生成120范围减速区域，持续3秒'},
-  {id:'wuyu',name:'吴禹',emoji:'🎯',class:'蓄力暴击',
+   passive:'领域控制：每5秒生成120范围减速区域，持续3秒',
+   mentor:'待定',classmates:['余世鑫'],roommates:['余世鑫'],room:'黄玮杰宿舍'},
+  {id:'wuyu',name:'吴禹',shortName:'吴禹',emoji:'🎯',class:'蓄力暴击',
    desc:'不攻击时积攒蓄力，蓄满后下一次攻击暴击伤害+100%',
    lore:'福州美食活地图，"不赖"是他的人生信条',
    stats:'暴击+10% · 蓄力暴击 · 初始武器：参考文献+导师来电',
    hp:0.85,dmg:1.15,spd:1,def:0.85,crit:0.15,
    startWeapons:['reference','advisor_call'],
-   passive:'赌命一击：停止攻击2秒后蓄力，暴击伤害最高+200%'},
-  {id:'zhihui',name:'郑志辉',emoji:'🛡️',class:'站桩反击',
+   passive:'赌命一击：停止攻击2秒后蓄力，暴击伤害最高+200%',
+   mentor:'马改艳',classmates:['陈雪'],roommates:['林非凡','张忠游'],room:'吴禹宿舍'},
+  {id:'zhihui',name:'郑志辉',shortName:'志辉',emoji:'🛡️',class:'站桩反击',
    desc:'静止1.5秒获得铁壁：减伤50%+反弹30%伤害，移动后保留2秒',
    lore:'沉稳的福安人，506宿舍的定海神针',
    stats:'HP+15% · 铁壁站桩 · 初始武器：摆烂冲撞+佛系波动',
    hp:1.15,dmg:0.9,spd:0.9,def:1.3,crit:0.04,
    startWeapons:['shield_bash','chill_wave'],
-   passive:'不动如山：静止1.5秒获铁壁，减伤50%+反弹30%伤害'},
-  {id:'bin',name:'黄斌',emoji:'💰',class:'资本运作',
+   passive:'不动如山：静止1.5秒获铁壁，减伤50%+反弹30%伤害',
+   mentor:'待定',classmates:['林有崧','林致远','黄斌'],roommates:['林有崧','林致远','黄斌'],room:'506'},
+  {id:'bin',name:'黄斌',shortName:'黄斌',emoji:'💰',class:'资本运作',
    desc:'每波结束金币的15%变利息，商店折扣20%+每波免费刷新',
    lore:'仙游农村出身，当兵两年的币圈信仰者',
    stats:'金币+25% · 15%利息 · 初始武器：论文初稿+开题报告',
    hp:1,dmg:1,spd:1,def:1,crit:0.05,
    startWeapons:['thesis_draft','opening_report'],
-   passive:'资本运作：每波结束获得当前金币15%利息'},
-  {id:'dana',name:'阿依达娜',emoji:'🌸',class:'受伤治疗',
+   passive:'资本运作：每波结束获得当前金币15%利息',
+   mentor:'罗佳铃',classmates:['阿依达娜'],roommates:['林有崧','林致远','郑志辉'],room:'506'},
+  {id:'dana',name:'阿依达娜',shortName:'达娜',emoji:'🌸',class:'受伤治疗',
    desc:'受伤5次释放治愈脉冲，累计15次触发好滴好滴：伤害转治疗',
    lore:'新疆伊犁的可爱师妹，"好滴好滴"是她的口头禅',
    stats:'回复+100% · 治疗脉冲 · 初始武器：咖啡机枪+老师批注',
    hp:1.1,dmg:0.95,spd:1,def:1,crit:0.05,
    startWeapons:['coffee_gun','teacher_note'],
-   passive:'温暖治愈：受伤5次脉冲回5%HP，15次触发伤害转治疗'},
-  {id:'xue',name:'陈雪',emoji:'⚡',class:'斩杀收割',
+   passive:'温暖治愈：受伤5次脉冲回5%HP，15次触发伤害转治疗',
+   mentor:'罗佳铃',classmates:['黄斌'],roommates:['陈雪','粟丽源'],room:'女生宿舍'},
+  {id:'xue',name:'陈雪',shortName:'陈雪',emoji:'⚡',class:'斩杀收割',
    desc:'血量低于30%的敌人受到双倍伤害，击杀后重置所有武器CD',
    lore:'读研前上过班的老练女生，"赶紧打车别逼逼"',
    stats:'伤害+15% · 斩杀双倍 · 初始武器：文献轰炸+答辩PPT',
    hp:0.9,dmg:1.2,spd:0.95,def:0.9,crit:0.07,
    startWeapons:['literature_bomb','defense_ppt'],
-   passive:'斩杀时刻：敌人血量<30%时双倍伤害，击杀重置武器CD'},
-  {id:'yuhui',name:'黄钰',emoji:'💫',class:'弹幕风暴',
+   passive:'斩杀时刻：敌人血量<30%时双倍伤害，击杀重置武器CD',
+   mentor:'马改艳',classmates:['吴禹'],roommates:['阿依达娜','粟丽源'],room:'女生宿舍'},
+  {id:'yuhui',name:'黄钰',shortName:'黄钰',emoji:'💫',class:'弹幕风暴',
    desc:'击杀敌人后从尸体发射6枚扩散弹，武器槽上限提升到8',
    lore:'漳州温柔师姐，团队里的组织协调担当',
    stats:'弹幕+2 · 击杀扩散 · 初始武器：开题报告+论文初稿',
    hp:1,dmg:1,spd:1,def:1,crit:0.05,
    startWeapons:['opening_report','thesis_draft'],
-   passive:'弹幕风暴：击杀后发射6枚扩散弹，武器槽上限+2'},
-  {id:'linlaoshi',name:'林伟明',emoji:'👔',class:'助教军团',
+   passive:'弹幕风暴：击杀后发射6枚扩散弹，武器槽上限+2',
+   mentor:'林伟明',classmates:['林有崧','陈思婷'],roommates:['待定'],room:'黄钰宿舍'},
+  {id:'linlaoshi',name:'林伟明',shortName:'伟明',emoji:'👔',class:'助教军团',
    desc:'15秒召唤助教，最多3个，助教死亡爆炸造成范围伤害',
    lore:'导师，"辛苦啦"是他最爱说的话',
    stats:'助教15秒CD · 最多3个 · 初始武器：导师来电+老师批注',
    hp:1,dmg:0.9,spd:0.95,def:1.1,crit:0.04,
    startWeapons:['advisor_call','teacher_note'],
-   passive:'助教军团：15秒召唤助教，助教死亡爆炸AOE伤害'}
+   passive:'助教军团：15秒召唤助教，助教死亡爆炸AOE伤害',
+   mentor:'自己就是导师',classmates:['林有崧','黄钰','陈思婷'],roommates:[],room:''}
 ];
 
 var selectedChar=null;
 
 // ========== 配置 ==========
 var DIFF_CONFIG={
-  easy:{playerHP:1.15,dmgMult:1.2,enemyHP:0.8,enemySpd:0.8,goldMult:0.8,xpMult:1.2},
-  normal:{playerHP:1,dmgMult:1,enemyHP:1,enemySpd:1,goldMult:0.6,xpMult:1},
-  hard:{playerHP:0.85,dmgMult:0.8,enemyHP:1.3,enemySpd:1.2,goldMult:0.5,xpMult:0.8}
+  easy:{playerHP:1.15,dmgMult:1.2,enemyHP:0.8,enemySpd:0.8,goldMult:0.8,xpMult:1.2,
+    obstacleDensity:0.6,itemQualityBias:0.15,healOnWave:0.15,upgradeChoiceCount:2},
+  normal:{playerHP:1,dmgMult:1,enemyHP:1,enemySpd:1,goldMult:0.6,xpMult:1,
+    obstacleDensity:1.0,itemQualityBias:0,healOnWave:0.08,upgradeChoiceCount:2},
+  hard:{playerHP:0.85,dmgMult:0.8,enemyHP:1.3,enemySpd:1.2,goldMult:0.5,xpMult:0.8,
+    obstacleDensity:1.4,itemQualityBias:-0.15,healOnWave:0.03,upgradeChoiceCount:1}
 };
 var diff='easy',CFG=DIFF_CONFIG[diff];
 
@@ -394,19 +421,19 @@ var ENEMY_TYPES=[
 
 // 武器定义（带升级倍率）
 var WEAPON_DEFS={
-  ai_pen:{name:'AI代笔',emoji:'🤖',type:'projectile',baseDmg:12,speed:12,rate:16,range:380,pierce:1,color:'#00d4ff',maxLv:20},
-  coffee_gun:{name:'咖啡机枪',emoji:'☕',type:'projectile',baseDmg:4,speed:16,rate:4,range:300,pierce:0,color:'#d4a574',maxLv:8},
-  shield_bash:{name:'摆烂冲撞',emoji:'🛡️',type:'melee',baseDmg:35,rate:35,range:130,color:'#2ed573',maxLv:8},
-  procrastination:{name:'拖延力场',emoji:'⏰',type:'aoe',baseDmg:6,rate:28,range:110,color:'#ffa502',maxLv:8},
-  literature_bomb:{name:'文献轰炸',emoji:'📚',type:'projectile',baseDmg:22,speed:6,rate:50,range:380,pierce:1,explode:true,color:'#7b2ff7',maxLv:8},
-  chill_wave:{name:'佛系波动',emoji:'🧘',type:'aoe',baseDmg:8,rate:45,range:150,color:'#74b9ff',maxLv:8},
-  thesis_draft:{name:'论文初稿',emoji:'📄',type:'projectile',baseDmg:4,speed:18,rate:4,range:320,pierce:0,color:'#e0e0e0',maxLv:8},
-  defense_ppt:{name:'答辩PPT',emoji:'📊',type:'projectile',baseDmg:6,speed:12,rate:18,range:320,pierce:0,color:'#ff9f43',maxLv:8},
-  opening_report:{name:'开题报告',emoji:'📋',type:'projectile',baseDmg:10,speed:8,rate:35,range:340,pierce:0,ring:true,color:'#a55eea',maxLv:8},
-  teacher_note:{name:'老师批注',emoji:'✏️',type:'aoe',baseDmg:5,rate:22,range:130,color:'#ffeaa7',maxLv:8},
-  reference:{name:'参考文献',emoji:'📑',type:'projectile',baseDmg:25,speed:5,rate:48,range:420,pierce:3,color:'#00cec9',maxLv:8},
-  keyboard:{name:'键盘敲击',emoji:'⌨️',type:'projectile',baseDmg:4,speed:15,rate:5,range:300,pierce:0,color:'#dfe6e9',maxLv:8},
-  advisor_call:{name:'导师来电',emoji:'📞',type:'projectile',baseDmg:18,speed:10,rate:30,range:380,pierce:1,color:'#fdcb6e',maxLv:8}
+  ai_pen:{name:'AI代笔',emoji:'🤖',type:'projectile',baseDmg:20,speed:12,rate:50,range:380,pierce:1,color:'#00d4ff',maxLv:20},
+  coffee_gun:{name:'咖啡机枪',emoji:'☕',type:'projectile',baseDmg:10,speed:16,rate:30,range:300,pierce:0,color:'#d4a574',maxLv:8},
+  shield_bash:{name:'摆烂冲撞',emoji:'🛡️',type:'melee',baseDmg:50,rate:95,range:130,color:'#2ed573',maxLv:8},
+  procrastination:{name:'拖延力场',emoji:'⏰',type:'aoe',baseDmg:13,rate:75,range:110,color:'#ffa502',maxLv:8},
+  literature_bomb:{name:'文献轰炸',emoji:'📚',type:'projectile',baseDmg:35,speed:6,rate:120,range:380,pierce:1,explode:true,color:'#7b2ff7',maxLv:8},
+  chill_wave:{name:'佛系波动',emoji:'🧘',type:'aoe',baseDmg:16,rate:110,range:150,color:'#74b9ff',maxLv:8},
+  thesis_draft:{name:'论文初稿',emoji:'📄',type:'projectile',baseDmg:10,speed:18,rate:30,range:320,pierce:0,color:'#e0e0e0',maxLv:8},
+  defense_ppt:{name:'答辩PPT',emoji:'📊',type:'projectile',baseDmg:13,speed:12,rate:55,range:320,pierce:0,color:'#ff9f43',maxLv:8},
+  opening_report:{name:'开题报告',emoji:'📋',type:'projectile',baseDmg:17,speed:8,rate:90,range:340,pierce:0,ring:true,color:'#a55eea',maxLv:8},
+  teacher_note:{name:'老师批注',emoji:'✏️',type:'aoe',baseDmg:12,rate:65,range:130,color:'#ffeaa7',maxLv:8},
+  reference:{name:'参考文献',emoji:'📑',type:'projectile',baseDmg:38,speed:5,rate:120,range:420,pierce:3,color:'#00cec9',maxLv:8},
+  keyboard:{name:'键盘敲击',emoji:'⌨️',type:'projectile',baseDmg:9,speed:15,rate:28,range:300,pierce:0,color:'#dfe6e9',maxLv:8},
+  advisor_call:{name:'导师来电',emoji:'📞',type:'projectile',baseDmg:28,speed:10,rate:80,range:380,pierce:1,color:'#fdcb6e',maxLv:8}
 };
 
 // 武器升级属性倍率
@@ -431,7 +458,7 @@ var RELIC_POOL=[
 
 // 道具池
 var ITEM_POOL=[
-  {id:'item_coffee',name:'速溶咖啡',emoji:'☕',price:12,quality:'common',desc:'攻击速度 +10%',apply:function(s){s.atkSpdMult+=0.1}},
+  {id:'item_coffee',name:'速溶咖啡',emoji:'☕',price:12,quality:'common',desc:'攻击速度 +20%',apply:function(s){s.atkSpdMult+=0.2}},
   {id:'item_book',name:'学术期刊',emoji:'📖',price:14,quality:'common',desc:'武器射程 +15%',apply:function(s){s.rangeMult+=0.15}},
   {id:'item_shoes',name:'运动鞋',emoji:'👟',price:10,quality:'common',desc:'移动速度 +0.5',apply:function(s){s.speed+=0.5}},
   {id:'item_vitamins',name:'维生素',emoji:'💊',price:12,quality:'common',desc:'最大生命 +15',apply:function(s){s.maxHp+=15;s.hp+=15}},
@@ -451,7 +478,7 @@ var STAT_UPGRADES=[
   {id:'hp',name:'生命强化',emoji:'❤️',desc:'+6 最大生命',quality:'common',apply:function(s){s.maxHp+=6;s.hp+=6}},
   {id:'dmg',name:'伤害强化',emoji:'⚔️',desc:'+5% 伤害',quality:'common',apply:function(s){s.dmgMult+=0.05}},
   {id:'spd',name:'移速强化',emoji:'💨',desc:'+0.15 移速',quality:'common',apply:function(s){s.speed+=0.15}},
-  {id:'atk',name:'攻速强化',emoji:'⚡',desc:'+4% 攻速',quality:'common',apply:function(s){s.atkSpdMult+=0.04}},
+  {id:'atk',name:'攻速强化',emoji:'⚡',desc:'+4% 攻速',quality:'common',apply:function(s){s.atkSpdMult+=0.08}},
   {id:'armor',name:'护甲强化',emoji:'🛡️',desc:'+1 护甲',quality:'common',apply:function(s){s.armor+=1}},
   {id:'crit',name:'暴击强化',emoji:'💥',desc:'+3% 暴击',quality:'common',apply:function(s){s.critChance+=0.03}},
   {id:'regen',name:'恢复强化',emoji:'💚',desc:'+0.5 生命/秒',quality:'common',apply:function(s){s.regen+=0.5}},
@@ -467,75 +494,109 @@ var STAT_UPGRADES=[
 // 多步骤随机事件池 - 基于角色设定的校园故事
 function getStoryEvents(){
   var charId=selectedChar?selectedChar.id:'yousong';
+  var char=selectedChar||CHARACTERS[0];
+  // 安全取值：确保数组足够长，不足的用默认值补齐
+  var defaultRm=['同学A','同学B','同学C'];
+  var rm=[];
+  for(var si=0;si<3;si++)rm.push((char.roommates&&char.roommates[si])||defaultRm[si]);
+  var defaultCl=['同门A','同门B'];
+  var cl=[];
+  for(var si=0;si<2;si++)cl.push((char.classmates&&char.classmates[si])||defaultCl[si]);
+  // 性别判断（用于代词）
+  var FEMALE_IDS={dana:1,xue:1,yuhui:1};
+  var isFemale=!!FEMALE_IDS[char.id];
+  var ta=isFemale?'她':'他';
+  var de=isFemale?'她的':'他的';
+  // 姓名→ID映射
+  var NAME_TO_ID={};
+  for(var ni=0;ni<CHARACTERS.length;ni++)NAME_TO_ID[CHARACTERS[ni].name]=CHARACTERS[ni].id;
+  // 根据角色姓名获取代词
+  function pronoun(name){var cid=NAME_TO_ID[name];return cid&&FEMALE_IDS[cid]?'她':'他';}
+  function pronounDe(name){var cid=NAME_TO_ID[name];return cid&&FEMALE_IDS[cid]?'她的':'他的';}
+  // 替换char对象的引用，使用安全版本
+  char={id:char.id,name:char.name,emoji:char.emoji,mentor:char.mentor||'导师',roommates:rm,classmates:cl};
   var events=[];
 
-  // ===== 通用事件 =====
-  events.push({id:'story_group_meeting',title:'📋 组会风云',stages:[
-      {desc:'导师林伟明突然在群里发："明天上午组会，每人汇报10分钟"。现在是晚上11点...',choices:[
-        {text:'通宵赶PPT',icon:'💻'},
-        {text:'随便做做',icon:'📄'},
-        {text:'找黄钰帮忙',icon:'👩‍🎓'}
-      ]},
-      {desc:'组会当天，黄钰师姐先汇报了，条理清晰...',choices:[
-        {text:'认真学习',icon:'📝'},
-        {text:'临时抱佛脚',icon:'😰'},
-        {text:'装网络卡了',icon:'📶'}
-      ]},
-      {desc:'轮到你了...',choices:[
-        {text:'硬着头皮讲',icon:'🎤'},
-        {text:'甩锅给技术问题',icon:'💻'},
-        {text:'承认还在研究',icon:'🙏'}
-      ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'卷王之王',desc:'导师："辛苦啦，做得不错！"',effect:function(){player.dmgMult+=0.12;player.atkSpdMult+=0.08;}},
-      {pattern:'0,0,2',name:'真诚无敌',desc:'你的诚恳打动了导师',effect:function(){player.maxHp+=20;player.regen+=1;}},
-      {pattern:'0,1,0',name:'临场发挥',desc:'虽然准备不足但口才不错',effect:function(){player.critChance+=0.1;player.gold+=7;}},
-      {pattern:'1,0,1',name:'借力打力',desc:'你巧妙地转移了话题',effect:function(){player.gold+=10;player.speed+=0.2;}},
-      {pattern:'1,1,2',name:'佛系应对',desc:'导师叹了口气但没说什么',effect:function(){player.armor+=2;player.regen+=1;}},
-      {pattern:'2,0,0',name:'甩锅大师',desc:'技术问题永远是最好的借口',effect:function(){player.critChance+=0.08;player.dmgMult+=0.06;}},
-      {pattern:'2,2,2',name:'社交达人',desc:'虽然没准备但人缘好',effect:function(){player.gold+=9;player.xpMult+=0.08;}}
-    ]}
-  );
+  // ===== 通用事件（所有角色共享） =====
 
-  // 深夜食堂
+  // 组会风云 — 导师林伟明的组会
+  events.push({id:'story_group_meeting',title:'📋 组会风云',stages:[
+    {desc:'导师'+char.mentor+'突然在群里发："'+char.name+'，明天上午组会，每人汇报10分钟，辛苦啦，收到回复一下"。现在是晚上11点...',choices:[
+      {text:'通宵赶PPT',icon:'💻'},
+      {text:'随便做做',icon:'📄'},
+      {text:'找'+char.classmates[0]+'帮忙',icon:'👩‍🎓'}
+    ]},
+    {desc:'组会当天，'+char.classmates[0]+'先汇报了，条理清晰。'+(char.classmates[1]||'同学')+'说"'+char.name+'，你快点"...',choices:[
+      {text:'认真学习',icon:'📝'},
+      {text:'临时抱佛脚',icon:'😰'},
+      {text:'装网络卡了',icon:'📶'}
+    ]},
+    {desc:'轮到你了。导师说"辛苦啦，开始吧"...',choices:[
+      {text:'硬着头皮讲',icon:'🎤'},
+      {text:'甩锅给技术问题',icon:'💻'},
+      {text:'承认还在研究',icon:'🙏'}
+    ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'卷王之王',desc:'导师："'+char.name+'做得不错，辛苦啦！"',effect:function(){player.dmgMult+=0.12;player.atkSpdMult+=0.08;}},
+    {pattern:'0,0,2',name:'真诚无敌',desc:'导师说"没事，继续努力"',effect:function(){player.maxHp+=20;player.regen+=1;}},
+    {pattern:'0,1,0',name:'临场发挥',desc:'虽然准备不足但口才不错',effect:function(){player.critChance+=0.1;player.gold+=7;}},
+    {pattern:'0,1,2',name:'翻车现场',desc:'导师："'+char.name+'，抓紧弄哈"',effect:function(){player.dmgMult-=0.05;player.gold-=5;},debuff:true},
+    {pattern:'0,2,1',name:'装卡失败',desc:'导师："'+char.name+'你的网络没问题吧"',effect:function(){player.critChance-=0.05;player.gold-=3;},debuff:true},
+    {pattern:'1,0,0',name:'甩锅大师',desc:'技术问题永远是最好的借口',effect:function(){player.critChance+=0.08;player.dmgMult+=0.06;}},
+    {pattern:'1,1,0',name:'敷衍了事',desc:'导师叹了口气："辛苦啦..."',effect:function(){player.xpMult-=0.1;},debuff:true},
+    {pattern:'1,1,2',name:'佛系应对',desc:'导师说"下次注意"',effect:function(){player.armor+=1;player.regen+=0.5;}},
+    {pattern:'1,2,1',name:'双重摸鱼',desc:'导师："'+char.name+'，抓紧弄哈，收到回复一下"',effect:function(){player.atkSpdMult-=0.12;player.dmgMult-=0.05;},debuff:true},
+    {pattern:'2,0,0',name:'甩锅之王',desc:char.classmates[0]+'在旁边偷偷笑了',effect:function(){player.gold+=10;player.speed+=0.2;}},
+    {pattern:'2,1,1',name:'社交达人',desc:'虽然没准备但人缘好',effect:function(){player.gold+=9;player.xpMult+=0.08;}},
+    {pattern:'2,2,0',name:'彻底摆烂',desc:'导师对你无语了',effect:function(){player.dmgMult-=0.1;player.xpMult-=0.15;},debuff:true},
+    {pattern:'2,2,2',name:'全面翻车',desc:'导师："抓紧弄哈，收到回复一下"',effect:function(){player.atkSpdMult-=0.1;player.dmgMult-=0.08;},debuff:true}
+  ]});
+
+  // 深夜食堂 — 宿舍夜宵
   events.push({id:'story_night_food',title:'🍜 深夜食堂',stages:[
-    {desc:'凌晨1点，你饿得睡不着。黄玮杰说东门夜市有家烧烤摊...',choices:[
+    {desc:'凌晨1点，你饿得睡不着。'+rm[0]+'在群里说"'+char.name+'，东门夜市有家烧烤摊，怎么说？"',choices:[
       {text:'冲！',icon:'🏃'},
       {text:'太远了算了',icon:'🛏️'},
       {text:'泡面解决',icon:'🍜'}
     ]},
-    {desc:'到了夜市，发现吴禹也在，他说"这家绝对绝"...',choices:[
-      {text:'听他推荐',icon:'👂'},
+    {desc:'到了夜市，'+cl[0]+'也在，'+pronoun(cl[0])+'说"我跟你们说，这家绝对绝，不赖"...',choices:[
+      {text:'听'+pronoun(cl[0])+'推荐',icon:'👂'},
       {text:'自己选',icon:'🤔'},
       {text:'都来一份',icon:'💰'}
     ]},
-    {desc:'烧烤上来了，很香...',choices:[
-      {text:'狼吞虎咽',icon:'😋'},
-      {text:'拍照发群',icon:'📱'},
-      {text:'边吃边聊',icon:'💬'}
+    {desc:'烧烤上来了，'+rm[1]+'突然出现："我丢，吃东西不叫我？"',choices:[
+      {text:'分'+pronoun(rm[1])+'一份',icon:'🤝'},
+      {text:'"得得得给你"',icon:'😂'},
+      {text:'"要钱没有"',icon:'💸'}
     ]}
   ],endings:[
     {pattern:'0,0,0',name:'深夜吃货',desc:'美食治愈了一切！',effect:function(){player.maxHp+=50;player.hp+=30;player.regen+=2;}},
-    {pattern:'0,0,2',name:'社交之夜',desc:'你们聊了很多心里话',effect:function(){player.gold+=15;player.regen+=2.5;}},
-    {pattern:'0,1,0',name:'吴禹推荐',desc:'他说的没错，这家真的绝！',effect:function(){player.dmgMult+=0.2;player.critChance+=0.15;}},
+    {pattern:'0,0,2',name:'蹭饭风波',desc:'你们一起AA了',effect:function(){player.gold+=15;player.regen+=2.5;}},
+    {pattern:'0,1,0',name:'朋友推荐',desc:'推荐没错，这家真的绝！',effect:function(){player.dmgMult+=0.2;player.critChance+=0.15;}},
+    {pattern:'0,1,2',name:'吃坏肚子',desc:'你选的那家不干净...',effect:function(){player.maxHp-=20;player.regen-=1;},debuff:true},
+    {pattern:'0,2,0',name:'吃撑了',desc:'第二天拉肚子...',effect:function(){player.speed-=0.3;player.maxHp-=15;},debuff:true},
+    {pattern:'0,2,1',name:'蹭饭嫌弃',desc:'白吃白喝还嫌弃',effect:function(){player.gold-=8;player.dmgMult-=0.03;},debuff:true},
     {pattern:'1,0,0',name:'省钱达人',desc:'你省下了夜宵钱',effect:function(){player.gold+=12;player.armor+=2;}},
     {pattern:'1,1,1',name:'泡面哲学',desc:'有时候简单才是最好的',effect:function(){player.regen+=2;player.speed+=0.3;}},
-    {pattern:'2,0,1',name:'土豪吃法',desc:'你们吃撑了',effect:function(){player.maxHp+=40;player.atkSpdMult+=0.1;}}
+    {pattern:'1,2,0',name:'熬夜代价',desc:'第二天困得要死',effect:function(){player.atkSpdMult-=0.15;},debuff:true},
+    {pattern:'2,0,1',name:'土豪吃法',desc:'你们吃撑了',effect:function(){player.maxHp+=40;player.atkSpdMult+=0.1;}},
+    {pattern:'2,1,2',name:'钱包出血',desc:'"得得得，下次你们请"',effect:function(){player.gold-=10;player.dmgMult+=0.05;},debuff:true},
+    {pattern:'2,2,0',name:'深夜后悔',desc:'第二天后悔花太多钱',effect:function(){player.gold-=12;player.regen-=0.5;},debuff:true}
   ]});
 
-  // 506宿舍之夜
-  events.push({id:'story_506_night',title:'🌙 506宿舍之夜',stages:[
-    {desc:'晚上10点，506宿舍四人都在。林致远突然说："来打CS！"...',choices:[
+  // 506宿舍之夜 — 打游戏
+  events.push({id:'story_506_night',title:'🌙 宿舍之夜',stages:[
+    {desc:'晚上10点，宿舍'+rm.length+'人都在。'+rm[0]+'突然说"来打CS！'+rm[1]+'你上不上？quickly"...',choices:[
       {text:'加入战斗',icon:'🎮'},
       {text:'写论文',icon:'💻'},
       {text:'旁观',icon:'👀'}
     ]},
-    {desc:'打了两小时，郑志辉突然上线了...',choices:[
-      {text:'拉他组队',icon:'🤝'},
-      {text:'问他怎么来了',icon:'❓'},
+    {desc:'打了两小时，'+rm[2]+'突然上线了："'+char.name+'，难得回来，来一把"...',choices:[
+      {text:'拉'+pronoun(rm[2])+'组队',icon:'🤝'},
+      {text:'问'+pronoun(rm[2])+'怎么来了',icon:'❓'},
       {text:'继续打',icon:'🎮'}
     ]},
-    {desc:'最后...',choices:[
+    {desc:rm[0]+'喊"我丢，你太猛了！"。'+rm[1]+'在旁边说"呦西"...',choices:[
       {text:'通宵到天亮',icon:'🌅'},
       {text:'各自睡觉',icon:'😴'},
       {text:'出去吃早餐',icon:'🍳'}
@@ -543,191 +604,404 @@ function getStoryEvents(){
   ],endings:[
     {pattern:'0,0,0',name:'游戏之王',desc:'你们五黑连胜！',effect:function(){player.dmgMult+=0.2;player.speed+=0.4;}},
     {pattern:'0,0,2',name:'早餐时光',desc:'清晨的粥特别暖',effect:function(){player.maxHp+=40;player.regen+=3;}},
-    {pattern:'0,1,0',name:'兄弟情深',desc:'"阿辉又来了！"志辉说"难得回来"',effect:function(){player.gold+=12;player.maxHp+=30;}},
-    {pattern:'1,0,0',name:'学霸模式',desc:'你趁他们打游戏写完了论文',effect:function(){player.xpMult+=0.3;player.gold+=10;}},
-    {pattern:'1,1,1',name:'佛系观战',desc:'看他们打也很有趣',effect:function(){player.regen+=2;player.armor+=2;}},
-    {pattern:'2,0,1',name:'志辉回归',desc:'你们像以前一样默契配合',effect:function(){player.critChance+=0.15;player.atkSpdMult+=0.15;}}
+    {pattern:'0,1,0',name:'兄弟情深',desc:'难得一起打游戏',effect:function(){player.gold+=12;player.maxHp+=30;}},
+    {pattern:'0,1,2',name:'被carry',desc:'你全程划水',effect:function(){player.dmgMult-=0.05;player.critChance-=0.03;},debuff:true},
+    {pattern:'0,2,0',name:'通宵代价',desc:'第二天起不来...',effect:function(){player.speed-=0.4;player.maxHp-=10;},debuff:true},
+    {pattern:'0,2,1',name:'室友捣乱',desc:'一直喊，你啥也没干',effect:function(){player.atkSpdMult-=0.1;player.gold-=5;},debuff:true},
+    {pattern:'1,0,0',name:'学霸模式',desc:'你趁大家打游戏写完了论文',effect:function(){player.xpMult+=0.3;player.gold+=10;}},
+    {pattern:'1,1,1',name:'佛系观战',desc:'看大家打也很有趣',effect:function(){player.regen+=2;player.armor+=2;}},
+    {pattern:'1,2,0',name:'论文通宵',desc:'你通宵写论文但质量一般',effect:function(){player.xpMult+=0.1;player.maxHp-=15;},debuff:true},
+    {pattern:'2,0,1',name:'回归联机',desc:'你们像以前一样默契配合',effect:function(){player.critChance+=0.15;player.atkSpdMult+=0.15;}},
+    {pattern:'2,1,0',name:'早餐社死',desc:'你在早餐店睡着了',effect:function(){player.speed-=0.2;player.gold-=3;},debuff:true}
   ]});
 
-  // 围攻林少请客
-  events.push({id:'story_treat',title:'💰 围攻林少',stages:[
-    {desc:'林致远发了工资（导师发了项目报酬），群里瞬间炸了...',choices:[
+  // 围攻请客
+  events.push({id:'story_treat',title:'💰 围攻请客',stages:[
+    {desc:rm[0]+'在群里发"今晚聚餐"，'+cl[0]+'秒回"'+rm[0]+'请客"。'+rm[0]+'："我丢"...',choices:[
       {text:'带头起哄',icon:'📢'},
       {text:'默默围观',icon:'👀'},
-      {text:'替他解围',icon:'🤝'}
+      {text:'替'+pronoun(rm[0])+'解围',icon:'🤝'}
     ]},
-    {desc:'林致远开始推脱："要钱没有要命一条"...',choices:[
+    {desc:rm[0]+'开始推脱："要钱没有要命一条"。'+cl[1]+'说"为了几块钱你将要失去九个人"',choices:[
       {text:'继续围攻',icon:'😤'},
-      {text:'他说得得得就放过他',icon:'😂'},
+      {text:pronoun(rm[0])+'说得得得就放过'+pronoun(rm[0]),icon:'😂'},
       {text:'建议AA',icon:'💰'}
     ]},
     {desc:'最终...',choices:[
-      {text:'他请了海底捞',icon:'🍲'},
+      {text:pronoun(rm[0])+'请了海底捞',icon:'🍲'},
       {text:'大家AA',icon:'💸'},
-      {text:'他请了奶茶',icon:'🧋'}
+      {text:pronoun(rm[0])+'请了奶茶',icon:'🧋'}
     ]}
   ],endings:[
-    {pattern:'0,0,0',name:'围攻大师',desc:'林致远："得得得，这次就放过你们"',effect:function(){player.gold+=20;player.dmgMult+=0.1;}},
+    {pattern:'0,0,0',name:'围攻大师',desc:rm[0]+'："得得得，这次就放过你们"',effect:function(){player.gold+=20;player.dmgMult+=0.1;}},
     {pattern:'0,0,2',name:'AA之魂',desc:'公平公正，皆大欢喜',effect:function(){player.gold+=15;player.xpMult+=0.15;}},
-    {pattern:'0,1,0',name:'适可而止',desc:'你知道他其实很大方',effect:function(){player.gold+=12;player.regen+=2;}},
+    {pattern:'0,1,0',name:'适可而止',desc:'你知道'+pronoun(rm[0])+'其实很大方',effect:function(){player.gold+=12;player.regen+=2;}},
+    {pattern:'0,1,2',name:'记仇',desc:rm[0]+'："下次你们请"',effect:function(){player.gold-=8;player.regen-=0.5;},debuff:true},
+    {pattern:'0,2,0',name:'被跑了',desc:rm[0]+'："下次下次"然后消失了',effect:function(){player.gold-=5;},debuff:true},
+    {pattern:'0,2,1',name:'溜了',desc:'真的跑了...',effect:function(){player.gold-=10;player.dmgMult-=0.05;},debuff:true},
     {pattern:'1,0,0',name:'围观群众',desc:'你看戏看得很开心',effect:function(){player.critChance+=0.15;player.speed+=0.3;}},
-    {pattern:'1,1,1',name:'和谐宿舍',desc:'最后他还是请了',effect:function(){player.gold+=17;player.maxHp+=20;}},
-    {pattern:'2,0,1',name:'暖心调解',desc:'你提议AA，他很感激',effect:function(){player.gold+=10;player.regen+=2.5;}}
+    {pattern:'1,1,1',name:'和谐宿舍',desc:'最后'+pronoun(rm[0])+'还是请了',effect:function(){player.gold+=17;player.maxHp+=20;}},
+    {pattern:'1,2,0',name:'无人请客',desc:'大家面面相觑',effect:function(){player.gold-=5;player.regen-=0.5;},debuff:true},
+    {pattern:'2,0,1',name:'暖心调解',desc:'你提议AA，'+pronoun(rm[0])+'很感激',effect:function(){player.gold+=10;player.regen+=2.5;}},
+    {pattern:'2,1,0',name:'感动',desc:pronoun(rm[0])+'记住了你的好',effect:function(){player.gold+=8;player.regen+=2;}}
+  ]});
+
+  // 宿舍空调大战
+  events.push({id:'story_ac_war',title:'❄️ 宿舍空调大战',stages:[
+    {desc:'夏天到了，'+(char.room||'宿舍')+'的空调和热水器只能同时开一个（超过功率会跳闸）。'+rm[0]+'想开空调，你想洗澡...',choices:[
+      {text:'先洗澡',icon:'🚿'},
+      {text:'让'+pronoun(rm[0])+'开空调',icon:'❄️'},
+      {text:'石头剪刀布',icon:'✊'}
+    ]},
+    {desc:rm[0]+'说"我丢，这么热你不让开空调？"。'+rm[1]+'说"呦西，要不开一会关一会"',choices:[
+      {text:'同意轮流',icon:'🔄'},
+      {text:'坚持洗澡',icon:'🚿'},
+      {text:'出去算了',icon:'🏃'}
+    ]},
+    {desc:'最后...',choices:[
+      {text:'一起出去吹空调',icon:'🏬'},
+      {text:pronoun(rm[0])+'赢了你洗澡',icon:'🚿'},
+      {text:'你赢了开空调',icon:'❄️'}
+    ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'逛街达人',desc:'商场的空调真舒服',effect:function(){player.gold+=10;player.regen+=1.5;}},
+    {pattern:'0,1,0',name:'洗得舒服',desc:'热水澡真解乏',effect:function(){player.maxHp+=30;player.regen+=2;}},
+    {pattern:'0,2,0',name:'空调之王',desc:'终于凉快了',effect:function(){player.speed+=0.3;player.atkSpdMult+=0.1;}},
+    {pattern:'0,0,1',name:'室友抱怨',desc:'"我丢，这么热你还要洗澡"',effect:function(){player.gold-=3;player.regen-=0.3;},debuff:true},
+    {pattern:'1,0,1',name:'跳闸了',desc:'超功率跳闸了，全宿舍停电',effect:function(){player.speed-=0.3;player.atkSpdMult-=0.1;},debuff:true},
+    {pattern:'1,1,0',name:'僵持不下',desc:'最后谁也没开成',effect:function(){player.regen-=0.5;player.maxHp-=10;},debuff:true},
+    {pattern:'1,2,0',name:'输了',desc:pronoun(rm[0])+'开了空调你没洗成澡',effect:function(){player.regen-=0.8;player.maxHp-=5;},debuff:true},
+    {pattern:'2,0,0',name:'外出避暑',desc:'出去浪了',effect:function(){player.gold-=8;player.speed+=0.2;}},
+    {pattern:'2,1,1',name:'轮流方案',desc:'公平公正',effect:function(){player.gold+=8;player.maxHp+=15;}}
+  ]});
+
+  // 食堂偶遇 — 遇到不同角色
+  events.push({id:'story_cafeteria',title:'🍽️ 食堂偶遇',stages:[
+    {desc:'你去食堂吃饭，遇到了'+cl[0]+'，'+pronoun(cl[0])+'说"我跟你们说，齐辉餐厅的鱼丸绝对绝"...',choices:[
+      {text:'跟'+pronoun(cl[0])+'去',icon:'🚶'},
+      {text:'就在食堂吃',icon:'🍽️'},
+      {text:'点拼好饭',icon:'📱'}
+    ]},
+    {desc:'路上碰到了'+cl[1]+'和'+rm[0]+'，'+cl[1]+'说"去不去贝抖KTV"',choices:[
+      {text:'吃完再去',icon:'🍽️'},
+      {text:'直接去',icon:'🎤'},
+      {text:'下次吧',icon:'📅'}
+    ]},
+    {desc:'最后...',choices:[
+      {text:'吃了鱼丸去了KTV',icon:'🎤'},
+      {text:'在食堂吃完回去了',icon:'🏠'},
+      {text:'拼好饭到了回宿舍',icon:'📱'}
+    ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'美食歌神',desc:'朋友的推荐+组织=完美一天',effect:function(){player.dmgMult+=0.15;player.maxHp+=30;}},
+    {pattern:'0,1,0',name:'KTV之王',desc:'你们嗨到很晚',effect:function(){player.atkSpdMult+=0.15;player.gold+=10;}},
+    {pattern:'0,2,0',name:'社恐时刻',desc:'你婉拒了所有人',effect:function(){player.xpMult+=0.1;player.regen+=1;}},
+    {pattern:'0,1,2',name:'KTV翻车',desc:'你唱了一首很难听的歌',effect:function(){player.critChance-=0.05;player.gold-=5;},debuff:true},
+    {pattern:'1,0,0',name:'省钱达人',desc:'你省下了钱',effect:function(){player.gold+=15;player.armor+=1;}},
+    {pattern:'1,0,2',name:'错过聚餐',desc:'你一个人吃拼好饭',effect:function(){player.gold+=5;player.regen-=0.5;},debuff:true},
+    {pattern:'1,1,0',name:'错过好局',desc:'听说KTV玩得很开心',effect:function(){player.gold+=5;player.maxHp-=5;},debuff:true},
+    {pattern:'2,0,1',name:'宅家快乐',desc:'拼好饭+回宿舍=完美',effect:function(){player.gold+=8;player.regen+=1.5;}},
+    {pattern:'2,1,0',name:'外卖延迟',desc:'拼好饭送了一个小时',effect:function(){player.gold+=3;player.speed-=0.2;},debuff:true}
   ]});
 
   // ===== 角色专属事件 =====
 
-  // 林有崧专属：AI代笔
+  // 林有崧专属：AI代笔+视频剪辑
   if(charId==='yousong'){
     events.push({id:'story_yousong_ai',title:'🤖 林有崧的AI魔法',stages:[
-      {desc:'你用Claude Code半小时写完了小组作业，黄玮杰看到后目瞪口呆...',choices:[
+      {desc:'你用Claude Code半小时写完了《学位论文写作指引》小组作业。黄玮杰看到后说"有崧，怎么说？这也太快了吧！"',choices:[
         {text:'教他用AI',icon:'📖'},
         {text:'保密',icon:'🤫'},
         {text:'说是自己写的',icon:'😏'}
       ]},
-      {desc:'结果作业被老师表扬了，黄玮杰在群里说"有崧效率就是高"...',choices:[
-        {text:'谦虚回应',icon:'🙏'},
-        {text:'顺势装逼',icon:'😎'},
-        {text:'转移话题',icon:'🔄'}
+      {desc:'作业被老师表扬了。黄玮杰在群里说"wdf有崧，效率就是高"。陈思婷说"有崧，帮我也弄一个呗"...',choices:[
+        {text:'帮陈思婷',icon:'🤝'},
+        {text:'"这次自己来"',icon:'💪'},
+        {text:'教她方法',icon:'📖'}
       ]},
-      {desc:'陈雪找你帮忙研究买电脑型号...',choices:[
-        {text:'认真帮她选',icon:'💻'},
-        {text:'推荐最贵的',icon:'💰'},
-        {text:'让她自己选',icon:'🤷'}
+      {desc:'晚上，林致远说"阿崧，帮我剪个视频"。你已经在帮导师做漳州花卉产业数据了...',choices:[
+      {text:'先帮导师',icon:'💼'},
+      {text:'先帮致远',icon:'🎬'},
+      {text:'两个一起做',icon:'💻'}
+    ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'技术大佬',desc:'你的AI技能震惊全场！',effect:function(){player.dmgMult+=0.3;player.xpMult+=0.2;}},
+    {pattern:'0,0,2',name:'全能选手',desc:'你同时搞定两件事',effect:function(){player.gold+=15;player.atkSpdMult+=0.15;}},
+    {pattern:'0,1,0',name:'独立自主',desc:'陈思婷学会了自己做',effect:function(){player.gold+=12;player.regen+=2;}},
+    {pattern:'0,1,2',name:'过度劳累',desc:'你通宵做两件事...',effect:function(){player.maxHp-=20;player.speed-=0.3;},debuff:true},
+    {pattern:'0,2,0',name:'AI依赖',desc:'你发现自己不会手写了',effect:function(){player.xpMult-=0.15;player.dmgMult-=0.05;},debuff:true},
+    {pattern:'1,0,0',name:'分享精神',desc:'你教会了黄玮杰用AI',effect:function(){player.gold+=15;player.atkSpdMult+=0.15;}},
+    {pattern:'1,0,2',name:'导师优先',desc:'导师的任务最重要',effect:function(){player.gold+=20;player.dmgMult+=0.1;}},
+    {pattern:'1,1,0',name:'教学相长',desc:'你教了陈思婷方法',effect:function(){player.xpMult+=0.2;player.gold+=10;}},
+    {pattern:'1,1,2',name:'两边都顾',desc:'你两边都做了但质量一般',effect:function(){player.xpMult-=0.1;player.gold-=5;},debuff:true},
+    {pattern:'1,2,0',name:'致远不满',desc:'致远说"阿崧你不够意思"',effect:function(){player.gold-=5;player.regen-=0.5;},debuff:true},
+    {pattern:'2,0,0',name:'隐形单位',desc:'朋友们都很佩服你',effect:function(){player.dmgMult+=0.2;player.speed+=0.3;player.maxHp+=20;}},
+    {pattern:'2,1,0',name:'教了但没完全教',desc:'陈思婷还是不太会',effect:function(){player.gold+=5;player.xpMult-=0.05;},debuff:true},
+    {pattern:'2,1,1',name:'时间管理大师',desc:'你平衡了所有事情',effect:function(){player.gold+=10;player.maxHp+=25;player.regen+=1.5;}}
+    ]});
+
+    events.push({id:'story_yousong_birthday',title:'🎂 林有崧的生日',stages:[
+      {desc:'今天是你生日。黄玮杰在群里说"有崧你生日别忘了我！"。林致远说"今晚聚餐！"...',choices:[
+        {text:'答应聚餐',icon:'🎉'},
+        {text:'低调过',icon:'🎂'},
+        {text:'请他们吃饭',icon:'🍽️'}
+      ]},
+      {desc:'到了餐厅，陈雪带头唱生日歌。达娜送了新疆薰衣草香囊...',choices:[
+        {text:'许愿',icon:'🙏'},
+        {text:'切蛋糕',icon:'🎂'},
+        {text:'拍照发朋友圈',icon:'📱'}
+      ]},
+      {desc:'聚完餐，你默默去结了账...',choices:[
+        {text:'不让任何人知道',icon:'🤫'},
+        {text:'告诉他们',icon:'💬'},
+        {text:'让林致远请',icon:'💰'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'技术大佬',desc:'你的AI技能震惊全场！',effect:function(){player.dmgMult+=0.3;player.xpMult+=0.2;}},
-      {pattern:'0,0,2',name:'贴心暖男',desc:'你帮她选了性价比最高的',effect:function(){player.gold+=12;player.regen+=2.5;}},
-      {pattern:'0,1,0',name:'低调学霸',desc:'你保持了神秘感',effect:function(){player.critChance+=0.2;player.armor+=2;}},
-      {pattern:'1,0,0',name:'分享精神',desc:'你教会了黄玮杰用AI',effect:function(){player.gold+=15;player.atkSpdMult+=0.15;}},
-      {pattern:'1,1,1',name:'隐形大佬',desc:'朋友们都很佩服你',effect:function(){player.dmgMult+=0.2;player.speed+=0.3;player.maxHp+=20;}},
-      {pattern:'2,0,1',name:'佛系技术',desc:'技术只是工具，重要的是人',effect:function(){player.regen+=2;player.gold+=10;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'生日王者',desc:'你请了所有人，大家都很开心',effect:function(){player.gold-=15;player.dmgMult+=0.25;player.maxHp+=30;}},
+    {pattern:'0,0,2',name:'让致远请',desc:'林致远："我丢，今天不是你生日吗？"',effect:function(){player.gold+=20;player.regen+=2;}},
+    {pattern:'0,1,0',name:'低调温馨',desc:'简单但很温暖',effect:function(){player.maxHp+=40;player.regen+=3;}},
+    {pattern:'0,1,1',name:'生日快乐',desc:'朋友们的祝福最珍贵',effect:function(){player.gold+=15;player.maxHp+=25;player.regen+=1.5;}},
+    {pattern:'1,0,0',name:'暗中观察',desc:'你享受这种被在乎的感觉',effect:function(){player.critChance+=0.15;player.regen+=2;}},
+    {pattern:'1,0,1',name:'惊喜买单',desc:'他们后来发现了',effect:function(){player.gold-=10;player.dmgMult+=0.15;}},
+    {pattern:'1,1,0',name:'生日快乐',desc:'你许了一个愿',effect:function(){player.maxHp+=35;player.regen+=2;}},
+    {pattern:'2,0,0',name:'开心就好',desc:'钱不重要',effect:function(){player.gold-=12;player.dmgMult+=0.2;}},
+    {pattern:'2,0,1',name:'致远请客',desc:'林致远难得请了一次',effect:function(){player.gold+=15;player.regen+=2;}},
+    {pattern:'2,1,0',name:'生日后悔',desc:'你花了太多钱',effect:function(){player.gold-=20;player.regen+=1;},debuff:true},
+    {pattern:'2,1,1',name:'生日聚会',desc:'最棒的生日！',effect:function(){player.gold+=10;player.maxHp+=30;player.atkSpdMult+=0.1;}}
     ]});
   }
 
-  // 林致远专属：铁观音+口头禅
+  // 林致远专属：围攻请客+怕虫子
   if(charId==='zhiyuan'){
-    events.push({id:'story_zhiyuan_tea',title:'🍵 致远的安溪铁观音',stages:[
-      {desc:'你从安溪老家带来了正宗铁观音，准备泡给室友们喝...',choices:[
-        {text:'认真泡茶',icon:'🍵'},
-        {text:'随便泡泡',icon:'🚰'},
-        {text:'先自己喝',icon:'😋'}
+    events.push({id:'story_zhiyuan_bug',title:'🐛 致远的虫子恐惧',stages:[
+      {desc:'半夜你发现床头有只大虫子。你吓得嗷嗷叫："阿崧快下来救我！"',choices:[
+        {text:'喊阿崧帮忙',icon:'📞'},
+        {text:'自己打',icon:'🪲'},
+        {text:'假装没看到',icon:'🙈'}
       ]},
-      {desc:'黄玮杰闻到茶香跑过来了...',choices:[
-        {text:'分他一杯',icon:'🍵'},
-        {text:'让他等着',icon:'⏳'},
-        {text:'说没了',icon:'🚫'}
+      {desc:'阿崧淡定地走过来说"我解决了"。你心有余悸...',choices:[
+        {text:'请他吃宵夜',icon:'🍜'},
+        {text:'"得得得谢谢"',icon:'😂'},
+        {text:'继续睡',icon:'😴'}
       ]},
-      {desc:'喝茶时，他开始疯狂说话...',choices:[
-        {text:'耐心听',icon:'👂'},
-        {text:'戴上耳机',icon:'🎧'},
-        {text:'转移话题',icon:'🔄'}
+      {desc:'第二天，你在群里说"昨晚差点被虫子吓死"...',choices:[
+        {text:'被大家笑',icon:'😂'},
+        {text:'达娜说"你不怕我报警啊"',icon:'📞'},
+        {text:'陈雪说"头发都洗了还怕虫子"',icon:'💅'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'茶道高手',desc:'你的泡茶技术让所有人惊叹！',effect:function(){player.dmgMult+=0.3;player.speed+=0.3;}},
-      {pattern:'0,0,2',name:'话题终结者',desc:'你成功让他闭嘴了',effect:function(){player.critChance+=0.25;player.gold+=12;}},
-      {pattern:'0,1,0',name:'社交达人',desc:'你们聊得很开心',effect:function(){player.gold+=15;player.regen+=2;}},
-      {pattern:'1,0,0',name:'随性洒脱',desc:'你不在乎这些细节',effect:function(){player.speed+=0.5;player.armor+=2;}},
-      {pattern:'1,1,1',name:'佛系生活',desc:'一切随缘',effect:function(){player.regen+=2.5;player.maxHp+=30;}},
-      {pattern:'2,0,1',name:'独享时光',desc:'安静喝茶也很美好',effect:function(){player.xpMult+=0.2;player.atkSpdMult+=0.1;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'感恩戴德',desc:'你请阿崧吃了宵夜',effect:function(){player.gold-=8;player.maxHp+=30;player.regen+=2;}},
+    {pattern:'0,0,1',name:'嘴硬心软',desc:'你嘴上说不用谢但心里很感激',effect:function(){player.critChance+=0.15;player.dmgMult+=0.1;}},
+    {pattern:'0,1,0',name:'被群嘲',desc:'"林少连虫子都怕"',effect:function(){player.gold+=5;player.armor+=1;}},
+    {pattern:'0,1,2',name:'社死现场',desc:'你的虫子恐惧成了群里的新梗',effect:function(){player.critChance+=0.1;player.gold+=8;}},
+    {pattern:'1,0,0',name:'勇气可嘉',desc:'你勇敢地打了虫子',effect:function(){player.dmgMult+=0.2;player.armor+=2;}},
+    {pattern:'1,1,0',name:'虫子噩梦',desc:'你做了个噩梦',effect:function(){player.maxHp-=10;player.regen-=0.5;},debuff:true},
+    {pattern:'2,0,0',name:'眼不见为净',desc:'假装没看到然后失眠了',effect:function(){player.atkSpdMult-=0.1;},debuff:true},
+    {pattern:'2,1,1',name:'佛系面对',desc:'你选择了最淡定的方式',effect:function(){player.regen+=2;player.maxHp+=20;}}
+    ]});
+
+    events.push({id:'story_zhiyuan_treat',title:'💰 致远的请客日常',stages:[
+      {desc:'你发了项目报酬，群里瞬间炸了。陈雪说"林致远请客"，达娜说"为了几块钱你将要失去九个人"...',choices:[
+        {text:'"得得得请请请"',icon:'💸'},
+        {text:'"要钱没有要命一条"',icon:'😤'},
+        {text:'"这次真的穷"',icon:'😭'}
+      ]},
+      {desc:'大家开始起哄。阿崧说"薛定谔的黄总"，吴禹说"真有才华"...',choices:[
+        {text:'直接转账请客',icon:'💸'},
+        {text:'带大家去便宜的',icon:'🏪'},
+        {text:'AA制',icon:'🤝'}
+      ]},
+      {desc:'最后...',choices:[
+        {text:'海底捞',icon:'🍲'},
+        {text:'拼好饭',icon:'📱'},
+        {text:'路边摊',icon:'🍢'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'大方林少',desc:'你请了海底捞！大家很开心',effect:function(){player.gold-=15;player.dmgMult+=0.15;player.maxHp+=30;}},
+    {pattern:'0,0,1',name:'拼好饭之王',desc:'人均6.9元解决',effect:function(){player.gold+=10;player.regen+=1;}},
+    {pattern:'0,1,0',name:'精打细算',desc:'你找到了性价比最高的店',effect:function(){player.gold+=8;player.regen+=2;}},
+    {pattern:'0,1,1',name:'省钱大师',desc:'你省下了不少钱',effect:function(){player.gold+=15;player.armor+=1;}},
+    {pattern:'1,0,0',name:'铁公鸡',desc:'大家表示理解',effect:function(){player.gold+=20;player.dmgMult-=0.05;},debuff:true},
+    {pattern:'1,0,2',name:'逃跑失败',desc:'达娜说"你不怕我报警啊"',effect:function(){player.gold-=5;player.armor-=1;},debuff:true},
+    {pattern:'2,0,0',name:'真穷实录',desc:'大家看你确实没钱了',effect:function(){player.gold+=8;player.regen+=1.5;}},
+    {pattern:'2,1,1',name:'AA精神',desc:'公平公正',effect:function(){player.gold+=12;player.xpMult+=0.1;}}
     ]});
   }
 
   // 黄玮杰专属：乒乓球+洛克王国
   if(charId==='weijie'){
     events.push({id:'story_weijie_ping',title:'🏓 玮杰的乒乓日常',stages:[
-      {desc:'你约林有崧去打乒乓球，他说在赶论文...',choices:[
+      {desc:'你约林有崧去打乒乓球："有崧，怎么说？今天下午打不打球？你能不能先下去看看有没有场"',choices:[
         {text:'拉他去',icon:'🤝'},
         {text:'自己去',icon:'🏃'},
         {text:'等他写完',icon:'⏳'}
       ]},
-      {desc:'球馆里遇到了其他同学...',choices:[
-        {text:'组队双打',icon:'🤝'},
+      {desc:'球馆里遇到了吴禹，他说"不赖，我也来"...',choices:[
+        {text:'三人双打',icon:'🤝'},
         {text:'单挑',icon:'⚔️'},
-        {text:'教新手',icon:'📖'}
+        {text:'教吴禹',icon:'📖'}
       ]},
-      {desc:'打完球后...',choices:[
+      {desc:'打完球后，林致远在群里说"今晚洛克王国开黑"...',choices:[
+        {text:'回宿舍打游戏',icon:'🎮'},
         {text:'请喝水',icon:'💧'},
-        {text:'回宿舍打洛克王国',icon:'🎮'},
         {text:'去吃饭',icon:'🍜'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'乒乓外交',desc:'你成功拉到了有崧！',effect:function(){player.dmgMult+=0.15;player.speed+=0.5;}},
-      {pattern:'0,0,2',name:'洛克同好',desc:'你们一起玩洛克王国',effect:function(){player.gold+=12;player.regen+=2;}},
-      {pattern:'0,1,0',name:'单挑之王',desc:'你赢了所有对手！',effect:function(){player.critChance+=0.2;player.dmgMult+=0.15;}},
-      {pattern:'1,0,0',name:'独行侠',desc:'一个人打球也很爽',effect:function(){player.speed+=0.4;player.armor+=2;}},
-      {pattern:'1,1,1',name:'快乐乒乓',desc:'运动就是快乐',effect:function(){player.speed+=0.3;player.maxHp+=30;player.regen+=1.5;}},
-      {pattern:'2,0,1',name:'佛系运动',desc:'输赢不重要',effect:function(){player.regen+=2.5;player.gold+=10;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'乒乓外交',desc:'你成功拉到了有崧！',effect:function(){player.dmgMult+=0.15;player.speed+=0.5;}},
+    {pattern:'0,0,2',name:'洛克同好',desc:'你们一起玩洛克王国',effect:function(){player.gold+=12;player.regen+=2;}},
+    {pattern:'0,1,0',name:'单挑之王',desc:'你赢了所有对手！',effect:function(){player.critChance+=0.2;player.dmgMult+=0.15;}},
+    {pattern:'0,1,2',name:'运动过度',desc:'第二天手酸得抬不起来',effect:function(){player.atkSpdMult-=0.15;},debuff:true},
+    {pattern:'1,0,0',name:'独行侠',desc:'一个人打球也很爽',effect:function(){player.speed+=0.4;player.armor+=2;}},
+    {pattern:'1,1,1',name:'快乐乒乓',desc:'运动就是快乐',effect:function(){player.speed+=0.3;player.maxHp+=30;player.regen+=1.5;}},
+    {pattern:'2,0,1',name:'佛系运动',desc:'输赢不重要',effect:function(){player.regen+=2.5;player.gold+=10;}}
+    ]});
+
+    events.push({id:'story_weijie_crypto',title:'📈 玮杰的加密货币',stages:[
+      {desc:'你和林有崧一起盯盘，川普币从1刀涨到5刀。你说"有崧，天才啊有崧，我1u赚了2u！"',choices:[
+        {text:'"这么猛！继续冲"',icon:'📈'},
+        {text:'先止盈',icon:'💰'},
+        {text:'问有崧意见',icon:'🤝'}
+      ]},
+      {desc:'有崧说"斌子，这里头的水太深，你把握不住啊"...',choices:[
+        {text:'"真假？那我跑了"',icon:'🏃'},
+        {text:'"纳尼？再等等"',icon:'👀'},
+        {text:'听他的先跑了',icon:'🏃'}
+      ]},
+      {desc:'第二天币价...',choices:[
+        {text:'继续涨！赚翻了',icon:'🎉'},
+        {text:'跌了30%',icon:'📉'},
+        {text:'横盘不动',icon:'😐'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'币圈大佬',desc:'你的判断完全正确！',effect:function(){player.gold+=40;player.dmgMult+=0.15;}},
+    {pattern:'0,0,2',name:'稳健投资',desc:'你听有崧的话止盈了',effect:function(){player.gold+=25;player.armor+=3;}},
+    {pattern:'0,1,0',name:'信仰玩家',desc:'你坚持到了最后',effect:function(){player.gold+=30;player.critChance+=0.15;}},
+    {pattern:'0,1,1',name:'血亏',desc:'你亏了一大笔',effect:function(){player.gold-=15;player.dmgMult-=0.1;},debuff:true},
+    {pattern:'1,0,0',name:'果断止盈',desc:'你保住了利润',effect:function(){player.gold+=20;player.regen+=2;}},
+    {pattern:'1,1,0',name:'错过机会',desc:'跑了之后又涨了',effect:function(){player.gold+=5;player.critChance-=0.05;},debuff:true},
+    {pattern:'2,0,1',name:'听人劝',desc:'有崧说得对',effect:function(){player.gold+=17;player.xpMult+=0.2;}}
     ]});
   }
 
   // 吴禹专属：R&B+美食地图
   if(charId==='wuyu'){
     events.push({id:'story_wuyu_ktv',title:'🎤 吴禹的R&B之夜',stages:[
-      {desc:'陈雪组织大家去贝抖KTV，你是麦霸...',choices:[
+      {desc:'陈雪组织大家去贝抖KTV。你是麦霸，一进去就点了一首R&B...',choices:[
         {text:'先来一首R&B',icon:'🎤'},
         {text:'让别人先唱',icon:'👂'},
         {text:'点歌等待',icon:'🎵'}
       ]},
-      {desc:'你唱完后全场安静了三秒，然后爆发掌声...',choices:[
+      {desc:'你唱完后全场安静了三秒，然后爆发掌声。林致远说"我丢，吴博士后你太猛了！"...',choices:[
         {text:'再来一首',icon:'🔥'},
-        {text:'谦虚坐下',icon:'😊'},
+        {text:'"一般一般，下次我做先锋"',icon:'😊'},
         {text:'邀请合唱',icon:'🤝'}
       ]},
       {desc:'林致远抢麦了，唱得很难听但很卖力...',choices:[
         {text:'鼓掌鼓励',icon:'👏'},
-        {text:'抢回来',icon:'🎤'},
+        {text:'"真有才华"',icon:'🎤'},
         {text:'录下来',icon:'📱'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'KTV之王',desc:'你的R&B让全场惊艳！',effect:function(){player.dmgMult+=0.25;player.critChance+=0.2;}},
-      {pattern:'0,0,2',name:'最佳听众',desc:'你是最棒的捧场王',effect:function(){player.gold+=15;player.regen+=2;}},
-      {pattern:'0,1,0',name:'低调歌神',desc:'你的谦虚让人更佩服',effect:function(){player.armor+=3;player.dmgMult+=0.15;}},
-      {pattern:'1,0,0',name:'再来亿首',desc:'你承包了今晚的歌单',effect:function(){player.atkSpdMult+=0.2;player.speed+=0.3;}},
-      {pattern:'1,1,1',name:'快乐KTV',desc:'音乐让所有人开心',effect:function(){player.gold+=12;player.maxHp+=30;player.regen+=1.5;}},
-      {pattern:'2,0,1',name:'录屏达人',desc:'这段视频会成为经典',effect:function(){player.critChance+=0.15;player.gold+=12;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'KTV之王',desc:'你的R&B让全场惊艳！',effect:function(){player.dmgMult+=0.25;player.critChance+=0.2;}},
+    {pattern:'0,0,2',name:'最佳听众',desc:'你是最棒的捧场王',effect:function(){player.gold+=15;player.regen+=2;}},
+    {pattern:'0,1,0',name:'低调歌神',desc:'你的谦虚让人更佩服',effect:function(){player.armor+=3;player.dmgMult+=0.15;}},
+    {pattern:'0,1,2',name:'KTV社死',desc:'林致远的歌声太魔性了',effect:function(){player.atkSpdMult-=0.1;player.critChance+=0.05;},debuff:true},
+    {pattern:'1,0,0',name:'再来亿首',desc:'你承包了今晚的歌单',effect:function(){player.atkSpdMult+=0.2;player.speed+=0.3;}},
+    {pattern:'1,1,1',name:'快乐KTV',desc:'音乐让所有人开心',effect:function(){player.gold+=12;player.maxHp+=30;player.regen+=1.5;}},
+    {pattern:'2,0,1',name:'录屏达人',desc:'这段视频会成为经典',effect:function(){player.critChance+=0.15;player.gold+=12;}}
+    ]});
+
+    events.push({id:'story_wuyu_food',title:'🍽️ 吴禹的美食地图',stages:[
+      {desc:'你在群里说"我跟你们说，福州有一家苍蝇馆子，绝对绝"。黄玮杰说"纳尼？怎么说？"',choices:[
+        {text:'带大家去',icon:'🚶'},
+        {text:'先自己去试试',icon:'🔍'},
+        {text:'发定位',icon:'📍'}
+      ]},
+      {desc:'到了之后，发现要排队。陈雪说"这么多人？"',choices:[
+        {text:'硬等',icon:'⏳'},
+        {text:'换一家',icon:'🔄'},
+        {text:'让黄玮杰去问',icon:'🤝'}
+      ]},
+      {desc:'终于吃上了...',choices:[
+        {text:'拍照发群',icon:'📱'},
+        {text:'安静吃',icon:'🍽️'},
+        {text:'边吃边聊',icon:'💬'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'美食博主',desc:'你的推荐太准了！',effect:function(){player.dmgMult+=0.15;player.maxHp+=30;}},
+    {pattern:'0,1,0',name:'探店达人',desc:'你找到了宝藏小店',effect:function(){player.gold+=15;player.regen+=2;}},
+    {pattern:'0,2,0',name:'排队两小时',desc:'等太久了...',effect:function(){player.speed-=0.3;player.atkSpdMult-=0.1;},debuff:true},
+    {pattern:'1,0,0',name:'先踩点',desc:'你确认了味道才推荐',effect:function(){player.critChance+=0.15;player.gold+=10;}},
+    {pattern:'1,1,1',name:'换一家也行',desc:'福州美食多的是',effect:function(){player.regen+=1.5;player.gold+=8;}},
+    {pattern:'2,0,1',name:'分享快乐',desc:'你把美食分享给了大家',effect:function(){player.gold+=12;player.maxHp+=20;}}
     ]});
   }
 
   // 郑志辉专属：CS联机+难得回来
   if(charId==='zhihui'){
     events.push({id:'story_zhihui_cs',title:'🎮 志辉的CS回归',stages:[
-      {desc:'你难得回宿舍，506群里突然说"阿辉回来了！打CS！"...',choices:[
+      {desc:'你难得回宿舍。506群里林致远说"阿辉回来了！打CS！quickly"...',choices:[
         {text:'加入战斗',icon:'🎮'},
         {text:'先去陪女友',icon:'💕'},
         {text:'先休息一下',icon:'😴'}
       ]},
-      {desc:'打CS时林致远一直在喊"阿辉你太猛了"...',choices:[
+      {desc:'打CS时林致远一直在喊"阿辉你太猛了"。黄斌说"呦西，阿辉carry全场"...',choices:[
         {text:'继续carry',icon:'🔥'},
-        {text:'让他别吵',icon:'😤'},
-        {text:'教他玩',icon:'📖'}
+        {text:'"别吵"',icon:'😤'},
+        {text:'教致远玩',icon:'📖'}
       ]},
       {desc:'打完后，林有崧说"难得回来，一起吃个饭"...',choices:[
         {text:'好啊',icon:'🍜'},
-        {text:'下次吧',icon:'📅'},
-        {text:'请你们',icon:'💰'}
+        {text:'"下次吧，我得回去了"',icon:'📅'},
+        {text:'"我请你们"',icon:'💰'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'CS之神',desc:'你的技术让所有人佩服！',effect:function(){player.dmgMult+=0.25;player.critChance+=0.2;}},
-      {pattern:'0,0,2',name:'兄弟情深',desc:'难得的聚会特别珍贵',effect:function(){player.gold+=15;player.regen+=2;}},
-      {pattern:'0,1,0',name:'带飞全场',desc:'你是队伍的核心',effect:function(){player.dmgMult+=0.2;player.atkSpdMult+=0.15;}},
-      {pattern:'1,0,0',name:'爱情至上',desc:'你选择了陪伴女友',effect:function(){player.maxHp+=40;player.regen+=3;}},
-      {pattern:'1,1,1',name:'平衡大师',desc:'你平衡了爱情和友情',effect:function(){player.gold+=12;player.maxHp+=20;player.speed+=0.3;}},
-      {pattern:'2,0,1',name:'暖男志辉',desc:'你请了大家吃饭',effect:function(){player.gold+=10;player.regen+=2.5;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'CS之神',desc:'你的技术让所有人佩服！',effect:function(){player.dmgMult+=0.25;player.critChance+=0.2;}},
+    {pattern:'0,0,2',name:'兄弟情深',desc:'难得的聚会特别珍贵',effect:function(){player.gold+=15;player.regen+=2;}},
+    {pattern:'0,1,0',name:'带飞全场',desc:'你是队伍的核心',effect:function(){player.dmgMult+=0.2;player.atkSpdMult+=0.15;}},
+    {pattern:'0,2,0',name:'被迫营业',desc:'你打得很勉强',effect:function(){player.dmgMult-=0.05;player.gold-=5;},debuff:true},
+    {pattern:'1,0,0',name:'爱情至上',desc:'你选择了陪伴女友',effect:function(){player.maxHp+=40;player.regen+=3;}},
+    {pattern:'1,1,1',name:'平衡大师',desc:'你平衡了爱情和友情',effect:function(){player.gold+=12;player.maxHp+=20;player.speed+=0.3;}},
+    {pattern:'2,0,1',name:'暖男志辉',desc:'你请了大家吃饭',effect:function(){player.gold+=10;player.regen+=2.5;}}
+    ]});
+
+    events.push({id:'story_zhihui_girlfriend',title:'💕 志辉的恋爱日常',stages:[
+      {desc:'女友说"今晚来陪我"，但林致远说"阿辉今晚通宵CS"...',choices:[
+        {text:'陪女友',icon:'💕'},
+        {text:'来打CS',icon:'🎮'},
+        {text:'两边都陪',icon:'🤝'}
+      ]},
+      {desc:'你选择了陪女友，致远说"阿辉又不来"...',choices:[
+        {text:'发红包给致远',icon:'💰'},
+        {text:'"下次一定"',icon:'📅'},
+        {text:'不理他',icon:'🙈'}
+      ]},
+      {desc:'女友说"你真好"...',choices:[
+        {text:'开心',icon:'😊'},
+        {text:'有点愧疚',icon:'😔'},
+        {text:'发朋友圈',icon:'📱'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'模范男友',desc:'女友很开心',effect:function(){player.maxHp+=40;player.regen+=3;}},
+    {pattern:'0,0,2',name:'秀恩爱',desc:'朋友圈一堆人点赞',effect:function(){player.gold+=10;player.maxHp+=20;}},
+    {pattern:'0,1,0',name:'兄弟疏远',desc:'致远有点不高兴',effect:function(){player.gold-=5;player.dmgMult-=0.05;},debuff:true},
+    {pattern:'1,0,0',name:'CS之王',desc:'你carry全场',effect:function(){player.dmgMult+=0.2;player.critChance+=0.15;}},
+    {pattern:'1,1,1',name:'两难选择',desc:'两边都不讨好',effect:function(){player.maxHp-=10;player.regen-=0.5;},debuff:true},
+    {pattern:'2,0,0',name:'两边都陪',desc:'你两边都照顾到了',effect:function(){player.gold-=8;player.maxHp+=30;player.regen+=1.5;}}
     ]});
   }
 
   // 黄斌专属：川普币+电商
   if(charId==='bin'){
     events.push({id:'story_bin_crypto',title:'📈 斌子的川普币惊魂',stages:[
-      {desc:'你和林有崧一起盯盘川普币，突然从1刀涨到5刀...',choices:[
-        {text:'"这么猛！"加仓',icon:'📈'},
+      {desc:'你和林有崧一起盯盘川普币，突然从1刀涨到5刀。你说"呦西，这么猛！"',choices:[
+        {text:'"加仓！"',icon:'📈'},
         {text:'先止盈一部分',icon:'💰'},
         {text:'问有崧意见',icon:'🤝'}
       ]},
-      {desc:'有崧说"斌子，这里头的水太深，你把握不住啊"...',choices:[
-        {text:'"呦西，继续冲"',icon:'🚀'},
-        {text:'听他的先跑了',icon:'🏃'},
+      {desc:'有崧说"斌子，这里头的水太深，你把握不住啊"。张慧鹏说"可以，我也觉得该跑"...',choices:[
+        {text:'"继续冲！"',icon:'🚀'},
+        {text:'听他们的先跑了',icon:'🏃'},
         {text:'再等等看',icon:'👀'}
       ]},
       {desc:'第二天币价...',choices:[
@@ -735,53 +1009,107 @@ function getStoryEvents(){
         {text:'跌了30%',icon:'📉'},
         {text:'横盘不动',icon:'😐'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'币圈大佬',desc:'你的判断完全正确，赚翻了！',effect:function(){player.gold+=40;player.dmgMult+=0.15;}},
-      {pattern:'0,0,2',name:'稳健投资',desc:'你及时止盈保住了利润',effect:function(){player.gold+=25;player.armor+=3;}},
-      {pattern:'0,1,0',name:'听人劝',desc:'有崧说得对，你避免了损失',effect:function(){player.gold+=20;player.regen+=2;}},
-      {pattern:'1,0,0',name:'信仰玩家',desc:'你坚持到了最后',effect:function(){player.gold+=30;player.critChance+=0.15;}},
-      {pattern:'1,1,1',name:'佛系炒币',desc:'涨跌都是浮云',effect:function(){player.gold+=22;player.regen+=1.5;}},
-      {pattern:'2,0,1',name:'咨询专家',desc:'你问对了人',effect:function(){player.gold+=17;player.xpMult+=0.2;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'币圈大佬',desc:'你的判断完全正确！',effect:function(){player.gold+=40;player.dmgMult+=0.15;}},
+    {pattern:'0,0,2',name:'稳健投资',desc:'你及时止盈保住了利润',effect:function(){player.gold+=25;player.armor+=3;}},
+    {pattern:'0,1,0',name:'听人劝',desc:'有崧和慧鹏说得对',effect:function(){player.gold+=20;player.regen+=2;}},
+    {pattern:'0,1,1',name:'血亏',desc:'你亏了一大笔',effect:function(){player.gold-=20;player.dmgMult-=0.1;},debuff:true},
+    {pattern:'1,0,0',name:'信仰玩家',desc:'你坚持到了最后',effect:function(){player.gold+=30;player.critChance+=0.15;}},
+    {pattern:'1,1,0',name:'错过机会',desc:'跑了之后又涨了',effect:function(){player.gold+=5;player.critChance-=0.05;},debuff:true},
+    {pattern:'2,0,1',name:'咨询专家',desc:'你问对了人',effect:function(){player.gold+=17;player.xpMult+=0.2;}}
+    ]});
+
+    events.push({id:'story_bin_ecom',title:'📦 斌子的电商日常',stages:[
+      {desc:'你在课上做莆田鞋电商，老师突然点名"黄斌，你来说说"...',choices:[
+        {text:'淡定回答',icon:'😎'},
+        {text:'装作在看论文',icon:'📄'},
+        {text:'直接承认',icon:'🤝'}
+      ]},
+      {desc:'下课后，张忠游说"斌子，那个跨境单子怎么说？"...',choices:[
+        {text:'一起研究',icon:'💻'},
+        {text:'晚上再说',icon:'🌙'},
+        {text:'让他先试试',icon:'🤝'}
+      ]},
+      {desc:'晚上你在宿舍研究货源，郑倩雯发消息说"在干嘛"...',choices:[
+        {text:'视频聊天',icon:'📞'},
+        {text:'回消息',icon:'💬'},
+        {text:'先忙完',icon:'💻'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'淡定应对',desc:'老师对你刮目相看',effect:function(){player.gold+=10;player.dmgMult+=0.1;}},
+    {pattern:'0,0,2',name:'事业爱情',desc:'你两边都照顾到了',effect:function(){player.gold+=15;player.maxHp+=20;player.regen+=1;}},
+    {pattern:'0,1,0',name:'生意兴隆',desc:'你和忠游的生意越来越好',effect:function(){player.gold+=25;player.xpMult+=0.1;}},
+    {pattern:'0,1,1',name:'分心',desc:'你两边都顾不好',effect:function(){player.gold-=5;player.atkSpdMult-=0.1;},debuff:true},
+    {pattern:'1,0,0',name:'装傻充愣',desc:'你成功蒙混过关',effect:function(){player.critChance+=0.1;player.gold+=8;}},
+    {pattern:'1,1,1',name:'忙碌的一天',desc:'你平衡了学业和生意',effect:function(){player.gold+=10;player.regen+=1.5;}},
+    {pattern:'2,0,1',name:'坦诚',desc:'老师对你印象不错',effect:function(){player.gold+=12;player.xpMult+=0.15;}}
     ]});
   }
 
-  // 阿依达娜专属：新疆学姐的温柔
+  // 阿依达娜专属：新疆特产+怼致远
   if(charId==='dana'){
     events.push({id:'story_dana_care',title:'🌸 达娜的好滴好滴',stages:[
-      {desc:'你发现林有崧在实验室加班到很晚，带了新疆特产给他...',choices:[
-        {text:'"阿崧阿崧，吃点东西"',icon:'🍬'},
+      {desc:'你发现林有崧在实验室加班到很晚，带了新疆特产给他..."阿崧阿崧，吃点东西，回来请你吃饭叭"',choices:[
+        {text:'"好滴好滴"',icon:'🍬'},
         {text:'默默放在桌上',icon:'📦'},
         {text:'叫他一起去吃饭',icon:'🍽️'}
       ]},
-      {desc:'他感动地说谢谢，你说"回来请你吃饭"...',choices:[
+      {desc:'他感动地说谢谢。你说"好滴好滴"。陈雪在旁边说"你们好甜"...',choices:[
+        {text:'"才没有！"',icon:'😤'},
         {text:'真的请他吃饭',icon:'🍜'},
-        {text:'开玩笑的啦',icon:'😜'},
-        {text:'聊家乡的事',icon:'🏠'}
+        {text:'聊伊犁的事',icon:'🏠'}
       ]},
-      {desc:'聊天中你说起伊犁的薰衣草...',choices:[
-        {text:'给他看照片',icon:'📸'},
-        {text:'约他暑假去',icon:'✈️'},
-        {text:'下次带特产',icon:'🎁'}
+      {desc:'林致远突然冒出来"我丢，达娜你请客？"',choices:[
+        {text:'"为了几块钱你将要失去九个人"',icon:'😤'},
+        {text:'"好滴好滴一起"',icon:'🤝'},
+        {text:'"你不怕我报警啊"',icon:'📞'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'温暖师妹',desc:'你的关心让他很感动！',effect:function(){player.dmgMult+=0.2;player.regen+=3;}},
-      {pattern:'0,0,2',name:'伊犁之约',desc:'你们约定了暑假旅行',effect:function(){player.maxHp+=40;player.speed+=0.4;}},
-      {pattern:'0,1,0',name:'美食邀约',desc:"好滴好滴，下次一起吃！",effect:function(){player.gold+=15;player.regen+=2;}},
-      {pattern:'1,0,0',name:'默默关心',desc:'你总是这么贴心',effect:function(){player.regen+=2.5;player.maxHp+=30;}},
-      {pattern:'1,1,1',name:'温馨日常',desc:'简单的关心最暖心',effect:function(){player.gold+=10;player.maxHp+=25;player.regen+=1.5;}},
-      {pattern:'2,0,1',name:'文化使者',desc:'你分享了新疆的美',effect:function(){player.xpMult+=0.2;player.gold+=12;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'温暖师妹',desc:'你的关心让他很感动！',effect:function(){player.dmgMult+=0.2;player.regen+=3;}},
+    {pattern:'0,0,2',name:'怼人达人',desc:'林致远被你怼得哑口无言',effect:function(){player.critChance+=0.2;player.gold+=12;}},
+    {pattern:'0,1,0',name:'美食邀约',desc:"好滴好滴，下次一起吃！",effect:function(){player.gold+=15;player.regen+=2;}},
+    {pattern:'0,1,1',name:'三人行',desc:'陈雪也加入了',effect:function(){player.gold+=10;player.maxHp+=25;player.regen+=1.5;}},
+    {pattern:'1,0,0',name:'默默关心',desc:'你总是这么贴心',effect:function(){player.regen+=2.5;player.maxHp+=30;}},
+    {pattern:'1,1,1',name:'温馨日常',desc:'简单的关心最暖心',effect:function(){player.gold+=10;player.maxHp+=25;player.regen+=1.5;}},
+    {pattern:'2,0,1',name:'文化使者',desc:'你分享了新疆的美',effect:function(){player.xpMult+=0.2;player.gold+=12;}}
+    ]});
+
+    events.push({id:'story_dana_zhiyuan',title:'😤 达娜vs致远',stages:[
+      {desc:'林致远在群里发"今晚聚餐"，陈雪说"林致远请客"。致远说"我丢"...',choices:[
+        {text:'"为了几块钱你将要失去九个人"',icon:'😤'},
+        {text:'"得得得他请"',icon:'😂'},
+        {text:'"你不怕我报警啊"',icon:'📞'}
+      ]},
+      {desc:'致远说"要钱没有要命一条"。你说"昨天还说好兄弟在心中，今天就来整好兄弟"...',choices:[
+        {text:'继续怼他',icon:'😤'},
+        {text:'"算了放过你"',icon:'😂'},
+        {text:'建议AA',icon:'🤝'}
+      ]},
+      {desc:'最后致远说"得得得，这次就放过你们"...',choices:[
+        {text:'他请了海底捞',icon:'🍲'},
+        {text:'大家AA',icon:'💸'},
+        {text:'他请了奶茶',icon:'🧋'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'围攻大师',desc:'你怼得他哑口无言',effect:function(){player.gold+=15;player.dmgMult+=0.1;}},
+    {pattern:'0,0,2',name:'AA之魂',desc:'公平公正',effect:function(){player.gold+=12;player.xpMult+=0.15;}},
+    {pattern:'0,1,0',name:'适可而止',desc:'你知道他其实很大方',effect:function(){player.gold+=10;player.regen+=2;}},
+    {pattern:'0,1,1',name:'和谐聚餐',desc:'大家吃得很开心',effect:function(){player.gold+=8;player.maxHp+=20;player.regen+=1;}},
+    {pattern:'1,0,0',name:'好姐妹',desc:'你和陈雪一唱一和',effect:function(){player.gold+=10;player.critChance+=0.1;}},
+    {pattern:'1,1,1',name:'快乐聚餐',desc:'怼人也是一种社交',effect:function(){player.gold+=12;player.maxHp+=20;}},
+    {pattern:'2,0,1',name:'暖心调解',desc:'你提议AA，他很感激',effect:function(){player.gold+=10;player.regen+=2.5;}}
     ]});
   }
 
-  // 陈雪专属：果断时刻+怼林致远
+  // 陈雪专属：果断时刻+怼人
   if(charId==='xue'){
     events.push({id:'story_xue_bold',title:'⚡ 雪姐的果断时刻',stages:[
-      {desc:'林致远在群里发"今晚聚餐"，但你还在赶论文...',choices:[
+      {desc:'林致远在群里发"今晚聚餐"。你还在赶论文，说"赶紧打车别逼逼"...',choices:[
         {text:'"赶紧打车别逼逼"',icon:'🚗'},
         {text:'先赶完再说',icon:'💻'},
         {text:'问达娜去不去',icon:'🤝'}
       ]},
-      {desc:'到了餐厅，发现要排队1小时...',choices:[
+      {desc:'到了餐厅，发现要排队1小时。林致远说"头发都洗了，说这话真的是"...',choices:[
         {text:'换一家',icon:'🔄'},
         {text:'硬等',icon:'⏳'},
         {text:'让林致远想办法',icon:'😤'}
@@ -791,25 +1119,52 @@ function getStoryEvents(){
         {text:'吴禹推荐的',icon:'🍜'},
         {text:'路边摊',icon:'🍢'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'果断女王',desc:'你的果断让所有人佩服！',effect:function(){player.dmgMult+=0.3;player.speed+=0.4;}},
-      {pattern:'0,0,2',name:'美食发现',desc:'你们找到了宝藏小店',effect:function(){player.maxHp+=50;player.hp+=30;}},
-      {pattern:'0,1,0',name:'硬等派',desc:'你等到了最美味的菜',effect:function(){player.maxHp+=40;player.regen+=2;}},
-      {pattern:'1,0,0',name:'工作狂',desc:'你完成了论文，很有成就感',effect:function(){player.xpMult+=0.3;player.dmgMult+=0.15;}},
-      {pattern:'1,1,1',name:'随遇而安',desc:'不管吃什么都很开心',effect:function(){player.regen+=2;player.gold+=12;}},
-      {pattern:'2,0,1',name:'闺蜜力量',desc:'你和达娜一起吐槽林致远',effect:function(){player.gold+=15;player.critChance+=0.15;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'果断女王',desc:'你的果断让所有人佩服！',effect:function(){player.dmgMult+=0.3;player.speed+=0.4;}},
+    {pattern:'0,0,2',name:'美食发现',desc:'你们找到了宝藏小店',effect:function(){player.maxHp+=50;player.hp+=30;}},
+    {pattern:'0,1,0',name:'硬等派',desc:'你等到了最美味的菜',effect:function(){player.maxHp+=40;player.regen+=2;}},
+    {pattern:'0,1,1',name:'排队两小时',desc:'等太久了...',effect:function(){player.speed-=0.3;player.atkSpdMult-=0.1;},debuff:true},
+    {pattern:'1,0,0',name:'工作狂',desc:'你完成了论文',effect:function(){player.xpMult+=0.3;player.dmgMult+=0.15;}},
+    {pattern:'1,1,1',name:'随遇而安',desc:'不管吃什么都很开心',effect:function(){player.regen+=2;player.gold+=12;}},
+    {pattern:'2,0,1',name:'闺蜜力量',desc:'你和达娜一起吐槽林致远',effect:function(){player.gold+=15;player.critChance+=0.15;}}
+    ]});
+
+    events.push({id:'story_xue_ppt',title:'📊 雪姐的PPT制作',stages:[
+      {desc:'导师马改艳说要做一个汇报PPT。你说"有崧你帮我看看"...',choices:[
+        {text:'认真帮她',icon:'🤝'},
+        {text:'让她自己做',icon:'💪'},
+        {text:'教她方法',icon:'📖'}
+      ]},
+      {desc:'她做完了，发给你看。你说"这他妈跟黄总有什么关系"...',choices:[
+        {text:'帮她改',icon:'💻'},
+        {text:'"可以可以"',icon:'👍'},
+        {text:'让她重做',icon:'📄'}
+      ]},
+      {desc:'最后汇报很成功...',choices:[
+        {text:'请她吃饭',icon:'🍜'},
+        {text:'"鞠躬感谢"',icon:'🙏'},
+        {text:'转账20元',icon:'💰'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'贴心搭档',desc:'你们配合默契',effect:function(){player.dmgMult+=0.15;player.maxHp+=25;}},
+    {pattern:'0,0,2',name:'感恩之心',desc:'你用行动表达了感谢',effect:function(){player.gold+=10;player.regen+=2;}},
+    {pattern:'0,1,0',name:'效率至上',desc:'你很快搞定了',effect:function(){player.atkSpdMult+=0.15;player.gold+=8;}},
+    {pattern:'0,1,2',name:'花钱了事',desc:'你觉得帮她值这个钱',effect:function(){player.gold-=10;player.dmgMult+=0.1;}},
+    {pattern:'1,0,0',name:'高标准严要求',desc:'你让她重做了一遍',effect:function(){player.xpMult+=0.2;player.dmgMult+=0.1;}},
+    {pattern:'1,1,0',name:'凑合得了',desc:'汇报勉强通过',effect:function(){player.gold+=5;player.xpMult-=0.05;},debuff:true},
+    {pattern:'2,0,1',name:'教学相长',desc:'你教了她方法',effect:function(){player.xpMult+=0.15;player.gold+=10;}}
     ]});
   }
 
   // 黄钰专属：同门组织者
   if(charId==='yuhui'){
     events.push({id:'story_yuhui_org',title:'💫 黄钰的组织之力',stages:[
-      {desc:'同门群里，导师说要聚餐，让你组织...',choices:[
+      {desc:'同门群里，导师林伟明说"有崧 思婷 聚餐"。你主动说"你们要不要一起发给我，我一起填了"...',choices:[
         {text:'你来安排',icon:'👑'},
         {text:'问大家意见',icon:'🗳️'},
         {text:'让林有崧帮忙',icon:'🤝'}
       ]},
-      {desc:'林致远说想吃火锅，黄玮杰想吃烧烤...',choices:[
+      {desc:'林致远说想吃火锅，黄玮杰想吃烧烤。有崧说"随便"...',choices:[
         {text:'折中方案',icon:'🔄'},
         {text:'听致远的',icon:'🫕'},
         {text:'听玮杰的',icon:'🍖'}
@@ -819,25 +1174,52 @@ function getStoryEvents(){
         {text:'默默记账',icon:'📝'},
         {text:'约下次',icon:'📅'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'组织大师',desc:'你完美地组织了这次聚餐！',effect:function(){player.gold+=20;player.dmgMult+=0.15;player.speed+=0.3;}},
-      {pattern:'0,0,2',name:'贴心管家',desc:'你把账记得清清楚楚',effect:function(){player.gold+=25;player.xpMult+=0.15;}},
-      {pattern:'0,1,0',name:'火锅之王',desc:'火锅果然是最好的选择',effect:function(){player.maxHp+=50;player.regen+=2;}},
-      {pattern:'1,0,0',name:'民主领袖',desc:'你让大家都有发言权',effect:function(){player.gold+=15;player.regen+=2;}},
-      {pattern:'1,1,1',name:'快乐聚餐',desc:'吃什么不重要，在一起最重要',effect:function(){player.gold+=12;player.maxHp+=30;player.regen+=1.5;}},
-      {pattern:'2,0,1',name:'同门情深',desc:'你和林有崧配合默契',effect:function(){player.dmgMult+=0.15;player.gold+=12;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'组织大师',desc:'你完美地组织了这次聚餐！',effect:function(){player.gold+=20;player.dmgMult+=0.15;player.speed+=0.3;}},
+    {pattern:'0,0,2',name:'贴心管家',desc:'你把账记得清清楚楚',effect:function(){player.gold+=25;player.xpMult+=0.15;}},
+    {pattern:'0,1,0',name:'火锅之王',desc:'火锅果然是最好的选择',effect:function(){player.maxHp+=50;player.regen+=2;}},
+    {pattern:'0,1,1',name:'意见不合',desc:'大家吵起来了',effect:function(){player.gold-=5;player.regen-=0.5;},debuff:true},
+    {pattern:'1,0,0',name:'民主领袖',desc:'你让大家都有发言权',effect:function(){player.gold+=15;player.regen+=2;}},
+    {pattern:'1,1,1',name:'快乐聚餐',desc:'吃什么不重要，在一起最重要',effect:function(){player.gold+=12;player.maxHp+=30;player.regen+=1.5;}},
+    {pattern:'2,0,1',name:'同门情深',desc:'你和林有崧配合默契',effect:function(){player.dmgMult+=0.15;player.gold+=12;}}
+    ]});
+
+    events.push({id:'story_yuhui_table',title:'📋 黄钰的表格收集',stages:[
+      {desc:'导师林伟明说"有崧 思婷，建阳区十五五规划第八章第九章发给我一下"。你主动说"你们要不要一起发给我，我一起填了"...',choices:[
+        {text:'帮忙收集',icon:'📋'},
+        {text:'让他们自己交',icon:'💪'},
+        {text:'问导师要模板',icon:'📄'}
+      ]},
+      {desc:'陈思婷说"有崧，你上次负责的第八章第九章发给我一下"。有崧说"好的"...',choices:[
+        {text:'帮忙转发',icon:'📧'},
+        {text:'让他们直接发',icon:'📤'},
+        {text:'帮他们整合',icon:'🔧'}
+      ]},
+      {desc:'最后你把所有人的都交了...',choices:[
+        {text:'"辛苦啦"',icon:'🙏'},
+        {text:'默默提交',icon:'📝'},
+        {text:'约大家吃饭',icon:'🍜'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'组织达人',desc:'你把所有事情都安排好了',effect:function(){player.gold+=15;player.xpMult+=0.2;}},
+    {pattern:'0,0,2',name:'同门聚餐',desc:'你组织了一次同门聚餐',effect:function(){player.gold+=12;player.maxHp+=25;player.regen+=1.5;}},
+    {pattern:'0,1,0',name:'自主安排',desc:'你让他们自己来',effect:function(){player.dmgMult+=0.1;player.gold+=8;}},
+    {pattern:'0,1,1',name:'导师认可',desc:'导师对你印象不错',effect:function(){player.gold+=20;player.xpMult+=0.15;}},
+    {pattern:'1,0,0',name:'默默付出',desc:'你总是这么贴心',effect:function(){player.regen+=2;player.maxHp+=20;}},
+    {pattern:'1,1,0',name:'表格达人',desc:'你整理得很清楚',effect:function(){player.xpMult+=0.15;player.gold+=10;}},
+    {pattern:'2,0,1',name:'同门情深',desc:'你们的关系更好了',effect:function(){player.gold+=10;player.maxHp+=20;player.regen+=1.5;}}
     ]});
   }
 
   // 林伟明专属：导师的一天
   if(charId==='linlaoshi'){
     events.push({id:'story_linlaoshi_day',title:'👔 林伟明的一天',stages:[
-      {desc:'你作为导师，今天要去开一个会。林有崧发消息说论文初稿写好了...',choices:[
+      {desc:'你作为导师，今天要去开会。林有崧发消息说"老师，论文初稿写好了，发您"...',choices:[
         {text:'先看论文',icon:'📄'},
         {text:'开完会再说',icon:'👔'},
         {text:'让他发群里',icon:'📱'}
       ]},
-      {desc:'你看了论文，发现写得不错，但有几个问题...',choices:[
+      {desc:'你看了论文，发现写得不错，但有几个问题。你说"辛苦啦"...',choices:[
         {text:'"辛苦啦，继续努力"',icon:'🙏'},
         {text:'详细批注',icon:'📝'},
         {text:'约面谈',icon:'💬'}
@@ -847,13 +1229,40 @@ function getStoryEvents(){
         {text:'"过年红包"',icon:'🧧'},
         {text:'什么都不说',icon:'🤫'}
       ]}
-    ],endings:[
-      {pattern:'0,0,0',name:'人生导师',desc:'"辛苦啦"三个字让他感动哭了',effect:function(){player.dmgMult+=0.25;player.maxHp+=40;}},
-      {pattern:'0,0,2',name:'慷慨导师',desc:'你的慷慨让学生们很感激',effect:function(){player.gold+=30;player.regen+=2;}},
-      {pattern:'0,1,0',name:'严格要求',desc:'你的批注让他进步很大',effect:function(){player.xpMult+=0.3;player.pierceBonus+=1;}},
-      {pattern:'1,0,0',name:'忙碌导师',desc:'你总是很忙但很关心学生',effect:function(){player.gold+=20;player.atkSpdMult+=0.15;}},
-      {pattern:'1,1,1',name:'师生情深',desc:'你们的关系更近了一步',effect:function(){player.gold+=17;player.regen+=2;player.dmgMult+=0.1;}},
-      {pattern:'2,0,1',name:'放手信任',desc:'你相信学生能做好',effect:function(){player.armor+=3;player.speed+=0.4;}}
+  ],endings:[
+    {pattern:'0,0,0',name:'人生导师',desc:'"辛苦啦"三个字让他感动',effect:function(){player.dmgMult+=0.25;player.maxHp+=40;}},
+    {pattern:'0,0,2',name:'慷慨导师',desc:'你的慷慨让学生们很感激',effect:function(){player.gold+=30;player.regen+=2;}},
+    {pattern:'0,1,0',name:'严格要求',desc:'你的批注让他进步很大',effect:function(){player.xpMult+=0.3;player.pierceBonus+=1;}},
+    {pattern:'0,1,1',name:'批注过多',desc:'他被批注吓到了',effect:function(){player.xpMult-=0.1;},debuff:true},
+    {pattern:'1,0,0',name:'忙碌导师',desc:'你总是很忙但很关心学生',effect:function(){player.gold+=20;player.atkSpdMult+=0.15;}},
+    {pattern:'1,1,1',name:'师生情深',desc:'你们的关系更近了一步',effect:function(){player.gold+=17;player.regen+=2;player.dmgMult+=0.1;}},
+    {pattern:'2,0,1',name:'放手信任',desc:'你相信学生能做好',effect:function(){player.armor+=3;player.speed+=0.4;}}
+    ]});
+
+    events.push({id:'story_linlaoshi_task',title:'📋 导师的任务分配',stages:[
+      {desc:'你给有崧发消息："有崧，漳州花卉产业的数据，你帮忙处理一下，辛苦啦，收到回复一下"...',choices:[
+        {text:'等他回复',icon:'⏳'},
+        {text:'发语音解释',icon:'🎤'},
+        {text:'发截图+文字',icon:'📱'}
+      ]},
+      {desc:'有崧秒回"好的老师，马上到"。你放心了...',choices:[
+        {text:'"辛苦啦"',icon:'🙏'},
+        {text:'"抓紧弄哈"',icon:'⏰'},
+        {text:'"理解吗？"',icon:'❓'}
+      ]},
+      {desc:'晚上他发来完成的文件...',choices:[
+        {text:'"辛苦，可以的"',icon:'👍'},
+        {text:'"收到"',icon:'📧'},
+        {text:'发红包',icon:'💰'}
+      ]}
+  ],endings:[
+    {pattern:'0,0,0',name:'高效导师',desc:'你和学生配合默契',effect:function(){player.dmgMult+=0.2;player.maxHp+=30;}},
+    {pattern:'0,0,2',name:'慷慨导师',desc:'你发了红包',effect:function(){player.gold+=25;player.regen+=2;}},
+    {pattern:'0,1,0',name:'严格要求',desc:'你说"辛苦啦，继续努力"',effect:function(){player.xpMult+=0.2;player.gold+=10;}},
+    {pattern:'0,1,1',name:'催促过度',desc:'他觉得你催太紧了',effect:function(){player.dmgMult-=0.05;player.gold-=5;},debuff:true},
+    {pattern:'1,0,0',name:'耐心指导',desc:'你的语音解释很清楚',effect:function(){player.xpMult+=0.25;player.atkSpdMult+=0.1;}},
+    {pattern:'1,1,1',name:'师生默契',desc:'你们配合得很好',effect:function(){player.gold+=15;player.regen+=1.5;}},
+    {pattern:'2,0,1',name:'信任学生',desc:'你相信他能做好',effect:function(){player.armor+=2;player.speed+=0.3;}}
     ]});
   }
 
@@ -904,7 +1313,7 @@ function showStoryStage(stageIdx){
 
 function resolveStoryEnding(){
   var key=storyChoices.join(',');
-  var ending=currentStory.endings[0]; // 默认结局
+  var ending=null;
 
   // 查找匹配的结局
   for(var i=0;i<currentStory.endings.length;i++){
@@ -914,15 +1323,48 @@ function resolveStoryEnding(){
     }
   }
 
+  // 未匹配到结局时，50%概率给减益效果
+  if(!ending){
+    if(Math.random()<0.5){
+      // 生成一个随机减益
+      var debuffPool=[
+        {name:'翻车现场',desc:'事情没有按计划进行...',effect:function(){player.dmgMult-=0.06;player.gold-=5;},debuff:true},
+        {name:'运气不佳',desc:'今天运气不太好...',effect:function(){player.critChance-=0.05;player.gold-=3;},debuff:true},
+        {name:'精力透支',desc:'你感到疲惫不堪',effect:function(){player.speed-=0.25;player.atkSpdMult-=0.08;},debuff:true},
+        {name:'钱包缩水',desc:'花钱如流水',effect:function(){player.gold-=10;player.regen-=0.5;},debuff:true},
+        {name:'状态低迷',desc:'今天状态不太好',effect:function(){player.maxHp-=15;player.dmgMult-=0.04;},debuff:true},
+        {name:'社交疲惫',desc:'社交消耗了你的精力',effect:function(){player.xpMult-=0.1;player.speed-=0.15;},debuff:true},
+        {name:'意外损失',desc:'发生了意想不到的事',effect:function(){player.gold-=8;player.armor-=1;},debuff:true},
+        {name:'判断失误',desc:'你的选择带来了不好的结果',effect:function(){player.critChance-=0.08;player.dmgMult-=0.03;},debuff:true}
+      ];
+      ending=debuffPool[Math.floor(Math.random()*debuffPool.length)];
+    } else {
+      ending=currentStory.endings[0]; // 默认增益结局
+    }
+  }
+
   // 应用结局效果
   ending.effect();
+  // 安全钳制：防止减益效果导致属性过低
+  player.dmgMult=Math.max(0.3,player.dmgMult);
+  player.atkSpdMult=Math.max(0.3,player.atkSpdMult);
+  player.speed=Math.max(1.5,player.speed);
+  player.gold=Math.max(0,player.gold);
+  player.critChance=Math.max(0,player.critChance);
+  player.xpMult=Math.max(0.2,player.xpMult);
+  player.regen=Math.max(-2,player.regen);
+  player.maxHp=Math.max(30,player.maxHp);
+  if(player.maxHp<player.hp)player.hp=player.maxHp;
 
   // 显示结局
   var choicesDiv=document.getElementById('eventChoices');
   var titleEl=document.getElementById('eventTitle');
   var descEl=document.getElementById('eventDesc');
   titleEl.textContent='📖 '+ending.name;
-  descEl.innerHTML='<span style="color:#ffd700;font-size:1.1em;line-height:1.8">'+ending.desc+'</span><br><br><span style="color:#2ed573;font-size:1em;font-weight:bold">✨ 获得增益：'+getEffectDescription(ending)+'</span><br><br><span style="color:#889;font-size:0.85em">按 Enter 或点击继续...</span>';
+  var effectDesc=getEffectDescription(ending);
+  var effectColor=ending.debuff?'#ff4757':'#2ed573';
+  var effectLabel=ending.debuff?'⚠️ 获得减益：':'✨ 获得增益：';
+  descEl.innerHTML='<span style="color:#ffd700;font-size:1.1em;line-height:1.8">'+ending.desc+'</span><br><br><span style="color:'+effectColor+';font-size:1em;font-weight:bold">'+effectLabel+effectDesc+'</span><br><br><span style="color:#889;font-size:0.85em">按 Enter 或点击继续...</span>';
   choicesDiv.innerHTML='';
 
   var continueBtn=document.createElement('button');continueBtn.className='btn btn-primary';
@@ -942,39 +1384,217 @@ function resolveStoryEnding(){
 function getEffectDescription(ending){
   // 根据结局名称返回具体描述
   var descMap={
-    '学术精英':'伤害+30%，暴击+15%',
-    '贵人相助':'+40金币，经验获取+20%',
-    '勉强及格':'+30最大生命',
-    '友情力量':'+25金币，攻速+15%',
-    '团队协作':'+20%伤害，移速+0.5，+20生命',
-    '摆烂大师':'+25%暴击，+2护甲',
-    '躺赢人生':'+30金币，每秒回复2生命',
-    '忍辱负重':'+25%伤害，+10%暴击',
-    '各自安好':'+35金币，移速+0.4',
-    '科技改变生活':'+30%经验，攻速+10%',
-    '正面刚':'+4护甲，+15%伤害',
-    '冲突升级':'+20%暴击，+40最大生命',
-    '和解之道':'+25金币，每秒回复2.5生命',
-    '吃货本色':'+50最大生命，每秒回复2生命',
-    '美食博主':'+40金币，经验+15%',
-    '分享快乐':'+30金币，+15%伤害',
-    '省钱达人':'+20%攻速，+10%暴击',
-    '佛系吃花':'+3回复/秒，+3护甲',
-    '社交高手':'+20金币，移速+0.6',
-    '知识传承':'+35%伤害，穿透+2',
-    '神秘座位':'+40%经验，攻速+15%',
-    '空欢喜':'+3护甲，+15%暴击',
-    '谨慎选择':'+60最大生命',
-    '怀疑一切':'+20%伤害，移速+0.5',
-    '顺其自然':'+50金币，每秒回复2生命',
-    '篮球之神':'+0.8移速，+20%伤害',
-    '虽败犹荣':'+40最大生命，+3回复/秒',
-    '绝杀时刻':'+30%暴击，暴击伤害+50%',
-    '快乐运动':'+0.5移速，+15%攻速',
-    '专业选手':'+25%伤害，+3护甲',
-    '气氛组':'+45金币，+20%经验'
+    // ===== 通用事件 =====
+    '卷王之王':'+12%伤害，+8%攻速',
+    '真诚无敌':'+20最大生命，+1回复/秒',
+    '临场发挥':'+10%暴击，+7金币',
+    '装卡失败':'-5%暴击，-3金币',
+    '甩锅大师':'+8%暴击，+6%伤害',
+    '敷衍了事':'-10%经验',
+    '佛系应对':'+1护甲，+0.5回复/秒',
+    '双重摸鱼':'-12%攻速，-5%伤害',
+    '甩锅之王':'+10金币，+0.2移速',
+    '社交达人':'+9金币，+8%经验',
+    '彻底摆烂':'-10%伤害，-15%经验',
+    '全面翻车':'-10%攻速，-8%伤害',
+    '深夜吃货':'+50最大生命，+30生命，+2回复/秒',
+    '围攻致远':'+15金币，+2.5回复/秒',
+    '吴禹推荐':'+20%伤害，+15%暴击',
+    '吃坏肚子':'-20最大生命，-1回复/秒',
+    '吃撑了':'-0.3移速，-15最大生命',
+    '致远蹭饭':'-8金币，-3%伤害',
+    '省钱达人':'+12金币，+2护甲',
+    '泡面哲学':'+2回复/秒，+0.3移速',
+    '熬夜代价':'-15%攻速',
+    '土豪吃法':'+40最大生命，+10%攻速',
+    '钱包出血':'-10金币',
+    '深夜后悔':'-12金币，-0.5回复/秒',
+    '游戏之王':'+20%伤害，+0.4移速',
+    '早餐时光':'+40最大生命，+3回复/秒',
+    '兄弟情深':'+12金币，+30最大生命',
+    '被志辉carry':'-5%伤害，-3%暴击',
+    '通宵代价':'-0.4移速，-10最大生命',
+    '致远捣乱':'-10%攻速，-5金币',
+    '学霸模式':'+30%经验，+10金币',
+    '佛系观战':'+2回复/秒，+2护甲',
+    '论文通宵':'+10%经验，-15最大生命',
+    '志辉回归':'+15%暴击，+15%攻速',
+    '早餐社死':'-0.2移速，-3金币',
+    '围攻大师':'+20金币，+10%伤害',
+    'AA之魂':'+15金币，+15%经验',
+    '适可而止':'+12金币，+2回复/秒',
+    '致远记仇':'-8金币，-0.5回复/秒',
+    '被他跑了':'-5金币',
+    '致远溜了':'-10金币，-5%伤害',
+    '围观群众':'+15%暴击，+0.3移速',
+    '和谐宿舍':'+17金币，+20最大生命',
+    '无人请客':'-5金币，-0.5回复/秒',
+    '暖心调解':'+10金币，+2.5回复/秒',
+    '致远感动':'+8金币，+2回复/秒',
+    '逛街达人':'+10金币，+1.5回复/秒',
+    '洗得舒服':'+30最大生命，+2回复/秒',
+    '空调之王':'+0.3移速，+10%攻速',
+    '致远抱怨':'-3金币，-0.3回复/秒',
+    '跳闸了':'-0.3移速，-10%攻速',
+    '僵持不下':'-0.5回复/秒，-10最大生命',
+    '致远赢了':'-0.8回复/秒，-5最大生命',
+    '外出避暑':'-8金币，+0.2移速',
+    '轮流方案':'+8金币，+15最大生命',
+    '美食歌神':'+15%伤害，+30最大生命',
+    'KTV之王':'+15%攻速，+10金币',
+    '社恐时刻':'+10%经验，+1回复/秒',
+    'KTV翻车':'-5%暴击，-5金币',
+    '宅家快乐':'+8金币，+1.5回复/秒',
+    '错过聚餐':'+5金币，-0.5回复/秒',
+    '错过好局':'+5金币，-5最大生命',
+    '外卖延迟':'+3金币，-0.2移速',
+    '美食博主':'+15%伤害，+30最大生命',
+    '探店达人':'+15金币，+2回复/秒',
+    '排队两小时':'-0.3移速，-10%攻速',
+    '先踩点':'+15%暴击，+10金币',
+    '换一家也行':'+1.5回复/秒，+8金币',
+    '分享快乐':'+12金币，+20最大生命',
+    // ===== 林有崧专属 =====
+    '技术大佬':'+30%伤害，+20%经验',
+    '全能选手':'+15金币，+15%攻速',
+    '独立自主':'+12金币，+2回复/秒',
+    '过度劳累':'-20最大生命，-0.3移速',
+    'AI依赖':'-15%经验，-5%伤害',
+    '分享精神':'+15金币，+15%攻速',
+    '导师优先':'+20金币，+10%伤害',
+    '教学相长':'+20%经验，+10金币',
+    '两边都顾':'-10%经验，-5金币',
+    '致远不满':'-5金币，-0.5回复/秒',
+    '隐形单位':'+20%伤害，+0.3移速，+20最大生命',
+    '教了但没完全教':'+5金币，-5%经验',
+    '时间管理大师':'+10金币，+25最大生命，+1.5回复/秒',
+    '生日王者':'+25%伤害，-15金币，+30最大生命',
+    '让致远请':'+20金币，+2回复/秒',
+    '低调温馨':'+40最大生命，+3回复/秒',
+    '生日快乐':'+15金币，+25最大生命，+1.5回复/秒',
+    '暗中观察':'+15%暴击，+2回复/秒',
+    '惊喜买单':'-10金币，+15%伤害',
+    '开心就好':'-12金币，+20%伤害',
+    '致远请客':'+15金币，+2回复/秒',
+    '生日后悔':'-20金币，+1回复/秒',
+    '生日聚会':'+10金币，+30最大生命，+10%攻速',
+    // ===== 林致远专属 =====
+    '感恩戴德':'-8金币，+30最大生命，+2回复/秒',
+    '嘴硬心软':'+15%暴击，+10%伤害',
+    '被群嘲':'+5金币，+1护甲',
+    '社死现场':'+10%暴击，+8金币',
+    '勇气可嘉':'+20%伤害，+2护甲',
+    '虫子噩梦':'-10最大生命，-0.5回复/秒',
+    '眼不见为净':'-10%攻速',
+    '佛系面对':'+2回复/秒，+20最大生命',
+    '大方林少':'-15金币，+15%伤害，+30最大生命',
+    '拼好饭之王':'+10金币，+1回复/秒',
+    '精打细算':'+8金币，+2回复/秒',
+    '省钱大师':'+15金币，+1护甲',
+    '铁公鸡':'+20金币，-5%伤害',
+    '逃跑失败':'-5金币，-1护甲',
+    '真穷实录':'+8金币，+1.5回复/秒',
+    'AA精神':'+12金币，+10%经验',
+    // ===== 黄玮杰专属 =====
+    '乒乓外交':'+15%伤害，+0.5移速',
+    '洛克同好':'+12金币，+2回复/秒',
+    '单挑之王':'+20%暴击，+15%伤害',
+    '运动过度':'-15%攻速',
+    '快乐乒乓':'+0.3移速，+30最大生命，+1.5回复/秒',
+    '佛系运动':'+2.5回复/秒，+10金币',
+    '币圈大佬':'+40金币，+15%伤害',
+    '稳健投资':'+25金币，+3护甲',
+    '听人劝':'+20金币，+2回复/秒',
+    '血亏':'-15金币，-10%伤害',
+    '信仰玩家':'+30金币，+15%暴击',
+    '错过机会':'+5金币，-5%暴击',
+    '咨询专家':'+17金币，+20%经验',
+    '淡定应对':'+10金币，+10%伤害',
+    '事业爱情':'+15金币，+20最大生命，+1回复/秒',
+    '分心':'-5金币，-10%攻速',
+    '生意兴隆':'+25金币，+10%经验',
+    '装傻充愣':'+10%暴击，+8金币',
+    '忙碌的一天':'+10金币，+1.5回复/秒',
+    '坦诚':'+12金币，+15%经验',
+    // ===== 吴禹专属 =====
+    '最佳听众':'+15金币，+2回复/秒',
+    '低调歌神':'+3护甲，+15%伤害',
+    'KTV社死':'-10%攻速，+5%暴击',
+    '再来亿首':'+20%攻速，+0.3移速',
+    '快乐KTV':'+12金币，+30最大生命，+1.5回复/秒',
+    '录屏达人':'+15%暴击，+12金币',
+    // ===== 郑志辉专属 =====
+    'CS之神':'+25%伤害，+20%暴击',
+    '带飞全场':'+20%伤害，+15%攻速',
+    '被迫营业':'-5%伤害，-5金币',
+    '爱情至上':'+40最大生命，+3回复/秒',
+    '平衡大师':'+12金币，+20最大生命，+0.3移速',
+    '暖男志辉':'+10金币，+2.5回复/秒',
+    '模范男友':'+40最大生命，+3回复/秒',
+    '秀恩爱':'+10金币，+20最大生命',
+    '兄弟疏远':'-5金币，-5%伤害',
+    '两难选择':'-10最大生命，-0.5回复/秒',
+    '两边都陪':'-8金币，+30最大生命，+1.5回复/秒',
+    // ===== 黄斌专属 =====
+    // （共用黄玮杰的币圈大佬等）
+    // ===== 阿依达娜专属 =====
+    '温暖师妹':'+20%伤害，+3回复/秒',
+    '怼人达人':'+20%暴击，+12金币',
+    '三人行':'+10金币，+25最大生命，+1.5回复/秒',
+    '默默关心':'+2.5回复/秒，+30最大生命',
+    '温馨日常':'+10金币，+25最大生命，+1.5回复/秒',
+    '文化使者':'+20%经验，+12金币',
+    '和谐聚餐':'+8金币，+20最大生命，+1回复/秒',
+    '好姐妹':'+10金币，+10%暴击',
+    '快乐聚餐':'+12金币，+20最大生命',
+    // ===== 陈雪专属 =====
+    '果断女王':'+30%伤害，+0.4移速',
+    '美食发现':'+50最大生命，+30生命',
+    '硬等派':'+40最大生命，+2回复/秒',
+    '工作狂':'+30%经验，+15%伤害',
+    '随遇而安':'+2回复/秒，+12金币',
+    '闺蜜力量':'+15金币，+15%暴击',
+    '贴心搭档':'+15%伤害，+25最大生命',
+    '感恩之心':'+10金币，+2回复/秒',
+    '高标准严要求':'+20%经验，+10%伤害',
+    '效率至上':'+15%攻速，+8金币',
+    '花钱了事':'-10金币，+10%伤害',
+    '凑合得了':'+5金币，-5%经验',
+    // ===== 黄钰专属 =====
+    '组织大师':'+20金币，+15%伤害，+0.3移速',
+    '贴心管家':'+25金币，+15%经验',
+    '火锅之王':'+50最大生命，+2回复/秒',
+    '意见不合':'-5金币，-0.5回复/秒',
+    '民主领袖':'+15金币，+2回复/秒',
+    '同门情深':'+15%伤害，+12金币',
+    '组织达人':'+15金币，+20%经验',
+    '同门聚餐':'+12金币，+25最大生命，+1.5回复/秒',
+    '自主安排':'+10%伤害，+8金币',
+    '导师认可':'+20金币，+15%经验',
+    '默默付出':'+2回复/秒，+20最大生命',
+    '表格达人':'+15%经验，+10金币',
+    // ===== 林伟明专属 =====
+    '人生导师':'+25%伤害，+40最大生命',
+    '慷慨导师':'+30金币，+2回复/秒',
+    '严格要求':'+30%经验，+1穿透',
+    '批注过多':'-10%经验',
+    '忙碌导师':'+20金币，+15%攻速',
+    '师生情深':'+17金币，+2回复/秒，+10%伤害',
+    '放手信任':'+3护甲，+0.4移速',
+    '高效导师':'+20%伤害，+30最大生命',
+    '催促过度':'-5%伤害，-5金币',
+    '耐心指导':'+25%经验，+10%攻速',
+    '师生默契':'+15金币，+1.5回复/秒',
+    '信任学生':'+2护甲，+0.3移速'
   };
-  return descMap[ending.name]||'未知效果';
+  var isDebuff=ending.debuff;
+  var base=descMap[ending.name];
+  if(!base){
+    // 兜底：根据effect函数的属性变化生成描述
+    base='效果已生效';
+  }
+  if(isDebuff)return'⚠️ 减益：'+base;
+  return'✨ 增益：'+base;
 }
 
 // ========== 游戏状态 ==========
@@ -1080,26 +1700,50 @@ var TRIGGER_TYPES=[
   {emoji:'🎁',name:'惊喜礼物',color:'#ffd700'},
   {emoji:'🌟',name:'奇遇',color:'#00d4ff'},
   {emoji:'💬',name:'有人找你',color:'#2ed573'},
-  {emoji:'📱',name:'消息提示',color:'#ff69b4'}
+  {emoji:'📱',name:'消息提示',color:'#ff69b4'},
+  {emoji:'🎲',name:'命运转盘',color:'#f7c948'},
+  {emoji:'🔮',name:'神秘力量',color:'#a55eea'}
 ];
 
 function spawnEventTrigger(){
   var type=pick(TRIGGER_TYPES);
   var x,y,attempts=0;
   do{
-    x=rand(300,MAP_W-300);y=rand(300,MAP_H-300);
+    x=rand(200,MAP_W-200);y=rand(200,MAP_H-200);
     attempts++;
-  }while(isCollidingWithObstacle(x,y,20)&&attempts<20);
-  EVENT_TRIGGERS.push({x:x,y:y,type:type,life:900,pulsePhase:Math.random()*Math.PI*2});
+  }while(isCollidingWithObstacle(x,y,30)&&attempts<20);
+  EVENT_TRIGGERS.push({x:x,y:y,type:type,life:1200,pulsePhase:Math.random()*Math.PI*2,particles:[]});
+}
+
+function spawnEventTriggerNearPlayer(){
+  var type=pick(TRIGGER_TYPES);
+  var angle=Math.random()*Math.PI*2;
+  var d=rand(300,600);
+  var x=clamp(player.x+Math.cos(angle)*d,200,MAP_W-200);
+  var y=clamp(player.y+Math.sin(angle)*d,200,MAP_H-200);
+  if(!isCollidingWithObstacle(x,y,30)){
+    EVENT_TRIGGERS.push({x:x,y:y,type:type,life:1200,pulsePhase:Math.random()*Math.PI*2,particles:[]});
+  }
 }
 
 function updateEventTriggers(){
   if(gameState!=='playing')return;
   for(var i=EVENT_TRIGGERS.length-1;i>=0;i--){
     var t=EVENT_TRIGGERS[i];
-    t.life--;t.pulsePhase+=0.03;
+    t.life--;t.pulsePhase+=0.05;
     if(t.life<=0){EVENT_TRIGGERS.splice(i,1);continue;}
-    if(dist(player,{x:t.x,y:t.y})<player.radius+25){
+    // 生成光粒子
+    if(frameCount%4===0){
+      t.particles.push({x:t.x+rand(-15,15),y:t.y+rand(-15,15),vx:rand(-0.5,0.5),vy:rand(-1.5,-0.5),life:1,color:t.type.color});
+    }
+    // 更新粒子
+    for(var j=t.particles.length-1;j>=0;j--){
+      var p=t.particles[j];
+      p.x+=p.vx;p.y+=p.vy;p.life-=0.03;
+      if(p.life<=0)t.particles.splice(j,1);
+    }
+    // 拾取判定（扩大范围）
+    if(dist(player,{x:t.x,y:t.y})<player.radius+45){
       EVENT_TRIGGERS.splice(i,1);
       gameState='event';
       if(Math.random()<0.6) openStoryEvent();
@@ -1112,18 +1756,46 @@ function updateEventTriggers(){
 function drawEventTriggers(){
   for(var i=0;i<EVENT_TRIGGERS.length;i++){
     var t=EVENT_TRIGGERS[i];
-    var pulse=1+Math.sin(t.pulsePhase)*0.3;
-    var alpha=t.life<180?Math.sin(t.life/180*Math.PI):1;
+    var pulse=1+Math.sin(t.pulsePhase)*0.35;
+    var alpha=t.life<240?Math.sin(t.life/240*Math.PI):1;
     ctx.save();ctx.globalAlpha=alpha;
-    // 外圈光环
-    ctx.strokeStyle=t.type.color;ctx.lineWidth=2;
-    ctx.beginPath();ctx.arc(t.x,t.y,20*pulse,0,Math.PI*2);ctx.stroke();
-    // 内部光晕
-    ctx.fillStyle=t.type.color+'30';
-    ctx.beginPath();ctx.arc(t.x,t.y,15,0,Math.PI*2);ctx.fill();
-    // 图标
-    ctx.font='18px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+
+    // 外层大光圈（呼吸效果）
+    var outerR=50*pulse;
+    ctx.strokeStyle=t.type.color+'60';ctx.lineWidth=3;
+    ctx.beginPath();ctx.arc(t.x,t.y,outerR,0,Math.PI*2);ctx.stroke();
+
+    // 中层光圈
+    ctx.strokeStyle=t.type.color+'90';ctx.lineWidth=2.5;
+    ctx.beginPath();ctx.arc(t.x,t.y,35*pulse,0,Math.PI*2);ctx.stroke();
+
+    // 内层实心光晕
+    var glow=ctx.createRadialGradient(t.x,t.y,0,t.x,t.y,28);
+    glow.addColorStop(0,t.type.color+'50');
+    glow.addColorStop(0.5,t.type.color+'25');
+    glow.addColorStop(1,t.type.color+'00');
+    ctx.fillStyle=glow;
+    ctx.beginPath();ctx.arc(t.x,t.y,28,0,Math.PI*2);ctx.fill();
+
+    // 光粒子
+    for(var j=0;j<t.particles.length;j++){
+      var p=t.particles[j];
+      ctx.globalAlpha=p.life*alpha;
+      ctx.fillStyle=p.color;
+      ctx.beginPath();ctx.arc(p.x,p.y,2*p.life,0,Math.PI*2);ctx.fill();
+    }
+    ctx.globalAlpha=alpha;
+
+    // 图标（更大更醒目）
+    ctx.font='bold 26px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.shadowColor=t.type.color;ctx.shadowBlur=15;
     ctx.fillText(t.type.emoji,t.x,t.y);
+    ctx.shadowBlur=0;
+
+    // 名称标签（底部显示）
+    ctx.font='bold 11px sans-serif';ctx.fillStyle=t.type.color;
+    ctx.fillText(t.type.name,t.x,t.y+32);
+
     ctx.restore();
   }
 }
@@ -1173,12 +1845,12 @@ function resetPlayer(){
   var ch=selectedChar||CHARACTERS[0];
   player.x=MAP_W/2;player.y=MAP_H/2;
   player.hp=Math.floor(80*c.playerHP*ch.hp);player.maxHp=player.hp;
-  player.speed=4.5*ch.spd*0.8;player.radius=8;
+  player.speed=4.5*ch.spd*0.8;player.radius=24;
   player.dmgMult=ch.dmg;player.atkSpdMult=1;player.armor=0;
   player.critChance=ch.crit;player.critDmg=0.5;
   player.regen=0;player.pierceBonus=0;player.rangeMult=1;player.lifesteal=0;
   player.multiShot=0;player.knockbackBonus=0;player.xpMult=1;
-  player.gold=0;player.xp=0;player.xpToLvl=20;player.level=1;player.kills=0;
+  player.gold=30;player.xp=0;player.xpToLvl=20;player.level=1;player.kills=0;
 
   // 根据角色设置初始武器（带等级）
   player.weapons=ch.startWeapons.map(function(key){return {key:key,cd:0,quality:'common',level:0}});
@@ -1425,9 +2097,9 @@ function drawPlayer(){
     ctx.beginPath();ctx.arc(player.x,player.y,drawRadius+8,0,Math.PI*2);ctx.stroke();
   }
 
-  ctx.fillStyle='#1a1a2e';ctx.font='bold '+(drawRadius*1.1)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(ch.emoji,player.x+1,player.y+2);
-  ctx.fillStyle='#fff';ctx.fillText(ch.emoji,player.x,player.y);
+  ctx.fillStyle='#1a1a2e';ctx.font='bold '+(drawRadius*0.7)+'px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText(ch.shortName,player.x+1,player.y+2);
+  ctx.fillStyle='#fff';ctx.fillText(ch.shortName,player.x,player.y);
   // 郑志辉：铁壁视觉效果
   if(selectedChar&&selectedChar.id==='zhihui'&&player.ironWall){
     var wallAlpha=0.3+Math.sin(frameCount*0.15)*0.15;
@@ -1483,9 +2155,9 @@ function spawnEnemy(typeData){
   }while(isCollidingWithObstacle(ex,ey,typeData.radius)&&attempts<20);
 
   var c=DIFF_CONFIG[diff];
-  var waveScale=1+(currentWave-1)*0.07;
+  var waveScale=1+(currentWave-1)*0.15;
   return{x:ex,y:ey,hp:Math.floor(typeData.hp*0.55*c.enemyHP*waveScale),maxHp:Math.floor(typeData.hp*0.55*c.enemyHP*waveScale),
-    speed:typeData.speed*c.enemySpd*0.88*(1+(currentWave-1)*0.06),damage:Math.floor(typeData.damage*(1+(currentWave-1)*0.08)),
+    speed:typeData.speed*c.enemySpd*0.88*(1+(currentWave-1)*0.08),damage:Math.floor(typeData.damage*(1+(currentWave-1)*0.12)),
     radius:typeData.radius,emoji:typeData.emoji,name:typeData.name,color:typeData.color,
     xp:Math.floor(typeData.xp*c.xpMult),gold:Math.floor(typeData.gold*c.goldMult*(player.goldMult||1)),
     boss:typeData.boss||false,hitFlash:0,knockbackX:0,knockbackY:0,slowTimer:0,stuckTimer:0,prevX:ex,prevY:ey};
@@ -1841,7 +2513,7 @@ function fireWeapons(){
   var wd=WEAPON_DEFS[w.key];
   if(!wd)return;
   w.cd--;
-  var effectiveRate=Math.ceil(wd.rate/player.atkSpdMult);
+  var effectiveRate=Math.ceil(wd.rate/Math.min(player.atkSpdMult,3.0));
   if(w.cd>0)return;
   w.cd=effectiveRate;
   // 吴禹：攻击时重置蓄力
@@ -1898,7 +2570,7 @@ function fireWeapons(){
         if(enemies[i].hp<=0)killEnemy(i);
       }
     }
-    weaponEffects.push({type:'melee_arc',x:player.x,y:player.y,r:range,color:wd.color,life:1});
+    if(canShowWeaponEffect('melee_arc'))weaponEffects.push({type:'melee_arc',x:player.x,y:player.y,r:range,color:wd.color,life:1});
     return;
   }
   if(w.key==='procrastination'){
@@ -1912,7 +2584,7 @@ function fireWeapons(){
         if(enemies[i].hp<=0)killEnemy(i);
       }
     }
-    weaponEffects.push({type:'aoe_pulse',x:player.x,y:player.y,r:range,color:wd.color,life:1});
+    if(canShowWeaponEffect('aoe_pulse'))weaponEffects.push({type:'aoe_pulse',x:player.x,y:player.y,r:range,color:wd.color,life:1});
     return;
   }
   if(w.key==='literature_bomb'){
@@ -1937,7 +2609,7 @@ function fireWeapons(){
         if(enemies[i].hp<=0)killEnemy(i);
       }
     }
-    weaponEffects.push({type:'chill_ring',x:player.x,y:player.y,r:0,maxR:range,color:wd.color,life:1});
+    if(canShowWeaponEffect('chill_ring'))weaponEffects.push({type:'chill_ring',x:player.x,y:player.y,r:0,maxR:range,color:wd.color,life:1});
     return;
   }
   if(w.key==='thesis_draft'){
@@ -1962,7 +2634,7 @@ function fireWeapons(){
         {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus,
          color:wd.color,type:'projectile'},w));
     }
-    weaponEffects.push({type:'fan_shot',x:player.x,y:player.y,angle:a,color:wd.color,life:1});
+    if(canShowWeaponEffect('fan_shot'))weaponEffects.push({type:'fan_shot',x:player.x,y:player.y,angle:a,color:wd.color,life:1});
     return;
   }
   if(w.key==='opening_report'){
@@ -1973,7 +2645,7 @@ function fireWeapons(){
         {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus,
          color:wd.color,type:'projectile'},w));
     }
-    weaponEffects.push({type:'ring_burst',x:player.x,y:player.y,r:0,maxR:60,color:wd.color,life:1});
+    if(canShowWeaponEffect('ring_burst'))weaponEffects.push({type:'ring_burst',x:player.x,y:player.y,r:0,maxR:60,color:wd.color,life:1});
     return;
   }
   if(w.key==='teacher_note'){
@@ -1988,7 +2660,7 @@ function fireWeapons(){
         if(enemies[i].hp<=0)killEnemy(i);
       }
     }
-    weaponEffects.push({type:'note_aura',x:player.x,y:player.y,r:range,color:wd.color,life:1});
+    if(canShowWeaponEffect('note_aura'))weaponEffects.push({type:'note_aura',x:player.x,y:player.y,r:range,color:wd.color,life:1});
     return;
   }
   if(w.key==='reference'){
@@ -2021,7 +2693,7 @@ function fireWeapons(){
     projectiles.push(new Projectile(player.x,player.y,Math.cos(a)*wd.speed,Math.sin(a)*wd.speed,
       {damage:finalDmg,speed:wd.speed,range:wd.range*player.rangeMult,pierce:(wd.pierce||0)+player.pierceBonus+bonusPierce,
        color:wd.color,type:'projectile',homing:true,homTarget:target,zigzag:true},w));
-    weaponEffects.push({type:'lightning',x:player.x,y:player.y,tx:target.x,ty:target.y,color:wd.color,life:1});
+    if(canShowWeaponEffect('lightning'))weaponEffects.push({type:'lightning',x:player.x,y:player.y,tx:target.x,ty:target.y,color:wd.color,life:1});
     return;
   }
   // 通用弹幕
@@ -2203,7 +2875,7 @@ function startWave(){
   waveState='fighting';
   var waveDur=getWaveDuration(currentWave);
   waveTimer=waveDur*60;
-  waveSpawnCount=0;waveSpawnTimer=0;
+  waveSpawnCount=0;waveSpawnTimer=0;waveEventSpawnTimer=0;
   var cfg=getWaveConfig(currentWave);
   waveTotalEnemies=cfg.count;
   waveSpawnInterval=Math.max(30,Math.floor((waveDur*60*0.8)/waveTotalEnemies));
@@ -2219,13 +2891,17 @@ function startWave(){
   for(var pi=0;pi<powerupCount;pi++){
     (function(delay){setTimeout(function(){spawnPowerup();},delay);})(pi*2000+3000);
   }
-  // 40%概率生成事件触发点，每波最多1个
-  if(Math.random()<0.4){
-    setTimeout(function(){spawnEventTrigger();},3000);
+  // 85%概率生成事件触发点，每波1-2个
+  if(Math.random()<0.85){
+    setTimeout(function(){spawnEventTrigger();},2000);
+    if(Math.random()<0.5){
+      setTimeout(function(){spawnEventTrigger();},4000);
+    }
   }
 }
 
 // 波次内持续生成敌人
+var waveEventSpawnTimer=0;
 function updateWaveSpawns(){
   if(waveState!=='fighting'||waveAllSpawned)return;
 
@@ -2250,6 +2926,15 @@ function updateWaveSpawns(){
       waveAllSpawned=true;
     }
   }
+
+  // 波次内每隔15秒，25%概率在玩家附近生成事件触发点
+  waveEventSpawnTimer++;
+  if(waveEventSpawnTimer>=900){
+    waveEventSpawnTimer=0;
+    if(Math.random()<0.25&&EVENT_TRIGGERS.length<3){
+      spawnEventTriggerNearPlayer();
+    }
+  }
 }
 
 function updateWave(){
@@ -2271,8 +2956,9 @@ function updateWave(){
 
 function onWaveEnd(){
   // 遗物效果：波次结束回血
-  if(player.waveEndHeal>0){
-    var heal=Math.floor(player.maxHp*player.waveEndHeal);
+  var waveHealBonus=player.waveEndHeal+CFG.healOnWave;
+  if(waveHealBonus>0){
+    var heal=Math.floor(player.maxHp*waveHealBonus);
     player.hp=Math.min(player.maxHp,player.hp+heal);
     spawnFloatText(player.x,player.y,'+'+heal+' HP','#2ed573');
   }
@@ -2490,7 +3176,7 @@ function openLevelUp(){
   // 按品质分组，稀有选项概率更低
   var pool=STAT_UPGRADES.slice();
   var choices=[];
-  for(var i=0;i<2;i++){
+  for(var i=0;i<CFG.upgradeChoiceCount;i++){
     // 75% common, 20% uncommon, 5% rare
     var roll=Math.random();
     var targetQ=roll<0.82?'common':roll<0.96?'uncommon':'rare';
@@ -2909,7 +3595,7 @@ function generateObstacles(){
     {x:1600,y:800},{x:2400,y:800},{x:1600,y:2200},{x:2400,y:2200},
     {x:900,y:900},{x:3100,y:900},{x:900,y:2100},{x:3100,y:2100}
   ];
-  for(var i=0;i<treePositions.length;i++){
+  var treeCount=Math.floor(treePositions.length*CFG.obstacleDensity);for(var i=0;i<treeCount;i++){
     OBSTACLES.push({x:treePositions[i].x,y:treePositions[i].y,w:30+Math.random()*20,h:30+Math.random()*20,
       color:'#4a9a4a',type:'tree'});
   }
@@ -2920,7 +3606,7 @@ function generateObstacles(){
     {x:1500,y:400},{x:2500,y:400},{x:1500,y:2600},{x:2500,y:2600},
     {x:400,y:1400},{x:3600,y:1400},{x:400,y:1600},{x:3600,y:1600}
   ];
-  for(var i=0;i<benchPositions.length;i++){
+  var benchCount=Math.floor(benchPositions.length*CFG.obstacleDensity);for(var i=0;i<benchCount;i++){
     OBSTACLES.push({x:benchPositions[i].x,y:benchPositions[i].y,w:40,h:15,
       color:'#baa87a',type:'bench'});
   }
@@ -2932,7 +3618,7 @@ function generateObstacles(){
     {x:1000,y:1000},{x:3000,y:1000},{x:1000,y:2000},{x:3000,y:2000},
     {x:2000,y:600},{x:2000,y:2400},{x:600,y:1500},{x:3400,y:1500}
   ];
-  for(var i=0;i<lampPositions.length;i++){
+  var lampCount=Math.floor(lampPositions.length*CFG.obstacleDensity);for(var i=0;i<lampCount;i++){
     OBSTACLES.push({x:lampPositions[i].x,y:lampPositions[i].y,w:12,h:12,
       color:'#ffdd88',type:'lamp'});
   }
@@ -2943,7 +3629,7 @@ function generateObstacles(){
     {x:1400,y:300},{x:2600,y:300},{x:1400,y:2700},{x:2600,y:2700},
     {x:300,y:1200},{x:3700,y:1200},{x:300,y:1800},{x:3700,y:1800}
   ];
-  for(var i=0;i<flowerPositions.length;i++){
+  var flowerCount=Math.floor(flowerPositions.length*CFG.obstacleDensity);for(var i=0;i<flowerCount;i++){
     OBSTACLES.push({x:flowerPositions[i].x,y:flowerPositions[i].y,w:50,h:50,
       color:'#cc6688',type:'flower'});
   }
@@ -3234,9 +3920,16 @@ function showMsg(text,type){
 }
 
 // ========== 武器特效 ==========
+function canShowWeaponEffect(type){
+  for(var i=weaponEffects.length-1;i>=0;i--){
+    if(weaponEffects[i].type===type&&weaponEffects[i].life>0.3)return false;
+  }
+  return true;
+}
+
 function drawWeaponEffects(){
   for(var i=weaponEffects.length-1;i>=0;i--){
-    var fx=weaponEffects[i];fx.life-=0.06;
+    var fx=weaponEffects[i];fx.life-=0.1;
     if(fx.life<=0){weaponEffects.splice(i,1);continue;}
     ctx.save();ctx.globalAlpha=fx.life;
     if(fx.type==='melee_arc'){
@@ -3351,6 +4044,12 @@ document.addEventListener('keydown',function(e){
   keys[e.code]=true;
   if(e.code==='Space')e.preventDefault();
 
+  // Esc暂停/继续
+  if(e.code==='Escape'){
+    if(gameState==='playing'||gameState==='event')pauseGame();
+    else if(gameState==='paused')resumeGame();
+  }
+
   // 数字键1-6切换武器（游戏中）
   if(e.code>='Digit1'&&e.code<='Digit6'&&gameState==='playing'){
     var idx=parseInt(e.code.charAt(5))-1;
@@ -3417,6 +4116,41 @@ document.getElementById('restartBtn').addEventListener('click',function(){
   document.getElementById('startScreen').style.display='flex';
   gameState='start';
 });
+
+// 暂停/继续/退出
+var prePauseState='playing';
+function pauseGame(){
+  if(gameState!=='playing'&&gameState!=='event')return;
+  prePauseState=gameState;
+  gameState='paused';
+  document.getElementById('pauseScreen').style.display='flex';
+}
+function resumeGame(){
+  if(gameState!=='paused')return;
+  gameState=prePauseState;
+  document.getElementById('pauseScreen').style.display='none';
+}
+function quitToMenu(){
+  gameState='start';
+  document.getElementById('pauseScreen').style.display='none';
+  document.getElementById('hud').style.display='none';
+  document.getElementById('waveInfo').style.display='none';
+  document.getElementById('killCount').style.display='none';
+  document.getElementById('weaponBar').style.display='none';
+  document.getElementById('weaponInfo').style.display='none';
+  document.getElementById('shopScreen').style.display='none';
+  document.getElementById('levelUpScreen').style.display='none';
+  document.getElementById('eventScreen').style.display='none';
+  document.getElementById('gameOverScreen').style.display='none';
+  document.getElementById('startScreen').style.display='flex';
+  // 清空游戏状态
+  enemies=[];projectiles=[];particles=[];damageTexts=[];floatTexts=[];
+  powerups=[];drops=[];EVENT_TRIGGERS=[];
+  STORY_EVENTS=null;
+}
+document.getElementById('pauseBtnWrap').addEventListener('click',pauseGame);
+document.getElementById('resumeBtn').addEventListener('click',resumeGame);
+document.getElementById('quitBtn').addEventListener('click',quitToMenu);
 
 var dbtns=document.querySelectorAll('.diff-btn');
 for(var bi=0;bi<dbtns.length;bi++){
