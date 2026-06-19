@@ -22,6 +22,36 @@
             "AI"
           ],
           "file": "files/yuanlinlinzhiyuan.mp3"
+        },
+        {
+          "title": "调研失落致",
+          "artist": "AI 作曲",
+          "cover": "🎹",
+          "coverBg": [
+            "#6c63ff",
+            "#4facfe"
+          ],
+          "note": "AI辅助创作的原创音乐",
+          "tags": [
+            "原创",
+            "AI"
+          ],
+          "file": "files/调研失落致.mp3"
+        },
+        {
+          "title": "连接情久长",
+          "artist": "AI 作曲",
+          "cover": "🎹",
+          "coverBg": [
+            "#6c63ff",
+            "#4facfe"
+          ],
+          "note": "AI辅助创作的原创音乐",
+          "tags": [
+            "原创",
+            "AI"
+          ],
+          "file": "files/连接情久长.mp3"
         }
       ]
     }
