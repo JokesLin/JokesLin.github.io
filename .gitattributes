@@ -1,4 +1,0 @@
-*.mp3 filter=lfs diff=lfs merge=lfs -text
-*.aac filter=lfs diff=lfs merge=lfs -text
-bgm/** filter=lfs diff=lfs merge=lfs -text
-content/music/files/** filter=lfs diff=lfs merge=lfs -text
