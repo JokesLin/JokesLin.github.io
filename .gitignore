@@ -1,0 +1,8 @@
+﻿# 大媒体文件不进版本库（历史曾因音频膨胀）
+bgm/
+content/music/files/
+*.mp3
+*.aac
+*.m4a
+*.wav
+.DS_Store
