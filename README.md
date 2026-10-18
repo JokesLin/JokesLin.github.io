@@ -1,17 +1,17 @@
 # Joke Lin's Portal
 
-个人综合门户站点，托管于 GitHub Pages。纯静态实现，零外部依赖。
+个人综合门户站点，托管于 GitHub Pages。纯静态实现，无构建依赖；运行时仅使用 Google Fonts 和站内资源。
 
 **[ jokeslin.github.io ](https://jokeslin.github.io/)**
 
 ## 站点结构
 
 ```
-index.html                  门户首页 — 密码锁屏、星空动效、游戏入口横幅、七模块导航
+index.html                  门户首页 — 浅色编辑部风格、滚动叙事、七模块入口、背景音乐
 assets/global.css           共享设计系统（CSS 变量、毛玻璃组件、响应式布局）
-bgm/                        背景音乐资源（7 首）
+bgm/                        背景音乐资源（5 首）
 content/
-  ├── bookmarks/            书签导航 — 13 大类 150+ 网址，支持自定义增删
+  ├── bookmarks/            书签导航 — 13 大类、119 个网址，支持自定义增删
   ├── blog/                 个人博客 — 分类筛选，数据驱动
   ├── resume/               数字简历 — 技能雷达、经历时间线、性格标签
   ├── music/                AI 音乐 — 歌单展示、HTML5 在线播放
@@ -26,10 +26,12 @@ content/
 
 ### 门户首页
 
-- 密码锁屏验证，星空粒子动效背景
-- 暗黑赛博朋克风游戏入口横幅（Hero区下方），脉冲动画 + 粒子特效
-- 七模块导航卡片，悬浮渐变动效
-- 社交入口：GitHub / Bilibili / YouTube / Telegram
+- 浅色纸张底、编辑部排版、grain 纹理和三段滚动叙事
+- 首屏保留头像、个人身份、研究方向与作品主线
+- About / Works / Archive / Contact 四类导航
+- 小 JSON 动态读取摘要；完整内容继续由各子页面承载
+- 背景音乐浮动播放器，用户点击后才加载音频
+- 社交入口：GitHub / Bilibili / YouTube / Telegram / Email
 
 ### 书签导航
 
@@ -86,7 +88,7 @@ content/
 | 调研失落致 | 原创、AI |
 | 远隔情也暖 | 原创、AI |
 
-- 背景音乐库：7 首循环播放（Ashes、Closer、Contact、Lash Out 等）
+- 背景音乐库：5 首循环播放（Ashes、Closer、Contact、My Personal Song、Relax）
 
 ### AI 小说
 
@@ -122,19 +124,20 @@ content/
 
 ## 设计风格
 
-- 纯黑底色（`#000000`），红/紫/蓝渐变点缀
-- 毛玻璃卡片（Glassmorphism）
+- 首页与内容页采用纸张白（`#f2f0ec`）+ 近黑墨色的编辑部风格
+- Inter Tight 英文/数字字体，中文使用系统字体回退
 - CSS 变量驱动的共享设计系统（`assets/global.css`）
-- 游戏入口横幅：暗黑赛博朋克风，霓虹渐变 + 脉冲动画（`assets/game-banner.css`）
-- 移动端自适应（768px 断点，汉堡菜单）
+- 细边框、低对比卡片、grain 纹理和轻量滚动入场动效
+- 游戏战斗内核保留暗黑赛博朋克视觉，入口页统一为浅色
+- 移动端自适应（768px 断点）和安全区支持
 
 ## 技术栈
 
-- 纯 HTML + CSS + 原生 JavaScript，零 npm 依赖
+- 纯 HTML + CSS + 原生 JavaScript，无框架、无构建步骤
 - CSS Grid + Flexbox 响应式布局
 - 数据驱动架构：各模块独立 `data.json`，编辑即更新
-- `localStorage` 存储自定义书签
-- `sessionStorage` 管理门户密码状态
+- `localStorage` 存储自定义书签和音乐播放状态
+- 音频点击后懒加载，AI Music 页面音频使用 `preload="none"`
 - GitHub Pages 部署，`.nojekyll` 禁用 Jekyll 处理
 
 ## 本地运行

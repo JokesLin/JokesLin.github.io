@@ -28,4 +28,8 @@
     <loc>https://jokeslin.github.io/content/ai-software/</loc>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://jokeslin.github.io/content/game/</loc>
+    <priority>0.8</priority>
+  </url>
 </urlset>

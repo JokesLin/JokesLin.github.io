@@ -20,7 +20,7 @@
 <link rel="stylesheet" href="../../assets/global.css">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Roboto:wght@300;400;500;700&display=swap">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../../assets/bgm.css">
 <style>
 /* ===== 顶部导航栏 ===== */
@@ -300,6 +300,21 @@
   .page-hero__stat-num { font-size: 24px; }
   .card-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
 }
+
+/* ===== Editorial theme overrides ===== */
+.top-nav { background: linear-gradient(to bottom, rgba(242,240,236,.96), rgba(242,240,236,.78) 72%, rgba(242,240,236,0)); }
+.top-nav__logo { color: var(--text-primary); font-family: var(--font-heading); font-weight: 400; }
+.top-nav__link { color: var(--text-secondary); }
+.top-nav__link:hover { color: var(--text-primary); }
+.top-nav__back { background: var(--text-primary); color: #fff; }
+.page-hero { background: linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%); }
+.page-hero__title { color: var(--text-primary); }
+.search-bar input { background: rgba(255,255,255,.66); color: var(--text-primary); }
+.search-bar input::placeholder { color: var(--text-muted); }
+.sidebar { scrollbar-color: rgba(13,12,11,.16) transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: rgba(13,12,11,.16); }
+.category__count { background: rgba(255,255,255,.6); }
+.scroll-top { background: rgba(255,255,255,.86); color: var(--text-secondary); box-shadow: var(--shadow-sm); }
 </style>
 </head>
 <body>
@@ -307,14 +322,12 @@
 <nav class="top-nav" id="topNav">
   <div class="top-nav__logo" onclick="location.href='../../'">Joke Lin</div>
   <div class="top-nav__links">
-    <a class="top-nav__link" href="../../">首页</a>
+    <a class="top-nav__link" href="../../#about">About</a>
+    <a class="top-nav__link" href="../../#works">Works</a>
+    <a class="top-nav__link" href="../../#archive">Archive</a>
     <a class="top-nav__link" href="#common">常用</a>
-    <a class="top-nav__link" href="#ai">AI</a>
-    <a class="top-nav__link" href="#paper">论文</a>
-    <a class="top-nav__link" href="#tech">技术</a>
-    <a class="top-nav__link" href="#games">游戏</a>
   </div>
-  <a class="top-nav__back" href="../../">返回门户</a>
+  <a class="top-nav__back" href="../../#contact">联系我</a>
   <button class="top-nav__menu-btn" id="menuBtn" aria-label="菜单">☰</button>
 </nav>
 
@@ -353,6 +366,7 @@
 <button class="scroll-top" id="scrollTopBtn">↑</button>
 <div class="toast" id="toast"></div>
 
+<script src="../../assets/shared-nav.js"></script>
 <script src="../../assets/bgm.js"></script>
 <script src="../../assets/scroll-anim.js"></script>
 <script>
