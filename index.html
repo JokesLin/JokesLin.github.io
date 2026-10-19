@@ -22,13 +22,13 @@
       --paper: #eeeae4;
       --paper-deep: #e2dcd3;
       --paper-soft: #f5f2ed;
-      --ink: #171614;
-      --ink-soft: rgba(23, 22, 20, .62);
-      --ink-faint: rgba(23, 22, 20, .38);
-      --rule: rgba(23, 22, 20, .17);
-      --rule-soft: rgba(23, 22, 20, .09);
-      --metal: #9b7550;
-      --metal-dark: #755333;
+      --ink: #0e0d0c;
+      --ink-soft: rgba(14, 13, 12, .72);
+      --ink-faint: rgba(14, 13, 12, .50);
+      --rule: rgba(14, 13, 12, .24);
+      --rule-soft: rgba(14, 13, 12, .14);
+      --metal: #8a623c;
+      --metal-dark: #633f22;
       --white: #fffdfa;
       --serif: "Cormorant Garamond", "Iowan Old Style", "Baskerville", "Times New Roman", serif;
       --sans: "Manrope", "Inter Tight", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
@@ -121,6 +121,12 @@
       justify-content: flex-end;
       gap: clamp(16px, 2.4vw, 34px);
     }
+    .topbar__actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+    }
     .topbar__link {
       position: relative;
       color: var(--ink-soft);
@@ -150,10 +156,28 @@
       background: none;
       cursor: pointer;
     }
+    .lang-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 0 5px;
+      border: 0;
+      border-bottom: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+    .lang-toggle .lang-current { color: var(--metal-dark); }
+    .lang-toggle .lang-divider { color: var(--ink-faint); }
 
     .cover {
       position: relative;
-      min-height: max(760px, 100svh);
+      min-height: max(860px, 100svh);
       padding: clamp(106px, 13vh, 150px) var(--pad) clamp(50px, 8vh, 96px);
       overflow: hidden;
     }
@@ -162,7 +186,7 @@
       grid-template-columns: repeat(12, minmax(0, 1fr));
       gap: 0 clamp(12px, 2vw, 30px);
       width: min(100%, var(--max));
-      min-height: calc(100svh - 210px);
+      min-height: 720px;
       margin: 0 auto;
       position: relative;
     }
@@ -189,7 +213,7 @@
       align-self: center;
       margin: clamp(60px, 10vh, 126px) 0 0;
       font-family: var(--serif);
-      font-size: clamp(76px, 12.8vw, 210px);
+      font-size: clamp(56px, 9vw, 150px);
       font-weight: 500;
       letter-spacing: -.095em;
       line-height: .67;
@@ -220,15 +244,16 @@
       text-transform: uppercase;
       transform: rotate(-90deg) translateX(-50%);
       transform-origin: left top;
+      display: none;
     }
     .cover__portrait {
       position: absolute;
-      top: 2%;
-      right: clamp(0px, 3vw, 48px);
+      top: 21%;
+      right: clamp(2%, 6vw, 90px);
       z-index: 1;
-      width: min(34vw, 450px);
-      height: min(55vw, 600px);
-      min-height: 380px;
+      width: min(24vw, 340px);
+      height: min(41vw, 460px);
+      min-height: 300px;
       overflow: hidden;
       background: var(--paper-deep);
       opacity: .34;
@@ -297,6 +322,17 @@
       transform-origin: left center;
       transition: transform .3s var(--ease);
     }
+    .cover__rule::after {
+      position: absolute;
+      top: -2px;
+      left: 0;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      content: "";
+      background: var(--metal-dark);
+      animation: ruleSweep 5.5s var(--ease) infinite;
+    }
     .cover__note {
       position: absolute;
       right: 0;
@@ -306,6 +342,7 @@
       color: var(--ink-soft);
       font-size: 12px;
       line-height: 1.7;
+      display: none;
     }
     .cover__note strong {
       display: block;
@@ -327,6 +364,30 @@
       transform-origin: left center;
       animation: notePulse 3.8s ease-in-out infinite;
     }
+    .cover__sound {
+      position: absolute;
+      bottom: 8%;
+      left: clamp(164px, 18vw, 270px);
+      z-index: 3;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 0 7px;
+      border: 0;
+      border-bottom: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      transition: gap .35s var(--ease), color .25s ease;
+    }
+    .cover__sound:hover,
+    .cover__sound:focus-visible,
+    .cover__sound.is-playing { gap: 17px; color: var(--metal-dark); }
+    .cover__sound span:last-child { font-size: 16px; line-height: .6; }
     .cover__edition {
       position: absolute;
       bottom: 8%;
@@ -360,6 +421,7 @@
       letter-spacing: .16em;
       text-transform: uppercase;
       writing-mode: vertical-rl;
+      display: none;
     }
     .cover__scroll::after {
       width: 1px;
@@ -387,7 +449,7 @@
       display: flex;
       width: max-content;
       padding: 13px 0 11px;
-      animation: marquee 32s linear infinite;
+      animation: marquee 22s linear infinite;
     }
     .marquee__track span {
       display: inline-flex;
@@ -725,8 +787,18 @@
       right: clamp(16px, 3vw, 36px);
       bottom: max(17px, env(safe-area-inset-bottom));
       z-index: 40;
+      display: grid;
+      justify-items: end;
+      gap: 6px;
     }
-    .sound__button {
+    .sound__row {
+      display: flex;
+      align-items: stretch;
+      gap: 5px;
+    }
+    .sound__button,
+    .sound__select,
+    .motion-toggle {
       display: inline-flex;
       align-items: center;
       gap: 10px;
@@ -742,13 +814,67 @@
       text-transform: uppercase;
       transition: background .3s ease, color .3s ease, border-color .3s ease;
     }
+    .motion-toggle {
+      min-height: 25px;
+      padding: 0 9px;
+      border-color: var(--rule-soft);
+      background: rgba(238,234,228,.72);
+      font-size: 8px;
+    }
+    .motion-toggle.is-off { color: var(--ink-faint); }
     .sound__button:hover,
     .sound__button:focus-visible,
-    .sound.is-playing .sound__button {
+    .sound.is-playing .sound__button,
+    .sound__select:hover,
+    .sound__select:focus-visible,
+    .motion-toggle:hover,
+    .motion-toggle:focus-visible {
       border-color: var(--ink);
       background: var(--ink);
       color: var(--paper);
     }
+    .sound__select {
+      min-width: 34px;
+      padding: 0 9px;
+      font-size: 12px;
+      letter-spacing: 0;
+    }
+    .sound__tracks {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 8px);
+      display: none;
+      width: min(230px, calc(100vw - 28px));
+      padding: 6px;
+      border: 1px solid var(--rule);
+      background: rgba(245,242,237,.96);
+      box-shadow: 0 14px 34px rgba(14,13,12,.14);
+    }
+    .sound.is-open .sound__tracks { display: grid; gap: 2px; }
+    .sound__track {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+      padding: 10px 9px;
+      border: 0;
+      background: transparent;
+      color: var(--ink-soft);
+      cursor: pointer;
+      font-size: 10px;
+      letter-spacing: .08em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    .sound__track:hover,
+    .sound__track:focus-visible,
+    .sound__track.is-active {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .sound__track small { color: var(--ink-faint); font-size: 9px; }
+    .sound__track.is-active small { color: var(--metal); }
     .sound__mark {
       display: inline-flex;
       align-items: end;
@@ -817,11 +943,13 @@
 
     .reveal {
       opacity: 0;
+      filter: blur(5px);
       transform: translateY(28px);
-      transition: opacity .9s var(--ease), transform .9s var(--ease);
+      transition: opacity .72s var(--ease), filter .72s var(--ease), transform .72s var(--ease);
     }
     .reveal.is-visible {
       opacity: 1;
+      filter: blur(0);
       transform: translateY(0);
     }
     .cover__folio,
@@ -855,24 +983,30 @@
       0%, 100% { opacity: .35; transform: scaleX(.6); }
       50% { opacity: 1; transform: scaleX(1); }
     }
+    @keyframes ruleSweep {
+      0% { opacity: 0; transform: translateX(0) scale(.7); }
+      12%, 78% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(100vw) scale(1); }
+    }
 
     @media (max-width: 860px) {
       .topbar { grid-template-columns: 1fr auto; }
       .topbar__index { display: none; }
-      .topbar__nav { grid-column: 2; gap: 18px; }
-      .cover { min-height: 760px; }
-      .cover__grid { min-height: 640px; }
+      .topbar__actions { grid-column: 2; gap: 14px; }
+      .topbar__nav { gap: 18px; }
+      .cover { min-height: max(880px, 100svh); }
+      .cover__grid { min-height: 740px; }
       .cover__title {
         grid-column: 1 / span 10;
         margin-top: 120px;
-        font-size: clamp(70px, 15vw, 138px);
+        font-size: clamp(52px, 11vw, 100px);
       }
       .cover__portrait {
-        top: 20%;
-        right: 1%;
-        width: min(39vw, 360px);
-        height: min(56vw, 460px);
-        min-height: 320px;
+        top: 23%;
+        right: 4%;
+        width: min(29vw, 260px);
+        height: min(45vw, 380px);
+        min-height: 260px;
       }
       .cover__note { width: 34%; }
       .statement { grid-template-columns: 1fr; gap: 52px; }
@@ -886,27 +1020,27 @@
       .topbar__nav { display: none; }
       .topbar__menu { display: block; justify-self: end; }
       .cover {
-        min-height: 720px;
+        min-height: 780px;
         padding-top: 100px;
         padding-bottom: 36px;
       }
-      .cover__grid { min-height: 580px; }
+      .cover__grid { min-height: 640px; }
       .cover__folio { grid-column: 1 / span 6; font-size: 9px; }
       .cover__title {
         grid-column: 1 / -1;
         align-self: center;
         margin-top: 90px;
-        font-size: clamp(64px, 18vw, 112px);
+        font-size: clamp(50px, 14vw, 88px);
         line-height: .7;
       }
       .cover__title em { top: 44%; left: 18%; }
       .cover__portrait {
         top: 29%;
         right: -3%;
-        width: 48vw;
-        height: 64vw;
-        min-height: 270px;
-        max-height: 390px;
+        width: 38vw;
+        height: 54vw;
+        min-height: 220px;
+        max-height: 320px;
       }
       .cover__portrait::before { inset: 8% 7% 8% 10%; }
       .cover__note {
@@ -919,6 +1053,7 @@
       }
       .cover__edition { bottom: 5%; }
       .cover__edition b { font-size: 32px; }
+      .cover__sound { right: 44px; bottom: 5%; left: auto; }
       .cover__scroll { right: var(--pad); bottom: 5%; }
       .section { padding-top: 100px; padding-bottom: 100px; }
       .section__head { grid-template-columns: 1fr; gap: 18px; margin-bottom: 50px; }
@@ -945,37 +1080,52 @@
       .sound { right: 14px; }
     }
 
-    @media (prefers-reduced-motion: reduce) {
-      html { scroll-behavior: auto; }
-      *, *::before, *::after {
-        animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: .01ms !important;
-      }
-      .marquee__track { animation: none; }
-      .cover__portrait { transform: rotate(2.5deg); }
-      .reveal { opacity: 1; transform: none; }
+    html.motion-off { scroll-behavior: auto; }
+    html.motion-off *,
+    html.motion-off *::before,
+    html.motion-off *::after {
+      animation-duration: .01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .01ms !important;
     }
+    html.motion-off .marquee__track { animation: none !important; }
+    html.motion-off .cover__portrait { transform: rotate(2.5deg); }
+    html.motion-off .reveal { opacity: 1; filter: none; transform: none; }
+    html.motion-enabled .marquee__track { animation: marquee 22s linear infinite !important; }
+    html.motion-enabled .cover__portrait::before { animation: plateOrbit 26s linear infinite !important; }
+    html.motion-enabled .cover__portrait::after { animation: crosshairDrift 12s ease-in-out infinite alternate !important; }
+    html.motion-enabled .cover__note strong::after { animation: notePulse 3.8s ease-in-out infinite !important; }
+    html.motion-enabled .cover__rule::after { animation: ruleSweep 5.5s var(--ease) infinite !important; }
+    html.motion-enabled .reveal {
+      opacity: 0;
+      filter: blur(5px);
+      transform: translateY(28px);
+      transition: opacity .9s var(--ease), filter .9s var(--ease), transform .9s var(--ease) !important;
+    }
+    html.motion-enabled .reveal.is-visible { opacity: 1; filter: blur(0); transform: translateY(0); }
   </style>
 </head>
 <body>
-  <a class="skip-link" href="#main">跳到主要内容</a>
+  <a class="skip-link" href="#main">Skip to content</a>
 
   <header class="topbar" id="topbar">
-    <a class="wordmark" href="#top" aria-label="回到 Joke Lin 首页">Joke Lin</a>
+    <a class="wordmark" href="#top" aria-label="Back to the Joke Lin homepage">Joke Lin</a>
     <div class="topbar__index">A working archive · 2026</div>
-    <nav class="topbar__nav" aria-label="主导航">
-      <a class="topbar__link" href="#about">About</a>
-      <a class="topbar__link" href="#works">Index</a>
-      <a class="topbar__link" href="#archive">Archive</a>
-      <a class="topbar__link" href="#contact">Contact</a>
-    </nav>
-    <button class="topbar__menu" id="menuOpen" type="button" aria-label="打开菜单" aria-expanded="false">Menu</button>
+    <div class="topbar__actions">
+      <nav class="topbar__nav" aria-label="Primary navigation">
+        <a class="topbar__link" href="#about">About</a>
+        <a class="topbar__link" href="#works">Index</a>
+        <a class="topbar__link" href="#archive">Archive</a>
+        <a class="topbar__link" href="#contact">Contact</a>
+      </nav>
+      <button class="lang-toggle" id="languageToggle" type="button" aria-label="Switch language" aria-pressed="false"><span class="lang-current">EN</span><span class="lang-divider">/</span><span>中</span></button>
+      <button class="topbar__menu" id="menuOpen" type="button" aria-label="Open menu" aria-expanded="false">Menu</button>
+    </div>
   </header>
 
   <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
-    <button class="mobile-menu__close" id="menuClose" type="button" aria-label="关闭菜单">×</button>
-    <nav class="mobile-menu__links" aria-label="移动端主导航">
+    <button class="mobile-menu__close" id="menuClose" type="button" aria-label="Close menu">×</button>
+    <nav class="mobile-menu__links" aria-label="Mobile navigation">
       <a href="#about">About</a>
       <a href="#works">Index</a>
       <a href="#archive">Archive</a>
@@ -987,7 +1137,6 @@
     <section class="cover" id="top" aria-labelledby="coverTitle">
       <div class="cover__grid">
         <div class="cover__folio">
-          <strong>Joke Lin</strong>
           <span>Personal edition</span>
           <span>Fuzhou · China</span>
         </div>
@@ -995,11 +1144,10 @@
         <h1 class="cover__title" id="coverTitle">
           <span>Joke</span>
           <span>Lin</span>
-          <em>Research · Experiments · Other lives</em>
         </h1>
 
         <figure class="cover__portrait">
-          <img src="assets/JokeLIn.webp" alt="Joke Lin 的线稿肖像" width="400" height="400" onerror="this.onerror=null;this.src='assets/JokeLIn.png'">
+          <img src="assets/JokeLIn.webp" alt="Line portrait of Joke Lin" width="400" height="400" onerror="this.onerror=null;this.src='assets/JokeLIn.png'">
           <figcaption class="cover__portrait-label">Plate 01 / 01</figcaption>
         </figure>
 
@@ -1008,11 +1156,9 @@
           <b>01</b>
           <span>Open the archive</span>
         </div>
-        <div class="cover__note">
-          <strong>Working principle</strong>
-          把想法做成可以被打开、被阅读、被记住的东西。
-        </div>
-        <div class="cover__scroll">Scroll to enter</div>
+        <button class="cover__sound" id="coverSoundButton" type="button" aria-label="Play background music" aria-pressed="false">
+          <span>Play sound</span><span aria-hidden="true">↗</span>
+        </button>
       </div>
     </section>
 
@@ -1029,9 +1175,9 @@
           <h2 class="statement__quote" id="aboutTitle">Ideas are only the beginning. <em>Making</em> is the proof.</h2>
         </div>
         <div class="statement__aside reveal">
-          <p>Joke Lin 是一份持续更新的个人档案：农村发展研究、AI 协作、网页实验，以及一些不愿只停在脑海里的念头。</p>
-          <p>这里不追求把一切解释完，只把值得打开的部分留下来。</p>
-          <a href="content/resume/">View the profile <span aria-hidden="true">↗</span></a>
+          <p data-zh="Joke Lin 是一份持续更新的个人档案：农村发展研究、AI 协作、网页实验，以及一些不愿只停在脑海里的念头。">Joke Lin is a living archive of rural development research, AI collaboration, web experiments, and ideas that refuse to stay in the head.</p>
+          <p data-zh="这里不追求把一切解释完，只把值得打开的部分留下来。">It does not try to explain everything; it keeps the parts worth opening.</p>
+          <a href="content/resume/"><span data-zh="查看资料">View the profile</span> <span aria-hidden="true">↗</span></a>
         </div>
       </section>
 
@@ -1040,7 +1186,7 @@
           <div class="section__number">02 / Index</div>
           <div>
             <h2 class="section__title" id="worksTitle">The rooms</h2>
-            <p class="section__intro">一组可以进入的页面。每个入口都比一句自我介绍更接近真实的我。</p>
+            <p class="section__intro" data-zh="一组可以进入的页面。每个入口都比一句自我介绍更接近真实的我。">A set of rooms you can enter. Each one says more than an introduction could.</p>
           </div>
         </div>
 
@@ -1048,42 +1194,42 @@
           <a class="index-entry reveal" href="content/game/">
             <span class="index-entry__no">01</span>
             <span class="index-entry__title">Deadline</span>
-            <span class="index-entry__desc">一场关于校园、压力和运气的可玩实验。</span>
+            <span class="index-entry__desc" data-zh="一场关于校园、压力和运气的可玩实验。">A playable experiment about campus, pressure, and luck.</span>
             <span class="index-entry__meta">Interactive</span>
             <span class="index-entry__arrow" aria-hidden="true">↗</span>
           </a>
           <a class="index-entry reveal" href="content/music/">
             <span class="index-entry__no">02</span>
             <span class="index-entry__title">Sound</span>
-            <span class="index-entry__desc">AI 协作完成的声音片段与私人歌单。</span>
+            <span class="index-entry__desc" data-zh="AI 协作完成的声音片段与私人歌单。">AI-assisted sound fragments and a private playlist.</span>
             <span class="index-entry__meta">Listen</span>
             <span class="index-entry__arrow" aria-hidden="true">↗</span>
           </a>
           <a class="index-entry reveal" href="content/novel/">
             <span class="index-entry__no">03</span>
             <span class="index-entry__title">Fiction</span>
-            <span class="index-entry__desc">把日常、校园和荒诞继续写下去。</span>
+            <span class="index-entry__desc" data-zh="把日常、校园和荒诞继续写下去。">Everyday life, campus stories, and a little absurdity in progress.</span>
             <span class="index-entry__meta">Read</span>
             <span class="index-entry__arrow" aria-hidden="true">↗</span>
           </a>
           <a class="index-entry reveal" href="content/ai-software/">
             <span class="index-entry__no">04</span>
             <span class="index-entry__title">Tools</span>
-            <span class="index-entry__desc">一些从需要出发、最后真的能用的东西。</span>
+            <span class="index-entry__desc" data-zh="一些从需要出发、最后真的能用的东西。">Small tools that began as needs and ended up useful.</span>
             <span class="index-entry__meta">Download</span>
             <span class="index-entry__arrow" aria-hidden="true">↗</span>
           </a>
           <a class="index-entry reveal" href="content/blog/">
             <span class="index-entry__no">05</span>
             <span class="index-entry__title">Notes</span>
-            <span class="index-entry__desc">关于乡村、研究方法和 AI 的未完成思考。</span>
+            <span class="index-entry__desc" data-zh="关于乡村、研究方法和 AI 的未完成思考。">Unfinished notes on rural life, research methods, and AI.</span>
             <span class="index-entry__meta">Read</span>
             <span class="index-entry__arrow" aria-hidden="true">↗</span>
           </a>
           <a class="index-entry reveal" href="content/bookmarks/">
             <span class="index-entry__no">06</span>
             <span class="index-entry__title">Links</span>
-            <span class="index-entry__desc">工作、学习和漫游时反复打开的地址。</span>
+            <span class="index-entry__desc" data-zh="工作、学习和漫游时反复打开的地址。">Addresses opened again and again for work, study, and wandering.</span>
             <span class="index-entry__meta">Browse</span>
             <span class="index-entry__arrow" aria-hidden="true">↗</span>
           </a>
@@ -1095,17 +1241,17 @@
           <div class="section__number">03 / Archive</div>
           <div>
             <h2 class="section__title" id="archiveTitle">Still in progress</h2>
-            <p class="section__intro">这不是一份完成履历，而是一张正在生成的目录页。</p>
+            <p class="section__intro" data-zh="这不是一份完成履历，而是一张正在生成的目录页。">This is not a finished résumé. It is a catalogue still being made.</p>
           </div>
         </div>
 
         <div class="archive-layout">
           <div class="reveal">
             <p class="archive__lead">A life between <span>research</span> and making.</p>
-            <p class="archive__copy">福建农林大学农村发展硕士在读。关注数字技术如何进入乡村产业、治理与日常生活，也持续把自己的兴趣做成可访问的页面。</p>
+            <p class="archive__copy" data-zh="福建农林大学农村发展硕士在读。关注数字技术如何进入乡村产业、治理与日常生活，也持续把自己的兴趣做成可访问的页面。">A rural development master's student at Fujian Agriculture and Forestry University. Interested in how digital technology enters rural industries, governance, and everyday life — and in turning curiosity into pages you can visit.</p>
           </div>
           <div class="reveal">
-            <div class="archive__stats" aria-label="作品档案统计">
+            <div class="archive__stats" aria-label="Archive statistics">
               <div class="stat"><strong data-count="rooms">06</strong><span>open rooms</span></div>
               <div class="stat"><strong data-count="notes">04</strong><span>notes published</span></div>
               <div class="stat"><strong data-count="stories">05</strong><span>stories written</span></div>
@@ -1129,7 +1275,7 @@
         <div class="contact-layout reveal">
           <h2 class="contact-title">Open a<br><em>conversation.</em></h2>
           <div class="contact-aside">
-            <p>如果你也在做一些值得被打开的事，欢迎把它发来。</p>
+            <p data-zh="如果你也在做一些值得被打开的事，欢迎把它发来。">If you are making something worth opening, send it over.</p>
             <div class="contact-actions">
               <a href="mailto:jokeslin@outlook.com">Email me ↗</a>
               <a href="https://github.com/JokesLin" target="_blank" rel="noreferrer">GitHub ↗</a>
@@ -1147,10 +1293,15 @@
   </footer>
 
   <div class="sound" id="soundWidget">
-    <button class="sound__button" id="soundButton" type="button" aria-label="播放背景音乐" aria-pressed="false">
-      <span class="sound__mark" aria-hidden="true"><i></i><i></i><i></i></span>
-      <span id="soundLabel">Sound / off</span>
-    </button>
+    <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="true">Motion / on</button>
+    <div class="sound__row">
+    <button class="sound__button" id="soundButton" type="button" aria-label="Play background music" aria-pressed="false">
+        <span class="sound__mark" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span id="soundLabel">Sound / off</span>
+      </button>
+      <button class="sound__select" id="soundSelectButton" type="button" aria-label="Choose a track" aria-expanded="false">⌄</button>
+    </div>
+    <div class="sound__tracks" id="soundTrackList" aria-label="Background music tracks"></div>
     <audio id="siteAudio" preload="none"></audio>
   </div>
 
@@ -1162,7 +1313,14 @@
       var topbar = document.getElementById('topbar');
       var cover = document.querySelector('.cover');
       var portrait = document.querySelector('.cover__portrait');
-      var reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var motionPreference = 'on';
+      try {
+        motionPreference = localStorage.getItem('joke-lin-motion') || 'on';
+      } catch (error) {}
+      var reducedMotion = motionPreference === 'off';
+      var motionToggle = document.getElementById('motionToggle');
+      var revealItems = null;
+      var revealObserver = null;
 
       function updateHeader() {
         topbar.classList.toggle('is-scrolled', window.scrollY > 24);
@@ -1185,8 +1343,29 @@
       updateScrollMotion();
       window.addEventListener('scroll', requestScrollMotion, { passive: true });
 
-      if (!reducedMotion && cover && portrait && window.matchMedia('(pointer: fine)').matches) {
+      function setMotionMode(forceOn) {
+        reducedMotion = !forceOn;
+        try { localStorage.setItem('joke-lin-motion', reducedMotion ? 'off' : 'on'); } catch (error) {}
+        document.documentElement.classList.toggle('motion-enabled', forceOn);
+        document.documentElement.classList.toggle('motion-off', reducedMotion);
+        if (motionToggle) {
+          motionToggle.classList.toggle('is-off', reducedMotion);
+          motionToggle.setAttribute('aria-pressed', String(!reducedMotion));
+          motionToggle.textContent = reducedMotion ? 'Motion / off' : 'Motion / on';
+        }
+        updateScrollMotion();
+        if (revealItems) refreshRevealMode();
+      }
+      if (motionToggle) {
+        setMotionMode(motionPreference !== 'off');
+        motionToggle.addEventListener('click', function () {
+          setMotionMode(reducedMotion);
+        });
+      }
+
+      if (cover && portrait && window.matchMedia('(pointer: fine)').matches) {
         cover.addEventListener('pointermove', function (event) {
+          if (reducedMotion) return;
           var rect = cover.getBoundingClientRect();
           var x = ((event.clientX - rect.left) / rect.width - .5) * 14;
           var y = ((event.clientY - rect.top) / rect.height - .5) * 10;
@@ -1199,19 +1378,24 @@
         });
       }
 
-      var revealItems = document.querySelectorAll('.reveal');
-      if ('IntersectionObserver' in window && !reducedMotion) {
-        var revealObserver = new IntersectionObserver(function (entries, observer) {
+      revealItems = document.querySelectorAll('.reveal');
+      function refreshRevealMode() {
+        if (revealObserver) {
+          revealObserver.disconnect();
+          revealObserver = null;
+        }
+        if ('IntersectionObserver' in window && !reducedMotion) {
+          revealObserver = new IntersectionObserver(function (entries) {
           entries.forEach(function (entry) {
-            if (!entry.isIntersecting) return;
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
+            entry.target.classList.toggle('is-visible', entry.isIntersecting);
           });
-        }, { threshold: .08, rootMargin: '0px 0px -42px 0px' });
-        revealItems.forEach(function (item) { revealObserver.observe(item); });
-      } else {
-        revealItems.forEach(function (item) { item.classList.add('is-visible'); });
+          }, { threshold: .12, rootMargin: '-10% 0px -10% 0px' });
+          revealItems.forEach(function (item) { revealObserver.observe(item); });
+        } else {
+          revealItems.forEach(function (item) { item.classList.add('is-visible'); });
+        }
       }
+      refreshRevealMode();
 
       var menuOpen = document.getElementById('menuOpen');
       var menuClose = document.getElementById('menuClose');
@@ -1231,9 +1415,39 @@
         if (event.key === 'Escape') setMenu(false);
       });
 
+      var languageToggle = document.getElementById('languageToggle');
+      var currentLanguage = 'en';
+      try {
+        currentLanguage = localStorage.getItem('joke-lin-language') || 'en';
+      } catch (error) {}
+      function applyLanguage(language) {
+        currentLanguage = language === 'zh' ? 'zh' : 'en';
+        document.documentElement.lang = currentLanguage === 'zh' ? 'zh-CN' : 'en';
+        document.querySelectorAll('[data-zh]').forEach(function (item) {
+          if (!item.dataset.en) item.dataset.en = item.textContent;
+          item.textContent = currentLanguage === 'zh' ? item.dataset.zh : item.dataset.en;
+        });
+        if (languageToggle) {
+          languageToggle.innerHTML = currentLanguage === 'zh'
+            ? '<span>EN</span><span class="lang-divider">/</span><span class="lang-current">中</span>'
+            : '<span class="lang-current">EN</span><span class="lang-divider">/</span><span>中</span>';
+          languageToggle.setAttribute('aria-pressed', String(currentLanguage === 'zh'));
+        }
+        try { localStorage.setItem('joke-lin-language', currentLanguage); } catch (error) {}
+      }
+      applyLanguage(currentLanguage);
+      if (languageToggle) {
+        languageToggle.addEventListener('click', function () {
+          applyLanguage(currentLanguage === 'en' ? 'zh' : 'en');
+        });
+      }
+
       var audio = document.getElementById('siteAudio');
       var soundWidget = document.getElementById('soundWidget');
       var soundButton = document.getElementById('soundButton');
+      var soundSelectButton = document.getElementById('soundSelectButton');
+      var soundTrackList = document.getElementById('soundTrackList');
+      var coverSoundButton = document.getElementById('coverSoundButton');
       var soundLabel = document.getElementById('soundLabel');
       var tracks = [
         { title: 'Ashes', file: 'bgm/Ashes%20(Explicit)%20.mp3' },
@@ -1255,32 +1469,84 @@
           localStorage.setItem('joke-lin-sound', JSON.stringify({ index: trackIndex, volume: audio.volume }));
         } catch (error) {}
       }
+      function syncTrackList() {
+        if (!soundTrackList) return;
+        soundTrackList.querySelectorAll('.sound__track').forEach(function (item, index) {
+          item.classList.toggle('is-active', index === trackIndex);
+        });
+        if (soundSelectButton) soundSelectButton.setAttribute('aria-label', 'Choose a track: ' + tracks[trackIndex].title);
+      }
+      function playCurrentTrack() {
+        audio.play().then(function () {
+          setSoundUI(true, 'Sound / ' + tracks[trackIndex].title);
+        }).catch(function () {
+          setSoundUI(false, 'Sound / unavailable');
+        });
+      }
       function loadTrack(index) {
         trackIndex = (index + tracks.length) % tracks.length;
         audio.src = tracks[trackIndex].file;
         soundLabel.textContent = 'Sound / ' + tracks[trackIndex].title;
+        syncTrackList();
         saveSound();
       }
-      soundButton.addEventListener('click', function () {
+      function setSoundUI(playing, label) {
+        soundWidget.classList.toggle('is-playing', playing);
+        soundButton.setAttribute('aria-pressed', String(playing));
+        if (label) soundLabel.textContent = label;
+        if (coverSoundButton) {
+          coverSoundButton.classList.toggle('is-playing', playing);
+          coverSoundButton.setAttribute('aria-pressed', String(playing));
+          var coverSoundLabel = coverSoundButton.querySelector('span');
+          if (coverSoundLabel) coverSoundLabel.textContent = playing ? 'Pause sound' : 'Play sound';
+        }
+      }
+      function toggleSound() {
         if (!audio.src) loadTrack(trackIndex);
         if (audio.paused) {
-          audio.play().then(function () {
-            soundWidget.classList.add('is-playing');
-            soundButton.setAttribute('aria-pressed', 'true');
-            soundLabel.textContent = 'Sound / ' + tracks[trackIndex].title;
-          }).catch(function () {
-            soundLabel.textContent = 'Sound / unavailable';
-          });
+          playCurrentTrack();
         } else {
           audio.pause();
-          soundWidget.classList.remove('is-playing');
-          soundButton.setAttribute('aria-pressed', 'false');
-          soundLabel.textContent = 'Sound / paused';
+          setSoundUI(false, 'Sound / paused');
         }
-      });
+      }
+      soundButton.addEventListener('click', toggleSound);
+      if (coverSoundButton) coverSoundButton.addEventListener('click', toggleSound);
+      if (soundTrackList) {
+        tracks.forEach(function (track, index) {
+          var item = document.createElement('button');
+          item.className = 'sound__track';
+          item.type = 'button';
+          item.innerHTML = '<span>' + track.title + '</span><small>' + String(index + 1).padStart(2, '0') + '</small>';
+          item.addEventListener('click', function () {
+            loadTrack(index);
+            soundWidget.classList.remove('is-open');
+            if (soundSelectButton) soundSelectButton.setAttribute('aria-expanded', 'false');
+            playCurrentTrack();
+          });
+          soundTrackList.appendChild(item);
+        });
+        syncTrackList();
+      }
+      if (soundSelectButton) {
+        soundSelectButton.addEventListener('click', function () {
+          var open = !soundWidget.classList.contains('is-open');
+          soundWidget.classList.toggle('is-open', open);
+          soundSelectButton.setAttribute('aria-expanded', String(open));
+        });
+        document.addEventListener('click', function (event) {
+          if (!soundWidget.contains(event.target)) {
+            soundWidget.classList.remove('is-open');
+            soundSelectButton.setAttribute('aria-expanded', 'false');
+          }
+        });
+      }
       audio.addEventListener('ended', function () {
         loadTrack(trackIndex + 1);
-        audio.play().catch(function () {});
+        playCurrentTrack();
+      });
+      audio.addEventListener('error', function () {
+        setSoundUI(false, 'Sound / unavailable');
       });
 
       function setCount(selector, value) {
